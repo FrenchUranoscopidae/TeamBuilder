@@ -5,6 +5,7 @@ package uranoscopidae.teambuilder;
  */
 public class TypeList
 {
+    public static final Type none = new Type("None");
     public static final Type normal = new Type("Normal");
     public static final Type fighting = new Type("Fighting");
     public static final Type flying = new Type("Flying");
