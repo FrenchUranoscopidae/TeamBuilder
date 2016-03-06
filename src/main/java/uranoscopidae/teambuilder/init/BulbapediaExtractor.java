@@ -13,7 +13,7 @@ import java.net.URL;
 public class BulbapediaExtractor
 {
 
-    public static final String DEFAULT_LIST_LOCATION = "http://bulbapedia.bulbagarden.net/w/index.php?title=List_of_Pokémon_by_National_Pokédex_number&action=edit";
+    public static final String DEFAULT_LIST_LOCATION = "http://bulbapedia.bulbagarden.net/w/index.php?title=List_of_PokÃ©mon_by_National_PokÃ©dex_number&action=edit";
     private final URL location;
 
     public BulbapediaExtractor() throws MalformedURLException
