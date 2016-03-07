@@ -1,5 +1,9 @@
 package uranoscopidae.teambuilder;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by philippine on 04/03/2016.
  */
@@ -25,9 +29,18 @@ public class TypeList
     public static final Type dark = new Type("Dark");
     public static final Type fairy = new Type("Fairy");
 
+    private final static List<Type> values = new LinkedList<>();
+
     static
     {
         init();
+
+        Collections.addAll(values, none, normal, fighting, flying, poison, ground, rock, bug, ghost, steel, fire, water, grass, electric, psychic, ice, dragon, dark, fairy);
+    }
+
+    public static Type getFromID(String id)
+    {
+        return values.stream().filter(t -> t.getName().equals(id)).findFirst().get();
     }
 
     private static void init()

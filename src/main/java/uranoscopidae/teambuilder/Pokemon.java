@@ -40,4 +40,10 @@ public class Pokemon
     {
         return attackType.getAffinity(firstType) * attackType.getAffinity(secondType);
     }
+
+    @Override
+    public String toString()
+    {
+        return "Pokémon["+name+", "+firstType.getName()+"/"+secondType.getName()+"]";
+    }
 }
