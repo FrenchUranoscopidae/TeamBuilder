@@ -1,5 +1,5 @@
 import org.junit.Test;
-import uranoscopidae.teambuilder.init.BulbapediaExtractor;
+import uranoscopidae.teambuilder.init.PokedexExtractor;
 
 import java.io.IOException;
 
@@ -12,7 +12,8 @@ public class TestExtractor
     @Test
     public void testReadList() throws IOException
     {
-        BulbapediaExtractor extractor = new BulbapediaExtractor();
+        PokedexExtractor extractor = new PokedexExtractor();
+        System.out.println(extractor.getExtractor().fetchFromApi());
         extractor.readPokedexEntries().forEach(System.out::println);
     }
 }

@@ -1,45 +1,48 @@
 package uranoscopidae.teambuilder.init;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import uranoscopidae.teambuilder.Pokemon;
-import uranoscopidae.teambuilder.Type;
 import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.utils.MediaWikiPageExtractor;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Created by jglrxavpok on 05/03/2016.
- */
-public class BulbapediaExtractor
+public class PokedexExtractor
 {
 
     public static final String DEFAULT_LIST_LOCATION = "http://bulbapedia.bulbagarden.net/w/api.php?action=query&prop=revisions&rvprop=content&format=json&titles=List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number";
     private final URL location;
+    private final MediaWikiPageExtractor extractor;
 
-    public BulbapediaExtractor() throws MalformedURLException
+    public PokedexExtractor() throws MalformedURLException
     {
         this(DEFAULT_LIST_LOCATION);
     }
 
-    public BulbapediaExtractor(String listLocation) throws MalformedURLException
+    public PokedexExtractor(String listLocation) throws MalformedURLException
     {
         this.location = new URL(listLocation);
+        extractor = new MediaWikiPageExtractor();
+    }
+
+    public MediaWikiPageExtractor getExtractor()
+    {
+        return extractor;
+    }
+
+    public void fillEntryFromWiki(PokedexEntry entry)
+    {
+
     }
 
     public List<PokedexEntry> readPokedexEntries() throws IOException
     {
         List<PokedexEntry> entries = new LinkedList<>();
-        String code = getPageSourceCode(fetchFromApi());
+        String code = extractor.getPageSourceCode(location);
         String[] lines = code.split("\n");
         for(String l : lines)
         {
@@ -77,32 +80,4 @@ public class BulbapediaExtractor
         return entries;
     }
 
-    public String getPageSourceCode(String apiResult)
-    {
-        Gson gson = new Gson();
-        JsonObject result = gson.fromJson(apiResult, JsonObject.class);
-        JsonObject queryObject = result.getAsJsonObject("query");
-        JsonObject pages = queryObject.getAsJsonObject("pages");
-        JsonObject pageObject = pages.getAsJsonObject("65356"); // TODO: Do not hardcode pageid?
-        JsonArray revisions = pageObject.getAsJsonArray("revisions");
-        JsonObject revisionContent = revisions.get(0).getAsJsonObject();
-        return revisionContent.get("*").getAsString();
-    }
-
-    public String fetchFromApi() throws IOException
-    {
-        InputStream in = location.openStream();
-        byte[] buffer = new byte[1024*8];
-        int i;
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        while((i = in.read(buffer)) != -1)
-        {
-            out.write(buffer, 0, i);
-        }
-        out.flush();
-        out.close();
-        in.close();
-        return new String(out.toByteArray());
-    }
 }

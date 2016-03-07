@@ -1,9 +1,6 @@
 package uranoscopidae.teambuilder;
 
-/**
- * Created by philippine on 04/03/2016.
- */
-public class Pokemon
+public class Pokemon implements Cloneable
 {
     private final String name;
     private final Type firstType;
@@ -45,5 +42,13 @@ public class Pokemon
     public String toString()
     {
         return "Pokémon["+name+", "+firstType.getName()+"/"+secondType.getName()+"]";
+    }
+
+    @Override
+    protected Object clone()
+    {
+        Pokemon clone = new Pokemon(name, firstType, secondType);
+
+        return clone;
     }
 }
