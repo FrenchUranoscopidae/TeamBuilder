@@ -110,7 +110,7 @@ public class PokedexEntry implements Comparable<PokedexEntry>
 
     private void writeMetadata(DataOutputStream out) throws IOException
     {
-        out.writeUTF(Constants.VERSION);
+        out.writeInt(Constants.DEX_FORMAT_VERSION_NUMBER);
         out.flush();
     }
 
@@ -133,15 +133,15 @@ public class PokedexEntry implements Comparable<PokedexEntry>
         BufferedImage icon = null;
         Pokemon pokemon = null;
         PokedexEntry dexEntry = null;
-        while((entry = in.getNextEntry()) != null)
+        while ((entry = in.getNextEntry()) != null)
         {
             switch (entry.getName())
             {
                 case "meta":
                     int version = dataIn.readInt();
-                    if(version != Constants.DEX_FORMAT_VERSION_NUMBER)
+                    if (version != Constants.DEX_FORMAT_VERSION_NUMBER)
                     {
-                        throw new IOException("Version numbers do not match: found: "+version+" and current: "+Constants.DEX_FORMAT_VERSION_NUMBER);
+                        throw new IOException("Version numbers do not match: found: " + version + " and current: " + Constants.DEX_FORMAT_VERSION_NUMBER);
                     }
                     break;
 
@@ -169,11 +169,27 @@ public class PokedexEntry implements Comparable<PokedexEntry>
                     break;
 
                 default:
-                    System.err.println("Unknown entry for Pokédex entry: "+entry.getName());
+                    System.err.println("Unknown entry for Pokédex entry: " + entry.getName());
                     break;
 
             }
         }
+        if(dexEntry != null)
+        {
+            if(artwork != null)
+                dexEntry.setArtwork(artwork);
+            dexEntry.setIcon(icon);
+        }
         return dexEntry;
+    }
+
+    public void setIcon(BufferedImage icon)
+    {
+        this.icon = icon;
+    }
+
+    public BufferedImage getIcon()
+    {
+        return icon;
     }
 }

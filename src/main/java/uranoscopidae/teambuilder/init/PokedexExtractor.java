@@ -37,8 +37,18 @@ public class PokedexExtractor
         String dexEntry = fetchLastDexEntry(gameData);
         entry.setDescription(dexEntry);
 
+        addLearningMoves(gameData);
+
         DecimalFormat format = new DecimalFormat("000");
         entry.setArtwork(extractor.getImageFromName("File:"+format.format(entry.getNationalID())+entry.getPokemon().getEnglishName()+".png"));
+    }
+
+    private void addLearningMoves(String gameData)
+    {
+        String start = "===Learnset===";
+        String end = "{{learnlist/levelf";
+        String learnlist = gameData.substring(gameData.indexOf(start)+start.length(), gameData.indexOf(end));
+        System.out.println(learnlist);
     }
 
     private String fetchLastDexEntry(String gameData)
