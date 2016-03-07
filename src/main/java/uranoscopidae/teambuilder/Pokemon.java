@@ -18,7 +18,7 @@ public class Pokemon implements Cloneable
         this.secondType = secondType;
     }
 
-    public String getName()
+    public String getEnglishName()
     {
         return name;
     }

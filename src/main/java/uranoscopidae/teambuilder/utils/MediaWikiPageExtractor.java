@@ -18,6 +18,11 @@ public class MediaWikiPageExtractor
         gson = new Gson();
     }
 
+    protected Gson getGson()
+    {
+        return gson;
+    }
+
     public String getPageSourceCode(URL location) throws IOException
     {
         String apiResult = fetchFromApi(location);
@@ -44,5 +49,10 @@ public class MediaWikiPageExtractor
         out.close();
         in.close();
         return new String(out.toByteArray());
+    }
+
+    public void getImageFromName(URL file) throws IOException
+    {
+
     }
 }

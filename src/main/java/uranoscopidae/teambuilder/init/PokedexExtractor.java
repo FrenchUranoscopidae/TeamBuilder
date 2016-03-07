@@ -2,11 +2,9 @@ package uranoscopidae.teambuilder.init;
 
 import uranoscopidae.teambuilder.Pokemon;
 import uranoscopidae.teambuilder.TypeList;
-import uranoscopidae.teambuilder.utils.MediaWikiPageExtractor;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -26,9 +24,44 @@ public class PokedexExtractor
         return extractor;
     }
 
-    public void fillEntryFromWiki(PokedexEntry entry)
+    public void fillEntryFromWiki(PokedexEntry entry) throws IOException
     {
+        String name = entry.getPokemon().getEnglishName();
+        String source = extractor.getPageSourceCode(name+" (Pokémon)");
+        String startString = "==Game data==";
+        String gameData = source.substring(source.indexOf(startString)+startString.length());
 
+        //System.out.println(gameData);
+
+        // Fetch last Pokédex entry
+        String dexEntry = fetchLastDexEntry(gameData);
+        entry.setDescription(dexEntry);
+
+        DecimalFormat format = new DecimalFormat("000");
+        entry.setArtwork(extractor.getImageFromName("File:"+format.format(entry.getNationalID())+entry.getPokemon().getEnglishName()+".png"));
+    }
+
+    private String fetchLastDexEntry(String gameData)
+    {
+        int end = gameData.indexOf("{{Dex/Footer}}");
+        String entries = gameData.substring(0, end);
+        String[] lines = entries.split("\n");
+        for(String l : lines)
+        {
+            if(l.startsWith("{{Dex/Entry"))
+            {
+                String content = l.substring(l.indexOf("|"), l.lastIndexOf("}}"));
+                String[] parts = content.split(Pattern.quote("|"));
+                for(String p : parts)
+                {
+                    if(p.startsWith("entry="))
+                    {
+                        return p.substring("entry=".length());
+                    }
+                }
+            }
+        }
+        return "Could not find";
     }
 
     public List<PokedexEntry> readPokedexEntries() throws IOException
@@ -55,7 +88,7 @@ public class PokedexExtractor
                     secondType = parts[6];
                 }
 
-                System.out.println(content);
+                // System.out.println(content);
 
                 Pokemon pokemon = new Pokemon(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType));
                 try
