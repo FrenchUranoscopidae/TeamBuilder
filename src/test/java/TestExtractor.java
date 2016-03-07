@@ -13,7 +13,7 @@ public class TestExtractor
     public void testReadList() throws IOException
     {
         PokedexExtractor extractor = new PokedexExtractor();
-        System.out.println(extractor.getExtractor().fetchFromApi());
+        System.out.println(extractor.getExtractor().getPageSourceCode("Bulbasaur (Pokémon)"));
         extractor.readPokedexEntries().forEach(System.out::println);
     }
 }

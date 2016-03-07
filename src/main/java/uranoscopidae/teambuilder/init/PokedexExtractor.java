@@ -14,22 +14,14 @@ import java.util.regex.Pattern;
 public class PokedexExtractor
 {
 
-    public static final String DEFAULT_LIST_LOCATION = "http://bulbapedia.bulbagarden.net/w/api.php?action=query&prop=revisions&rvprop=content&format=json&titles=List_of_Pok%C3%A9mon_by_National_Pok%C3%A9dex_number";
-    private final URL location;
-    private final MediaWikiPageExtractor extractor;
+    private final BulbapediaExtractor extractor;
 
-    public PokedexExtractor() throws MalformedURLException
+    public PokedexExtractor()
     {
-        this(DEFAULT_LIST_LOCATION);
+        extractor = new BulbapediaExtractor();
     }
 
-    public PokedexExtractor(String listLocation) throws MalformedURLException
-    {
-        this.location = new URL(listLocation);
-        extractor = new MediaWikiPageExtractor();
-    }
-
-    public MediaWikiPageExtractor getExtractor()
+    public BulbapediaExtractor getExtractor()
     {
         return extractor;
     }
@@ -42,7 +34,7 @@ public class PokedexExtractor
     public List<PokedexEntry> readPokedexEntries() throws IOException
     {
         List<PokedexEntry> entries = new LinkedList<>();
-        String code = extractor.getPageSourceCode(location);
+        String code = extractor.getPageSourceCode("List_of_Pokémon_by_National_Pokédex_number");
         String[] lines = code.split("\n");
         for(String l : lines)
         {

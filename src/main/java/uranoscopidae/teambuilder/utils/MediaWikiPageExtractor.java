@@ -30,7 +30,7 @@ public class MediaWikiPageExtractor
         return revisionContent.get("*").getAsString();
     }
 
-    private String fetchFromApi(URL location) throws IOException
+    public String fetchFromApi(URL location) throws IOException
     {
         InputStream in = location.openStream();
         byte[] buffer = new byte[1024*8];
