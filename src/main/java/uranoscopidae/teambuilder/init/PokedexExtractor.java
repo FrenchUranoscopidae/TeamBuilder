@@ -53,30 +53,40 @@ public class PokedexExtractor
         String[] lines = learnlist.split("\n");
         for(String l : lines)
         {
-            if(l.startsWith("{{learnlist/level"))
+            if(l.startsWith("{{learnlist/level") && !l.startsWith("{{learnlist/levelh") && !l.startsWith("{{learnlist/levelf"))
             {
                 String content = l.substring(0, l.lastIndexOf("}}"));
                 String[] parts = content.split(Pattern.quote("|"));
-                int orasLevel = Integer.parseInt(parts[2]);
-                String name = parts[3];
-                Type type = TypeList.getFromID(parts[4]);
-                MoveCategory category = MoveCategory.valueOf(parts[5].toUpperCase());
-                int power = Integer.parseInt(parts[6]);
-                int accuracy = Integer.parseInt(parts[7]);
-                int pp = Integer.parseInt(parts[8]);
+                int level = -1;
+                int off = l.startsWith("{{learnlist/levelVI") ? 1 : 0;
+                try
+                {
+                    level = Integer.parseInt(parts[1+off]);
+                }
+                catch (NumberFormatException e)
+                {
+                    e.printStackTrace();
+                }
+                String name = parts[2+off];
 
                 if(!MoveMap.has(name))
                 {
+                    System.out.println("NOT FOUND: "+name);
+                    Type type = TypeList.getFromID(parts[3+off]);
+                    MoveCategory category = MoveCategory.valueOf(parts[4+off].toUpperCase());
+                    int power = MoveExtractor.readInt(parts[5+off]);
+                    int accuracy = MoveExtractor.readInt(parts[6+off]);
+                    int pp = MoveExtractor.readInt(parts[7+off]);
                     MoveDefinition definition = new MoveDefinition(type, category, name, power, accuracy, pp);
                     MoveMap.registerMove(definition);
                 }
 
                 MoveDefinition def = MoveMap.getMove(name);
-                Move learntMove = new Move(def, new LevelingLearning(orasLevel));
+                Move learntMove = new Move(def, new LevelingLearning(level));
                 dexEntry.getPokemon().addMove(learntMove);
             }
         }
-        System.out.println(learnlist);
+        //System.out.println(learnlist);
     }
 
     private String fetchLastDexEntry(String gameData)

@@ -1,6 +1,9 @@
 package uranoscopidae.teambuilder.moves;
 
 import uranoscopidae.teambuilder.Type;
+import uranoscopidae.teambuilder.TypeList;
+
+import java.io.*;
 
 public class MoveDefinition
 {
@@ -50,5 +53,29 @@ public class MoveDefinition
     public Type getType()
     {
         return type;
+    }
+
+    public void writeTo(OutputStream out) throws IOException
+    {
+        DataOutputStream dataOut = new DataOutputStream(out);
+        dataOut.writeUTF(type.getName());
+        dataOut.writeUTF(category.name().toUpperCase());
+        dataOut.writeUTF(englishName);
+        dataOut.writeInt(power);
+        dataOut.writeInt(accuracy);
+        dataOut.writeInt(powerPoints);
+        dataOut.flush();
+    }
+
+    public static MoveDefinition readFrom(InputStream in) throws IOException
+    {
+        DataInputStream dataIn = new DataInputStream(in);
+        String type = dataIn.readUTF();
+        String category = dataIn.readUTF();
+        String name = dataIn.readUTF();
+        int power = dataIn.readInt();
+        int accuracy = dataIn.readInt();
+        int pp = dataIn.readInt();
+        return new MoveDefinition(TypeList.getFromID(type), MoveCategory.valueOf(category), name, power, accuracy, pp);
     }
 }

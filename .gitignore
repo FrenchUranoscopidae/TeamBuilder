@@ -18,3 +18,4 @@ output/
 
 ## Dex Data files
 *.dexd
+*.movd
