@@ -2,6 +2,8 @@ package uranoscopidae.teambuilder.init;
 
 import uranoscopidae.teambuilder.Pokemon;
 import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.moves.Move;
+import uranoscopidae.teambuilder.moves.MoveDefinition;
 import uranoscopidae.teambuilder.utils.Constants;
 
 import javax.imageio.ImageIO;
@@ -73,7 +75,12 @@ public class PokedexEntry implements Comparable<PokedexEntry>
     {
         System.out.println(toString());
         System.out.println("Description: "+description);
-        System.out.println();
+        System.out.println("===Moves===");
+        for(Move m : pokemon.getMoves())
+        {
+            MoveDefinition def = m.getDefinition();
+            System.out.println(def.getEnglishName()+" ("+def.getType()+"/"+def.getCategory().name());
+        }
     }
 
     public void setArtwork(BufferedImage artwork)

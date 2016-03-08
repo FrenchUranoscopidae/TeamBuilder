@@ -1,10 +1,16 @@
 package uranoscopidae.teambuilder;
 
+import uranoscopidae.teambuilder.moves.Move;
+
+import java.util.Collections;
+import java.util.LinkedList;
+
 public class Pokemon implements Cloneable
 {
     private final String name;
     private final Type firstType;
     private final Type secondType;
+    private final LinkedList<Move> moves;
 
     public Pokemon(String name, Type firstType)
     {
@@ -16,6 +22,7 @@ public class Pokemon implements Cloneable
         this.name = name;
         this.firstType = firstType;
         this.secondType = secondType;
+        moves = new LinkedList<>();
     }
 
     public String getEnglishName()
@@ -48,7 +55,17 @@ public class Pokemon implements Cloneable
     protected Object clone()
     {
         Pokemon clone = new Pokemon(name, firstType, secondType);
-
+        clone.getMoves().addAll(getMoves());
         return clone;
+    }
+
+    public void addMove(Move move)
+    {
+        moves.add(move);
+    }
+
+    public LinkedList<Move> getMoves()
+    {
+        return moves;
     }
 }
