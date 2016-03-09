@@ -1,4 +1,3 @@
-import org.junit.Before;
 import org.junit.Test;
 import uranoscopidae.teambuilder.Pokemon;
 import uranoscopidae.teambuilder.TypeList;
@@ -6,8 +5,7 @@ import uranoscopidae.teambuilder.init.MoveExtractor;
 import uranoscopidae.teambuilder.init.PokedexEntry;
 import uranoscopidae.teambuilder.init.PokedexExtractor;
 import uranoscopidae.teambuilder.moves.MoveCategory;
-import uranoscopidae.teambuilder.moves.MoveDefinition;
-import uranoscopidae.teambuilder.moves.MoveMap;
+import uranoscopidae.teambuilder.moves.Move;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -30,7 +28,7 @@ public class TestExtractor
     public void extractFullList() throws IOException, InterruptedException
     {
         extractMoves();
-        PokedexExtractor extractor = new PokedexExtractor();
+        PokedexExtractor extractor = new PokedexExtractor(new TestApp());
         List<PokedexEntry> entries = extractor.readPokedexEntries();
         entries.forEach(PokedexEntry::echo);
         DecimalFormat format = new DecimalFormat("000");
@@ -65,7 +63,7 @@ public class TestExtractor
     public void writeEntryFromBulbapediaToFile() throws IOException
     {
         PokedexEntry entry = new PokedexEntry(-1, 25, new Pokemon("Pikachu", TypeList.electric));
-        new PokedexExtractor().fillEntryFromWiki(entry);
+        new PokedexExtractor(new TestApp()).fillEntryFromWiki(entry);
         entry.echo();
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", "025Pikachu.dexd")));
         entry.writeTo(out);
@@ -77,7 +75,7 @@ public class TestExtractor
     public void readEntryFromFile() throws IOException, ReflectiveOperationException
     {
         ZipInputStream in = new ZipInputStream(new FileInputStream(new File("./dexdata", "025Pikachu.dexd")));
-        PokedexEntry entry = PokedexEntry.readEntry(in);
+        PokedexEntry entry = PokedexEntry.readEntry(new TestApp(), in);
         in.close();
         entry.echo();
     }
@@ -85,7 +83,7 @@ public class TestExtractor
     @Test
     public void writeMoveEntry() throws IOException
     {
-        MoveDefinition entry = new MoveDefinition(TypeList.normal, MoveCategory.PHYSICAL, "Tackle", 50, 100, 35);
+        Move entry = new Move(TypeList.normal, MoveCategory.PHYSICAL, "Tackle", 50, 100, 35);
         FileOutputStream out = new FileOutputStream(new File("./movedata", "Tackle.movd"));
         entry.writeTo(out);
         out.flush();
@@ -96,7 +94,7 @@ public class TestExtractor
     public void readMoveEntry() throws IOException
     {
         FileInputStream in = new FileInputStream(new File("./movedata", "Tackle.movd"));
-        MoveDefinition def = MoveDefinition.readFrom(in);
+        Move def = Move.readFrom(in);
         assertEquals("Tackle", def.getEnglishName());
         assertEquals(100, def.getAccuracy());
         assertEquals(50, def.getPower());
@@ -110,17 +108,16 @@ public class TestExtractor
     public void extractMoves() throws IOException
     {
         MoveExtractor extractor = new MoveExtractor();
-        List<MoveDefinition> list = extractor.findAllMoves();
+        List<Move> list = extractor.findAllMoves();
         for(int i = 0;i<list.size();i++)
         {
             try
             {
-                MoveDefinition def = list.get(i);
+                Move def = list.get(i);
                 FileOutputStream out = new FileOutputStream(new File("./movedata", def.getEnglishName()+".movd"));
                 def.writeTo(out);
                 out.flush();
                 out.close();
-                MoveMap.registerMove(def);
             }
             catch (IOException e)
             {

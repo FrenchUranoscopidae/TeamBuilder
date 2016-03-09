@@ -3,6 +3,7 @@ package uranoscopidae.teambuilder.init;
 import uranoscopidae.teambuilder.Pokemon;
 import uranoscopidae.teambuilder.Type;
 import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.moves.*;
 
 import java.io.IOException;
@@ -15,10 +16,14 @@ public class PokedexExtractor
 {
 
     private final BulbapediaExtractor extractor;
+    private final TeamBuilderApp app;
+    private final DecimalFormat format;
 
-    public PokedexExtractor()
+    public PokedexExtractor(TeamBuilderApp app)
     {
+        this.app = app;
         extractor = new BulbapediaExtractor();
+        format = new DecimalFormat("000");
     }
 
     public BulbapediaExtractor getExtractor()
@@ -41,11 +46,10 @@ public class PokedexExtractor
 
         addLearningMoves(entry, gameData);
 
-        DecimalFormat format = new DecimalFormat("000");
         entry.setArtwork(extractor.getImageFromName("File:"+format.format(entry.getNationalID())+entry.getPokemon().getEnglishName()+".png"));
     }
 
-    private void addLearningMoves(PokedexEntry dexEntry, String gameData)
+    private void addLearningMoves(PokedexEntry dexEntry, String gameData) throws IOException
     {
         String start = "===Learnset===";
         String end = "{{learnlist/levelf";
@@ -69,7 +73,7 @@ public class PokedexExtractor
                 }
                 String name = parts[2+off];
 
-                if(!MoveMap.has(name))
+                if(!app.hasMove(name))
                 {
                     System.out.println("NOT FOUND: "+name);
                     Type type = TypeList.getFromID(parts[3+off]);
@@ -77,13 +81,12 @@ public class PokedexExtractor
                     int power = MoveExtractor.readInt(parts[5+off]);
                     int accuracy = MoveExtractor.readInt(parts[6+off]);
                     int pp = MoveExtractor.readInt(parts[7+off]);
-                    MoveDefinition definition = new MoveDefinition(type, category, name, power, accuracy, pp);
-                    MoveMap.registerMove(definition);
+                    Move definition = new Move(type, category, name, power, accuracy, pp);
+                    app.registerMove(definition);
                 }
 
-                MoveDefinition def = MoveMap.getMove(name);
-                Move learntMove = new Move(def, new LevelingLearning(level));
-                dexEntry.getPokemon().addMove(learntMove);
+                Move def = app.getMove(name);
+                dexEntry.getPokemon().addMove(def);
             }
         }
         //System.out.println(learnlist);

@@ -12,10 +12,29 @@ import java.net.URL;
 public class MediaWikiPageExtractor
 {
     private final Gson gson;
+    private final ThreadLocal<ByteArrayOutputStream> localOut;
+    private final ThreadLocal<byte[]> localBuffer;
 
     public MediaWikiPageExtractor()
     {
         gson = new Gson();
+        localOut = new ThreadLocal<ByteArrayOutputStream>()
+        {
+            @Override
+            protected ByteArrayOutputStream initialValue()
+            {
+                return new ByteArrayOutputStream();
+            }
+        };
+
+        localBuffer = new ThreadLocal<byte[]>()
+        {
+            @Override
+            protected byte[] initialValue()
+            {
+                return new byte[1024*8];
+            }
+        };
     }
 
     protected Gson getGson()
@@ -38,9 +57,10 @@ public class MediaWikiPageExtractor
     public String fetchFromApi(URL location) throws IOException
     {
         InputStream in = location.openStream();
-        byte[] buffer = new byte[1024*8];
+        byte[] buffer = localBuffer.get();
         int i;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ByteArrayOutputStream out = localOut.get();
+        out.reset();
         while((i = in.read(buffer)) != -1)
         {
             out.write(buffer, 0, i);
@@ -48,11 +68,7 @@ public class MediaWikiPageExtractor
         out.flush();
         out.close();
         in.close();
+        System.out.println(">> "+location+" ("+out.toByteArray().length+")");
         return new String(out.toByteArray());
-    }
-
-    public void getImageFromName(URL file) throws IOException
-    {
-
     }
 }

@@ -2,7 +2,7 @@ package uranoscopidae.teambuilder.init;
 
 import uranoscopidae.teambuilder.TypeList;
 import uranoscopidae.teambuilder.moves.MoveCategory;
-import uranoscopidae.teambuilder.moves.MoveDefinition;
+import uranoscopidae.teambuilder.moves.Move;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -24,9 +24,9 @@ public class MoveExtractor
         return extractor;
     }
 
-    public List<MoveDefinition> findAllMoves() throws IOException
+    public List<Move> findAllMoves() throws IOException
     {
-        List<MoveDefinition> moves = new LinkedList<>();
+        List<Move> moves = new LinkedList<>();
         String source = extractor.getPageSourceCode("List_of_moves");
         String start = "|-";
         String end = "|}\n" +
@@ -60,7 +60,7 @@ public class MoveExtractor
                 accuracy = Integer.parseInt(acc.substring(0, acc.indexOf("%")));
             }
 
-            moves.add(new MoveDefinition(TypeList.getFromID(type), MoveCategory.valueOf(category.toUpperCase()), name, power, accuracy, pp));
+            moves.add(new Move(TypeList.getFromID(type), MoveCategory.valueOf(category.toUpperCase()), name, power, accuracy, pp));
         }
         return moves;
     }

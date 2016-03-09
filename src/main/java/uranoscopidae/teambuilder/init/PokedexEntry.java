@@ -2,16 +2,13 @@ package uranoscopidae.teambuilder.init;
 
 import uranoscopidae.teambuilder.Pokemon;
 import uranoscopidae.teambuilder.TypeList;
-import uranoscopidae.teambuilder.moves.LearningMode;
+import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.moves.Move;
-import uranoscopidae.teambuilder.moves.MoveDefinition;
-import uranoscopidae.teambuilder.moves.MoveMap;
 import uranoscopidae.teambuilder.utils.Constants;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.*;
@@ -81,10 +78,9 @@ public class PokedexEntry implements Comparable<PokedexEntry>
         System.out.println(toString());
         System.out.println("Description: "+description);
         System.out.println("===Moves===");
-        for(Move m : pokemon.getMoves())
+        for(Move def : pokemon.getMoves())
         {
-            MoveDefinition def = m.getDefinition();
-            System.out.println(def.getEnglishName()+" ("+def.getType().getName()+"/"+def.getCategory().name()+"): "+m.getLearningMode().toString());
+            System.out.println(def.getEnglishName()+" ("+def.getType().getName()+"/"+def.getCategory().name()+")");
         }
     }
 
@@ -127,13 +123,7 @@ public class PokedexEntry implements Comparable<PokedexEntry>
     private void writeMove(DataOutputStream out, Move move) throws IOException
     {
         // write definition name, will be fetched later
-        MoveDefinition def = move.getDefinition();
-        out.writeUTF(def.getEnglishName());
-
-        // write learning mode, proper to each Pokémon
-        LearningMode mode = move.getLearningMode();
-        out.writeUTF(mode.getType().name().toUpperCase());
-        mode.write(out);
+        out.writeUTF(move.getEnglishName());
     }
 
     private void writeMetadata(DataOutputStream out) throws IOException
@@ -153,31 +143,13 @@ public class PokedexEntry implements Comparable<PokedexEntry>
         out.flush();
     }
 
-    private static Move readMove(DataInputStream dataIn) throws IOException, ReflectiveOperationException
+    private static Move readMove(TeamBuilderApp app, DataInputStream dataIn) throws IOException, ReflectiveOperationException
     {
         String definition = dataIn.readUTF();
-        LearningMode.Type learningModeType = LearningMode.Type.valueOf(dataIn.readUTF().toUpperCase());
-
-        MoveDefinition moveDefinition = MoveMap.getMove(definition);
-        Class<? extends LearningMode> clazz = learningModeType.getCorrespondingClass();
-        if(clazz == null)
-        {
-            throw new UnsupportedOperationException("not yet supported");
-        }
-        LearningMode mode;
-        try
-        {
-            mode = clazz.getConstructor().newInstance();
-            mode.read(dataIn);
-        }
-        catch (ReflectiveOperationException e)
-        {
-            throw e;
-        }
-        return new Move(moveDefinition, mode);
+        return app.getMove(definition);
     }
 
-    public static PokedexEntry readEntry(ZipInputStream in) throws IOException, ReflectiveOperationException
+    public static PokedexEntry readEntry(TeamBuilderApp app, ZipInputStream in) throws IOException, ReflectiveOperationException
     {
         ZipEntry entry;
         DataInputStream dataIn = new DataInputStream(in);
@@ -215,13 +187,14 @@ public class PokedexEntry implements Comparable<PokedexEntry>
                     String desc = dataIn.readUTF();
                     pokemon = new Pokemon(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType));
                     dexEntry = new PokedexEntry(regionalID, nationalID, pokemon);
+                    dexEntry.setDescription(desc);
                     break;
 
                 case "moves":
                     int count = dataIn.readInt();
                     for(int i = 0;i<count;i++)
                     {
-                        Move move = readMove(dataIn);
+                        Move move = readMove(app, dataIn);
                         moves.add(move);
                     }
                     break;

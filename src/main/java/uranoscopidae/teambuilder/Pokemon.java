@@ -2,7 +2,6 @@ package uranoscopidae.teambuilder;
 
 import uranoscopidae.teambuilder.moves.Move;
 
-import java.util.Collections;
 import java.util.LinkedList;
 
 public class Pokemon implements Cloneable

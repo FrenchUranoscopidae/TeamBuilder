@@ -6,19 +6,19 @@ import java.util.Map;
 
 public class MoveMap
 {
-    private static final Map<String, MoveDefinition> internalMap = new HashMap<>();
+    private static final Map<String, Move> internalMap = new HashMap<>();
 
-    public static void registerMove(MoveDefinition def)
+    public static void registerMove(Move def)
     {
         internalMap.put(def.getEnglishName(), def);
     }
 
-    public static MoveDefinition getMove(String englishName)
+    public static Move getMove(String englishName)
     {
         return internalMap.get(englishName);
     }
 
-    public static Collection<MoveDefinition> getAllMoves()
+    public static Collection<Move> getAllMoves()
     {
         return internalMap.values();
     }
