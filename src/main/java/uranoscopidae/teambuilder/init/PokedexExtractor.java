@@ -1,10 +1,10 @@
 package uranoscopidae.teambuilder.init;
 
-import uranoscopidae.teambuilder.Pokemon;
-import uranoscopidae.teambuilder.Type;
-import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.Type;
+import uranoscopidae.teambuilder.pkmn.TypeList;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
-import uranoscopidae.teambuilder.moves.*;
+import uranoscopidae.teambuilder.pkmn.moves.*;
 
 import java.io.IOException;
 import java.text.DecimalFormat;

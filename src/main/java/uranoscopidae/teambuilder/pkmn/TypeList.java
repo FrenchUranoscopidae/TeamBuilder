@@ -1,4 +1,4 @@
-package uranoscopidae.teambuilder;
+package uranoscopidae.teambuilder.pkmn;
 
 import java.util.Collections;
 import java.util.LinkedList;

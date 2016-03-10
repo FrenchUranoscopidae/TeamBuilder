@@ -1,7 +1,6 @@
-import org.junit.Assert;
 import org.junit.Test;
-import uranoscopidae.teambuilder.Pokemon;
-import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.TypeList;
 
 import static org.junit.Assert.assertEquals;
 

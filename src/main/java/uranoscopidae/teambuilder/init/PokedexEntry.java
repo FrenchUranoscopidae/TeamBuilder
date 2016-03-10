@@ -1,9 +1,9 @@
 package uranoscopidae.teambuilder.init;
 
-import uranoscopidae.teambuilder.Pokemon;
-import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.TypeList;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
-import uranoscopidae.teambuilder.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.utils.Constants;
 
 import javax.imageio.ImageIO;

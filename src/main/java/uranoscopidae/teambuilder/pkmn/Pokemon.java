@@ -1,6 +1,6 @@
-package uranoscopidae.teambuilder;
+package uranoscopidae.teambuilder.pkmn;
 
-import uranoscopidae.teambuilder.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import java.util.LinkedList;
 

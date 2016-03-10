@@ -3,7 +3,7 @@ package uranoscopidae.teambuilder.app.refreshers;
 import uranoscopidae.teambuilder.app.Settings;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.init.MoveExtractor;
-import uranoscopidae.teambuilder.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import java.io.IOException;
 import java.util.List;

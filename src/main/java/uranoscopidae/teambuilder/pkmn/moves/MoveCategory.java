@@ -1,4 +1,4 @@
-package uranoscopidae.teambuilder.moves;
+package uranoscopidae.teambuilder.pkmn.moves;
 
 public enum MoveCategory
 {

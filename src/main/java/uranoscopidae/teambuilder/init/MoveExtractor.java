@@ -1,8 +1,8 @@
 package uranoscopidae.teambuilder.init;
 
-import uranoscopidae.teambuilder.TypeList;
-import uranoscopidae.teambuilder.moves.MoveCategory;
-import uranoscopidae.teambuilder.moves.Move;
+import uranoscopidae.teambuilder.pkmn.TypeList;
+import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import java.io.IOException;
 import java.util.LinkedList;

@@ -2,8 +2,8 @@ package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.app.refreshers.DexRefresher;
 import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
-import uranoscopidae.teambuilder.moves.Move;
-import uranoscopidae.teambuilder.moves.MoveMap;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 import uranoscopidae.teambuilder.utils.Constants;
 
 import javax.swing.*;

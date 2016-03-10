@@ -1,4 +1,4 @@
-package uranoscopidae.teambuilder;
+package uranoscopidae.teambuilder.pkmn;
 
 /**
  * Created by philippine on 04/03/2016.

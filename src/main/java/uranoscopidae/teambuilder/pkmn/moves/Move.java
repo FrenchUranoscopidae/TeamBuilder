@@ -1,7 +1,7 @@
-package uranoscopidae.teambuilder.moves;
+package uranoscopidae.teambuilder.pkmn.moves;
 
-import uranoscopidae.teambuilder.Type;
-import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.pkmn.Type;
+import uranoscopidae.teambuilder.pkmn.TypeList;
 
 import java.io.*;
 

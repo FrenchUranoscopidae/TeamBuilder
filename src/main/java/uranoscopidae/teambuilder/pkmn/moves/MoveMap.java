@@ -1,4 +1,4 @@
-package uranoscopidae.teambuilder.moves;
+package uranoscopidae.teambuilder.pkmn.moves;
 
 import java.util.Collection;
 import java.util.HashMap;

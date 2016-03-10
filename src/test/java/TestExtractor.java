@@ -1,11 +1,11 @@
 import org.junit.Test;
-import uranoscopidae.teambuilder.Pokemon;
-import uranoscopidae.teambuilder.TypeList;
+import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.TypeList;
 import uranoscopidae.teambuilder.init.MoveExtractor;
 import uranoscopidae.teambuilder.init.PokedexEntry;
 import uranoscopidae.teambuilder.init.PokedexExtractor;
-import uranoscopidae.teambuilder.moves.MoveCategory;
-import uranoscopidae.teambuilder.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import java.io.*;
 import java.text.DecimalFormat;
