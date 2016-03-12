@@ -2,6 +2,7 @@ package uranoscopidae.teambuilder.pkmn.moves;
 
 import uranoscopidae.teambuilder.pkmn.Type;
 import uranoscopidae.teambuilder.pkmn.TypeList;
+import uranoscopidae.teambuilder.utils.IOHelper;
 
 import java.io.*;
 
@@ -58,9 +59,9 @@ public class Move
     public void writeTo(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
-        dataOut.writeUTF(type.getName());
-        dataOut.writeUTF(category.name().toUpperCase());
-        dataOut.writeUTF(englishName);
+        IOHelper.writeUTF(dataOut, type.getName());
+        IOHelper.writeUTF(dataOut, category.name().toUpperCase());
+        IOHelper.writeUTF(dataOut, englishName);
         dataOut.writeInt(power);
         dataOut.writeInt(accuracy);
         dataOut.writeInt(powerPoints);
@@ -70,9 +71,9 @@ public class Move
     public static Move readFrom(InputStream in) throws IOException
     {
         DataInputStream dataIn = new DataInputStream(in);
-        String type = dataIn.readUTF();
-        String category = dataIn.readUTF();
-        String name = dataIn.readUTF();
+        String type = IOHelper.readUTF(dataIn);
+        String category = IOHelper.readUTF(dataIn);
+        String name = IOHelper.readUTF(dataIn);
         int power = dataIn.readInt();
         int accuracy = dataIn.readInt();
         int pp = dataIn.readInt();

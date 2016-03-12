@@ -189,6 +189,10 @@ public class TeamBuilderApp
 
     public void registerMove(Move definition) throws IOException
     {
+        if(!settings.getMovesLocation().exists())
+        {
+            settings.getMovesLocation().mkdirs();
+        }
         FileOutputStream out = new FileOutputStream(new File(settings.getMovesLocation(), definition.getEnglishName()+".movd"));
         definition.writeTo(out);
         out.flush();
@@ -200,9 +204,16 @@ public class TeamBuilderApp
         if(!MoveMap.has(name))
         {
             FileInputStream in = new FileInputStream(settings.getMovesLocation().getAbsolutePath()+File.separatorChar+name+".movd");
-            Move def = Move.readFrom(in);
-            in.close();
-            MoveMap.registerMove(def);
+            try
+            {
+                Move def = Move.readFrom(in);
+                in.close();
+                MoveMap.registerMove(def);
+            }
+            catch (IndexOutOfBoundsException e)
+            {
+                System.out.println("blame>>> "+name);
+            }
         }
         return MoveMap.getMove(name);
     }

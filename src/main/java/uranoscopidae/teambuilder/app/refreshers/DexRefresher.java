@@ -34,9 +34,13 @@ public class DexRefresher extends Refresher<Pokemon>
     @Override
     public void handle(Pokemon part) throws IOException
     {
+        if(!settings.getDexLocation().exists())
+        {
+            settings.getDexLocation().mkdirs();
+        }
         extractor.fillEntryFromWiki(part);
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File(settings.getDexLocation(), format.format(part.getNationalDexID())+part.getEnglishName()+".dexd")));
-        part.writeTo(out);
+        part.writeTo(extractor, out);
         out.close();
     }
 
@@ -45,4 +49,5 @@ public class DexRefresher extends Refresher<Pokemon>
     {
         return "Retrieved "+part.getEnglishName()+" #"+format.format(part.getNationalDexID());
     }
+
 }

@@ -7,6 +7,7 @@ import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.moves.*;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,48 +47,92 @@ public class PokedexExtractor
 
         addLearningMoves(entry, gameData);
 
-        entry.setArtwork(extractor.getImageFromName("File:"+format.format(entry.getNationalDexID())+entry.getEnglishName()+".png"));
+        entry.setIcon(extractor.getImageFromName("File:"+format.format(entry.getNationalDexID())+"MS.png"));
+    }
+
+    public void readArtwork(Pokemon entry, OutputStream out) throws IOException
+    {
+        entry.setSprite(extractor.getImageFromName(getArtworkFullID(entry)+".png"));
+    }
+
+    public String getArtworkFullID(Pokemon entry)
+    {
+        return "File:"+format.format(entry.getNationalDexID())+entry.getEnglishName();
+    }
+
+    public String getSpriteFullID(Pokemon entry, String gen)
+    {
+        return getSpriteFullID(entry, gen, null);
+    }
+
+    public String getSpriteFullID(Pokemon entry, String gen, String form)
+    {
+        String formPart = "";
+        if(form != null)
+        {
+            formPart = "_"+form;
+        }
+        return "File:Spr_"+gen+"_"+format.format(entry.getNationalDexID())+formPart;
     }
 
     private void addLearningMoves(Pokemon dexEntry, String gameData) throws IOException
     {
         String start = "===Learnset===";
         String end = "{{learnlist/levelf";
-        String learnlist = gameData.substring(gameData.indexOf(start)+start.length(), gameData.indexOf(end));
-        String[] lines = learnlist.split("\n");
-        for(String l : lines)
+        try
         {
-            if(l.startsWith("{{learnlist/level") && !l.startsWith("{{learnlist/levelh") && !l.startsWith("{{learnlist/levelf"))
+            if(!gameData.contains(end))
             {
-                String content = l.substring(0, l.lastIndexOf("}}"));
-                String[] parts = content.split(Pattern.quote("|"));
-                int level = -1;
-                int off = l.startsWith("{{learnlist/levelVI") ? 1 : 0;
-                try
-                {
-                    level = Integer.parseInt(parts[1+off]);
-                }
-                catch (NumberFormatException e)
-                {
-                    e.printStackTrace();
-                }
-                String name = parts[2+off];
-
-                if(!app.hasMove(name))
-                {
-                    System.out.println("NOT FOUND: "+name);
-                    Type type = TypeList.getFromID(parts[3+off]);
-                    MoveCategory category = MoveCategory.valueOf(parts[4+off].toUpperCase());
-                    int power = MoveExtractor.readInt(parts[5+off]);
-                    int accuracy = MoveExtractor.readInt(parts[6+off]);
-                    int pp = MoveExtractor.readInt(parts[7+off]);
-                    Move definition = new Move(type, category, name, power, accuracy, pp);
-                    app.registerMove(definition);
-                }
-
-                Move def = app.getMove(name);
-                dexEntry.addMove(def);
+                end = "{{Learnlist/levelf";
             }
+            String learnlist = gameData.substring(gameData.indexOf(start)+start.length(), gameData.indexOf(end));
+            String[] lines = learnlist.split("\n");
+            for(String l : lines)
+            {
+                if(l.startsWith("{{learnlist/level") && !l.startsWith("{{learnlist/levelh") && !l.startsWith("{{learnlist/levelf"))
+                {
+                    String content = l.substring(0, l.lastIndexOf("}}"));
+                    String[] parts = content.split(Pattern.quote("|"));
+                    int level = -1;
+                    int off = l.startsWith("{{learnlist/levelVI") ? 1 : 0;
+                    try
+                    {
+                        if(parts[1+off].equals("N/A"))
+                        {
+                            level = -1; // not learnt in this version
+                        }
+                        else
+                        {
+                            level = Integer.parseInt(parts[1+off]);
+                        }
+                    }
+                    catch (NumberFormatException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    String name = parts[2+off];
+
+                    if(!app.hasMove(name))
+                    {
+                        System.out.println("NOT FOUND: "+name);
+                        Type type = TypeList.getFromID(parts[3+off]);
+                        MoveCategory category = MoveCategory.valueOf(parts[4+off].toUpperCase());
+                        int power = MoveExtractor.readInt(parts[5+off]);
+                        int accuracy = MoveExtractor.readInt(parts[6+off]);
+                        int pp = MoveExtractor.readInt(parts[7+off]);
+                        Move definition = new Move(type, category, name, power, accuracy, pp);
+                        app.registerMove(definition);
+                    }
+
+                    Move def = app.getMove(name);
+                    dexEntry.addMove(def);
+                }
+            }
+
+        }
+        catch (StringIndexOutOfBoundsException e)
+        {
+            System.err.println(">><< "+gameData);
         }
         //System.out.println(learnlist);
     }

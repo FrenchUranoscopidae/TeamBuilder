@@ -43,7 +43,7 @@ public class TestExtractor
                 {
                     extractor.fillEntryFromWiki(entry);
                     ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", format.format(entry.getNationalDexID())+entry.getEnglishName()+".dexd")));
-                    entry.writeTo(out);
+                    entry.writeTo(extractor, out);
                     out.close();
                     System.gc();
                 }
@@ -62,10 +62,11 @@ public class TestExtractor
     public void writeEntryFromBulbapediaToFile() throws IOException
     {
         Pokemon entry = new Pokemon("Pikachu", TypeList.electric, -1, 25);
-        new PokedexExtractor(new TestApp()).fillEntryFromWiki(entry);
+        PokedexExtractor extractor = new PokedexExtractor(new TestApp());
+        extractor.fillEntryFromWiki(entry);
         entry.echo();
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", "025Pikachu.dexd")));
-        entry.writeTo(out);
+        entry.writeTo(extractor, out);
         out.flush();
         out.close();
     }

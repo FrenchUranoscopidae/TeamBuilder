@@ -1,8 +1,10 @@
 package uranoscopidae.teambuilder.pkmn;
 
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
+import uranoscopidae.teambuilder.init.PokedexExtractor;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.utils.Constants;
+import uranoscopidae.teambuilder.utils.IOHelper;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -20,14 +22,15 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     private final String name;
     private final Type firstType;
     private final Type secondType;
-    private final LinkedList<Move> moves;
+    private final List<Move> moves;
 
     private final int regionalDexID;
     private final int nationalDexID;
 
     private String description;
-    private BufferedImage artwork;
+    private BufferedImage sprite;
     private BufferedImage icon;
+    private boolean spriteFetched;
 
     public Pokemon(String name, Type firstType, int regionalID, int nationalDexID)
     {
@@ -36,17 +39,22 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
     public Pokemon(String name, Type firstType, Type secondType, int regionalID, int nationalDexID)
     {
+        this(name, firstType, secondType, regionalID, nationalDexID, new LinkedList<>());
+    }
+
+    public Pokemon(String name, Type firstType, Type secondType, int regionalID, int nationalDexID, List<Move> moves)
+    {
         this.regionalDexID = regionalID;
         this.nationalDexID = nationalDexID;
         this.name = name;
         this.firstType = firstType;
         this.secondType = secondType;
-        moves = new LinkedList<>();
+        this.moves = moves;
 
         description = "Not fetched yet";
 
-        artwork = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
-        artwork.setRGB(0,0,0xFF000000);
+        sprite = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
+        sprite.setRGB(0,0,0xFF000000);
 
         icon = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
         icon.setRGB(0,0,0xFF000000);
@@ -98,14 +106,15 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         }
     }
 
-    public void setArtwork(BufferedImage artwork)
+    public void setSprite(BufferedImage sprite)
     {
-        this.artwork = artwork;
+        spriteFetched = true;
+        this.sprite = sprite;
     }
 
-    public BufferedImage getArtwork()
+    public BufferedImage getSprite()
     {
-        return artwork;
+        return sprite;
     }
 
 
@@ -133,7 +142,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         moves.add(move);
     }
 
-    public LinkedList<Move> getMoves()
+    public List<Move> getMoves()
     {
         return moves;
     }
@@ -155,16 +164,36 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     }
 
     // I/O methods
-    public void writeTo(ZipOutputStream out) throws IOException
+    public void writeTo(PokedexExtractor extractor, ZipOutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
         out.putNextEntry(new ZipEntry("meta"));
         writeMetadata(dataOut);
 
-        out.putNextEntry(new ZipEntry("artwork"));
-        ImageIO.write(artwork, "png", out);
+        out.putNextEntry(new ZipEntry("sprite.png"));
+        if(!spriteFetched)
+        {
+            if(!extractor.getExtractor().outputImageTo(out, extractor.getSpriteFullID(this, "6x")+".png"))
+            {
+                // try male form
+                if(!extractor.getExtractor().outputImageTo(out, extractor.getSpriteFullID(this, "6x", "m")+".png"))
+                {
+                    // try unreleased
+                    if(!extractor.getExtractor().outputImageTo(out, extractor.getSpriteFullID(this, "6o")+".png"))
+                    {
+                        extractor.getExtractor().outputImageTo(out, "File:Question_Mark.png");
+                        // no other options...
+                    }
+                }
+            }
+            spriteFetched = true;
+        }
+        else
+        {
+            ImageIO.write(sprite, "png", out);
+        }
 
-        out.putNextEntry(new ZipEntry("icon"));
+        out.putNextEntry(new ZipEntry("icon.png"));
         ImageIO.write(icon, "png", out);
 
         out.putNextEntry(new ZipEntry("moves"));
@@ -184,7 +213,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     private void writeMove(DataOutputStream out, Move move) throws IOException
     {
         // write definition name, will be fetched later
-        out.writeUTF(move.getEnglishName());
+        IOHelper.writeUTF(out, move.getEnglishName());
     }
 
     private void writeMetadata(DataOutputStream out) throws IOException
@@ -195,18 +224,18 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
     private void writeGlobalInfo(DataOutputStream out) throws IOException
     {
-        out.writeUTF(getEnglishName());
-        out.writeUTF(getFirstType().getName());
-        out.writeUTF(getSecondType().getName());
+        IOHelper.writeUTF(out, getEnglishName());
+        IOHelper.writeUTF(out, getFirstType().getName());
+        IOHelper.writeUTF(out, getSecondType().getName());
         out.writeInt(nationalDexID);
         out.writeInt(regionalDexID);
-        out.writeUTF(description);
+        IOHelper.writeUTF(out, description);
         out.flush();
     }
 
     private static Move readMove(TeamBuilderApp app, DataInputStream dataIn) throws IOException, ReflectiveOperationException
     {
-        String definition = dataIn.readUTF();
+        String definition = IOHelper.readUTF(dataIn);
         return app.getMove(definition);
     }
 
@@ -214,7 +243,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     {
         ZipEntry entry;
         DataInputStream dataIn = new DataInputStream(in);
-        BufferedImage artwork = null;
+        BufferedImage sprite = null;
         BufferedImage icon = null;
         Pokemon pokemon = null;
         List<Move> moves = new LinkedList<>();
@@ -230,8 +259,8 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
                     }
                     break;
 
-                case "artwork":
-                    artwork = ImageIO.read(in);
+                case "sprite":
+                    sprite = ImageIO.read(in);
                     break;
 
                 case "icon":
@@ -239,13 +268,13 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
                     break;
 
                 case "globalInfos":
-                    String name = dataIn.readUTF();
-                    String firstType = dataIn.readUTF();
-                    String secondType = dataIn.readUTF();
+                    String name = IOHelper.readUTF(dataIn);
+                    String firstType = IOHelper.readUTF(dataIn);
+                    String secondType = IOHelper.readUTF(dataIn);
                     int nationalID = dataIn.readInt();
                     int regionalID = dataIn.readInt();
-                    String desc = dataIn.readUTF();
-                    pokemon = new Pokemon(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType), regionalID, nationalID);
+                    String desc = IOHelper.readUTF(dataIn);
+                    pokemon = new Pokemon(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType), regionalID, nationalID, moves);
                     pokemon.setDescription(desc);
                     break;
 
@@ -266,11 +295,10 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         }
         if(pokemon != null)
         {
-            if(artwork != null)
-                pokemon.setArtwork(artwork);
+            if(sprite != null)
+                pokemon.setSprite(sprite);
             if(icon != null)
                 pokemon.setIcon(icon);
-            pokemon.getMoves().addAll(moves);
         }
         return pokemon;
     }

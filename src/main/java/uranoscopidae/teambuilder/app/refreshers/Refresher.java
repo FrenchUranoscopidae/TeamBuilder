@@ -35,6 +35,11 @@ public abstract class Refresher<T> implements Runnable
 
     public abstract String getText(T part) throws IOException;
 
+    public String getInitText()
+    {
+        return name+": initialising...";
+    }
+
     public int getThreadCount()
     {
         return nThreads;
@@ -68,6 +73,7 @@ public abstract class Refresher<T> implements Runnable
             running = true;
             final int nThreads = settings.getThreadCount();
             bar.setIndeterminate(true);
+            bar.setString(getInitText());
             List<T> content = null;
             counter = 0;
             try
@@ -76,20 +82,25 @@ public abstract class Refresher<T> implements Runnable
                 bar.setIndeterminate(false);
                 bar.setValue(0);
                 ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-                Future[] futures = new Future[content.size()];
-                for(int i = 0;i<futures.length;i++)
+                for(int i = 0;i<content.size();i++)
                 {
                     final T part = content.get(i);
 
                     final int index = i;
-                    Callable<Void> callable = () -> {
-                        handle(part);
-                        System.gc();
-                        onDone(part, index, futures.length);
-                        return null;
+                    final List<T> finalContent = content;
+                    Runnable callable = () -> {
+                        try
+                        {
+                            handle(part);
+                            onDone(part, index, finalContent.size());
+                            System.gc();
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
                     };
-                    Future<Void> future = executor.submit(callable);
-                    futures[i] = future;
+                    executor.execute(callable);
                 }
                 executor.shutdown();
                 try
