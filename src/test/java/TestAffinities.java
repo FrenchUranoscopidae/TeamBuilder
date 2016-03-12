@@ -13,12 +13,12 @@ public class TestAffinities
     @Test
     public void doubleType()
     {
-        assertEquals(0f, new Pokemon("Ghastly", TypeList.ghost, TypeList.poison).calculateAttackedMultiplier(TypeList.normal), 0f);
+        assertEquals(0f, new Pokemon("Ghastly", TypeList.ghost, TypeList.poison, -1, 0).calculateAttackedMultiplier(TypeList.normal), 0f);
     }
 
     @Test
     public void simpleType()
     {
-        assertEquals(2f, new Pokemon("Bulbasaur", TypeList.grass, TypeList.poison).calculateAttackedMultiplier(TypeList.fire), 0f);
+        assertEquals(2f, new Pokemon("Bulbasaur", TypeList.grass, TypeList.poison, -1, -1).calculateAttackedMultiplier(TypeList.fire), 0f);
     }
 }

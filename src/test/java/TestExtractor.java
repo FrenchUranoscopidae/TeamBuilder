@@ -2,7 +2,6 @@ import org.junit.Test;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.TypeList;
 import uranoscopidae.teambuilder.init.MoveExtractor;
-import uranoscopidae.teambuilder.init.PokedexEntry;
 import uranoscopidae.teambuilder.init.PokedexExtractor;
 import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
@@ -29,8 +28,8 @@ public class TestExtractor
     {
         extractMoves();
         PokedexExtractor extractor = new PokedexExtractor(new TestApp());
-        List<PokedexEntry> entries = extractor.readPokedexEntries();
-        entries.forEach(PokedexEntry::echo);
+        List<Pokemon> entries = extractor.readPokedexEntries();
+        entries.forEach(Pokemon::echo);
         DecimalFormat format = new DecimalFormat("000");
         //int[] ids = new int[] { 1, 151, 150, 250, 249, 719};
 
@@ -39,11 +38,11 @@ public class TestExtractor
         {
             final int finalId = id;
             pool.execute(() -> {
-                PokedexEntry entry = entries.get(finalId -1);
+                Pokemon entry = entries.get(finalId -1);
                 try
                 {
                     extractor.fillEntryFromWiki(entry);
-                    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", format.format(entry.getNationalID())+entry.getPokemon().getEnglishName()+".dexd")));
+                    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", format.format(entry.getNationalDexID())+entry.getEnglishName()+".dexd")));
                     entry.writeTo(out);
                     out.close();
                     System.gc();
@@ -62,7 +61,7 @@ public class TestExtractor
     @Test
     public void writeEntryFromBulbapediaToFile() throws IOException
     {
-        PokedexEntry entry = new PokedexEntry(-1, 25, new Pokemon("Pikachu", TypeList.electric));
+        Pokemon entry = new Pokemon("Pikachu", TypeList.electric, -1, 25);
         new PokedexExtractor(new TestApp()).fillEntryFromWiki(entry);
         entry.echo();
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", "025Pikachu.dexd")));
@@ -75,7 +74,7 @@ public class TestExtractor
     public void readEntryFromFile() throws IOException, ReflectiveOperationException
     {
         ZipInputStream in = new ZipInputStream(new FileInputStream(new File("./dexdata", "025Pikachu.dexd")));
-        PokedexEntry entry = PokedexEntry.readEntry(new TestApp(), in);
+        Pokemon entry = Pokemon.readPokemon(new TestApp(), in);
         in.close();
         entry.echo();
     }

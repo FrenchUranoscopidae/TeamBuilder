@@ -54,7 +54,7 @@ public abstract class Refresher<T> implements Runnable
     {
         if(!running)
         {
-            new Thread(this).start();
+            new Thread(this, "Refresher Thread").start();
             return true;
         }
         return false;
@@ -121,16 +121,18 @@ public abstract class Refresher<T> implements Runnable
     public void onDone(T part, int index, int size) throws IOException
     {
         lock.lock();
+        final int currentCount;
         try
         {
             counter++;
-            int percent = (int) ((float)counter/(float)size * 100);
-            bar.setString(name+": "+getText(part)+" ("+percent+"%)");
+            currentCount = counter;
         }
         finally
         {
             lock.unlock();
         }
+        int percent = (int) ((float)currentCount/(float)size * 100);
+        bar.setString(name+": "+getText(part)+" ("+percent+"%)");
         bar.setValue(counter);
         bar.setMinimum(0);
         bar.setMaximum(size);

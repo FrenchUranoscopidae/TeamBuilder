@@ -3,6 +3,7 @@ package uranoscopidae.teambuilder.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,6 +15,8 @@ public class MediaWikiPageExtractor
     private final Gson gson;
     private final ThreadLocal<ByteArrayOutputStream> localOut;
     private final ThreadLocal<byte[]> localBuffer;
+    private final ThreadLocal<byte[]> stringBuffer;
+    private final ThreadLocal<DirectByteArrayOutputSteam> directArrayOuts;
 
     public MediaWikiPageExtractor()
     {
@@ -35,6 +38,19 @@ public class MediaWikiPageExtractor
                 return new byte[1024*8];
             }
         };
+
+        stringBuffer = new ThreadLocal<>();
+
+        directArrayOuts = new ThreadLocal<DirectByteArrayOutputSteam>()
+        {
+            @Override
+            protected DirectByteArrayOutputSteam initialValue()
+            {
+                return new DirectByteArrayOutputSteam(new byte[8*1024]);
+            }
+        };
+
+
     }
 
     protected Gson getGson()
@@ -68,7 +84,28 @@ public class MediaWikiPageExtractor
         out.flush();
         out.close();
         in.close();
-        System.out.println(">> "+location+" ("+out.toByteArray().length+")");
-        return new String(out.toByteArray());
+       // System.out.println(">> "+location+" ("+out.toByteArray().length+")");
+        int size = out.size();
+        byte[] charBuf = stringBuffer.get();
+        if(charBuf != null)
+        {
+            if(charBuf.length < size)
+            {
+                charBuf = new byte[size];
+                System.out.println("NEW CHAR");
+                stringBuffer.remove();
+                stringBuffer.set(charBuf);
+            }
+        }
+        else
+        {
+            charBuf = new byte[size];
+            stringBuffer.remove();
+            stringBuffer.set(charBuf);
+        }
+        DirectByteArrayOutputSteam directOut = directArrayOuts.get();
+        directOut.setBuf(charBuf);
+        out.writeTo(directOut);
+        return new String(charBuf, 0, size);
     }
 }

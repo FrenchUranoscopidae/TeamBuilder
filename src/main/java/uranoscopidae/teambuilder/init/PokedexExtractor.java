@@ -31,9 +31,9 @@ public class PokedexExtractor
         return extractor;
     }
 
-    public void fillEntryFromWiki(PokedexEntry entry) throws IOException
+    public void fillEntryFromWiki(Pokemon entry) throws IOException
     {
-        String name = entry.getPokemon().getEnglishName();
+        String name = entry.getEnglishName();
         String source = extractor.getPageSourceCode(name+" (Pokémon)");
         String startString = "==Game data==";
         String gameData = source.substring(source.indexOf(startString)+startString.length());
@@ -46,10 +46,10 @@ public class PokedexExtractor
 
         addLearningMoves(entry, gameData);
 
-        entry.setArtwork(extractor.getImageFromName("File:"+format.format(entry.getNationalID())+entry.getPokemon().getEnglishName()+".png"));
+        entry.setArtwork(extractor.getImageFromName("File:"+format.format(entry.getNationalDexID())+entry.getEnglishName()+".png"));
     }
 
-    private void addLearningMoves(PokedexEntry dexEntry, String gameData) throws IOException
+    private void addLearningMoves(Pokemon dexEntry, String gameData) throws IOException
     {
         String start = "===Learnset===";
         String end = "{{learnlist/levelf";
@@ -86,7 +86,7 @@ public class PokedexExtractor
                 }
 
                 Move def = app.getMove(name);
-                dexEntry.getPokemon().addMove(def);
+                dexEntry.addMove(def);
             }
         }
         //System.out.println(learnlist);
@@ -115,9 +115,9 @@ public class PokedexExtractor
         return "Could not find";
     }
 
-    public List<PokedexEntry> readPokedexEntries() throws IOException
+    public List<Pokemon> readPokedexEntries() throws IOException
     {
-        List<PokedexEntry> entries = new LinkedList<>();
+        List<Pokemon> entries = new LinkedList<>();
         String code = extractor.getPageSourceCode("List_of_Pokémon_by_National_Pokédex_number");
         String[] lines = code.split("\n");
         for(String l : lines)
@@ -141,11 +141,10 @@ public class PokedexExtractor
 
                 // System.out.println(content);
 
-                Pokemon pokemon = new Pokemon(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType));
                 try
                 {
-                    PokedexEntry entry = new PokedexEntry(-1, Integer.parseInt(nationalID), pokemon);
-                    entries.add(entry);
+                    Pokemon pokemon = new Pokemon(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType), -1, Integer.parseInt(nationalID));
+                    entries.add(pokemon);
                 }
                 catch (NumberFormatException e)
                 {
