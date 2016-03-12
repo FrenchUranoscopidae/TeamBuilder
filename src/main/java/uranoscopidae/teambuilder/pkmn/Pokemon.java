@@ -259,11 +259,11 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
                     }
                     break;
 
-                case "sprite":
+                case "sprite.png":
                     sprite = ImageIO.read(in);
                     break;
 
-                case "icon":
+                case "icon.png":
                     icon = ImageIO.read(in);
                     break;
 

@@ -2,6 +2,7 @@ package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.app.refreshers.DexRefresher;
 import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
+import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 import uranoscopidae.teambuilder.utils.Constants;
@@ -10,10 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.zip.ZipInputStream;
 
 public class TeamBuilderApp
 {
@@ -55,6 +54,7 @@ public class TeamBuilderApp
     {
         frame = new JFrame("Teambuilder - v"+ Constants.VERSION);
         frame.setJMenuBar(buildMenuBar());
+        frame.add(new MainPanel(this), "Center");
         frame.add(buildProgressPanel(), "South");
         frame.pack();
         frame.setLocationRelativeTo(null);
@@ -216,5 +216,13 @@ public class TeamBuilderApp
             }
         }
         return MoveMap.getMove(name);
+    }
+
+    public Pokemon getPokemon(String fullID) throws IOException, ReflectiveOperationException
+    {
+        File file = new File(settings.getDexLocation(), fullID+".dexd");
+        ZipInputStream input = new ZipInputStream(new FileInputStream(file));
+        Pokemon pkmn = Pokemon.readPokemon(this, input);
+        return pkmn;
     }
 }
