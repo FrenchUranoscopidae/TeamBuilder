@@ -10,6 +10,7 @@ public class Settings
     private final File file;
     private File dexLocation;
     private File movesLocation;
+    private File itemsLocation;
     private int nThreads;
 
     public Settings()
@@ -17,6 +18,7 @@ public class Settings
         nThreads = 10;
         dexLocation = new File(".", "dexdata");
         movesLocation = new File(".", "movedata");
+        itemsLocation= new File(".", "itemdata");
         file = new File(System.getProperty("user.home")+"/TeamBuilder", "settings.txt");
     }
 
@@ -52,6 +54,7 @@ public class Settings
         in.close();
         dexLocation = new File(properties.getProperty("dexLocation", "./dexdata"));
         movesLocation = new File(properties.getProperty("movesLocation", "./movedata"));
+        itemsLocation = new File(properties.getProperty("itemsLocation", "./itemdata"));
         try
         {
             nThreads = Integer.parseInt(properties.getProperty("nThreads", "10"));
@@ -72,6 +75,7 @@ public class Settings
         Properties properties = new Properties();
         properties.setProperty("dexLocation", dexLocation.getAbsolutePath());
         properties.setProperty("movesLocation", movesLocation.getAbsolutePath());
+        properties.setProperty("itemsLocation", itemsLocation.getAbsolutePath());
         properties.setProperty("nThreads", String.valueOf(nThreads));
         FileOutputStream out = new FileOutputStream(file);
         properties.store(out, "TeamBuilder settings");
@@ -87,5 +91,15 @@ public class Settings
     public void setThreadCount(int nThreads)
     {
         this.nThreads = nThreads;
+    }
+
+    public File getItemsLocation()
+    {
+        return itemsLocation;
+    }
+
+    public void setItemsLocation(File itemsLocation)
+    {
+        this.itemsLocation = itemsLocation;
     }
 }

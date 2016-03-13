@@ -1,12 +1,30 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.team.Team;
+import uranoscopidae.teambuilder.app.team.TeamEntry;
+
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 
 public class TeamPanel extends JPanel
 {
 
-    public TeamPanel(TeamBuilderApp app)
+    public TeamPanel(TeamBuilderApp app, Team team)
     {
-        add(new PokemonEntryPanel(app));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(new TitledBorder("Your team"));
+        for (int i = 0; i < team.getParty().length; i++)
+        {
+            TeamEntry entry = team.getParty()[i];
+            TeamEntryButton pokemonEntry = new TeamEntryButton(app, entry);
+            panel.add(pokemonEntry);
+        }
+
+        setLayout(new BorderLayout());
+        add(panel, "West");
+
+        add(new JButton("TeamBuilder area"), "Center");
     }
 }

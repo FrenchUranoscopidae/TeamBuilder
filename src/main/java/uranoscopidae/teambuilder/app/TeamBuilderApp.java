@@ -1,6 +1,7 @@
 package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.app.refreshers.DexRefresher;
+import uranoscopidae.teambuilder.app.refreshers.ItemsRefresher;
 import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
@@ -20,6 +21,7 @@ public class TeamBuilderApp
     private final Settings settings;
     private final MovesRefresher movesRefresher;
     private final DexRefresher dexRefresher;
+    private final ItemsRefresher itemsRefresher;
     private JFrame frame;
 
     public static void main(String[] args)
@@ -48,6 +50,7 @@ public class TeamBuilderApp
         }
         dexRefresher = new DexRefresher(settings, this);
         movesRefresher = new MovesRefresher(settings, this);
+        itemsRefresher = new ItemsRefresher(settings, this);
     }
 
     protected void start()
@@ -75,13 +78,18 @@ public class TeamBuilderApp
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         JProgressBar dexBar = dexRefresher.getBar();
         JProgressBar moveBar = movesRefresher.getBar();
+        JProgressBar itemBar = itemsRefresher.getBar();
         dexBar.setStringPainted(true);
         moveBar.setStringPainted(true);
+        itemBar.setStringPainted(true);
 
         dexBar.setString("Pokédex not updating");
         moveBar.setString("Moves not updating");
+        itemBar.setString("Items not updating");
+
         panel.add(dexBar);
         panel.add(moveBar);
+        panel.add(itemBar);
         return panel;
     }
 
@@ -102,9 +110,14 @@ public class TeamBuilderApp
         refreshDex.addActionListener(e -> refreshDex());
         database.add(refreshDex);
 
+        JMenuItem refreshItems = new JMenuItem("Refresh Items database");
+        refreshItems.addActionListener(e -> refreshItems());
+        database.add(refreshItems);
+
         JMenu dbLocations = new JMenu("Set database location");
         JMenuItem dexLocation = new JMenuItem("Pokédex");
         JMenuItem movesLocation = new JMenuItem("Moves");
+        JMenuItem itemsLocation = new JMenuItem("Items");
 
         dexLocation.addActionListener((e) -> {
             File newLocation = selectFolder(this.settings.getDexLocation());
@@ -121,8 +134,17 @@ public class TeamBuilderApp
                 this.settings.setMovesLocation(newLocation);
             }
         });
+
+        itemsLocation.addActionListener((e) -> {
+            File newLocation = selectFolder(this.settings.getItemsLocation());
+            if(newLocation != null)
+            {
+                this.settings.setItemsLocation(newLocation);
+            }
+        });
         dbLocations.add(dexLocation);
         dbLocations.add(movesLocation);
+        dbLocations.add(itemsLocation);
 
         settings.add(dbLocations);
 
@@ -154,6 +176,11 @@ public class TeamBuilderApp
     private void refreshDex()
     {
         dexRefresher.launch();
+    }
+
+    private void refreshItems()
+    {
+        itemsRefresher.launch();
     }
 
     private File selectFolder(File current)

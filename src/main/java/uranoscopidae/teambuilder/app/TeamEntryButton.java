@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.utils.IOHelper;
 
@@ -11,26 +12,32 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class PokemonEntryPanel extends JPanel
+public class TeamEntryButton extends JButton
 {
 
-    private final Font levelFont;
-    private final Font nameFont;
+    private final static Font levelFont = new Font(null, Font.PLAIN, 16);
+    private final static Font nameFont = new Font(null, Font.PLAIN, 20);
+    private final TeamEntry entry;
     private BufferedImage pokeball;
-    private Pokemon pokemon;
 
-    public PokemonEntryPanel(TeamBuilderApp app)
+    public TeamEntryButton(TeamBuilderApp app, TeamEntry entry)
     {
-        nameFont = new Font(null, Font.PLAIN, 20);
-        levelFont = new Font(null, Font.PLAIN, 16);
+        this.entry = entry;
+
+        setOpaque(false);
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        Dimension size = new Dimension(300, 64);
+        setPreferredSize(size);
+        setMinimumSize(size);
+        setMaximumSize(size);
+        setSize(size);
+
         try
         {
-            pokemon = app.getPokemon("025Pikachu");
-            setPreferredSize(new Dimension(300,64));
             pokeball = ImageIO.read(getClass().getResourceAsStream("/pokeball.png"));
-
         }
-        catch (IOException | ReflectiveOperationException e)
+        catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -71,30 +78,35 @@ public class PokemonEntryPanel extends JPanel
         g.drawImage(pokeball, 0, 0, pokeballWidth, (int) (pokeball.getHeight()*sizeFactor), null);
 
         // Draw pokemon infos
-        BufferedImage icon = pokemon.getIcon();
-        float pokemonSizeFactor = (getHeight()-heightCompensation) / (float)icon.getHeight();
-        int iconWidth = (int) (pokemonSizeFactor*icon.getWidth());
-        int iconHeight = (int) (pokemonSizeFactor*icon.getHeight());
-        g.drawImage(icon, pokeballWidth, getHeight()/2-iconHeight/2, iconWidth, iconHeight, null);
+        if(entry.hasPokemon())
+        {
+            Pokemon pokemon = entry.getPokemon();
+            BufferedImage icon = pokemon.getIcon();
+            float pokemonSizeFactor = (getHeight()-heightCompensation) / (float)icon.getHeight();
+            int iconWidth = (int) (pokemonSizeFactor*icon.getWidth());
+            int iconHeight = (int) (pokemonSizeFactor*icon.getHeight());
+            g.drawImage(icon, pokeballWidth, getHeight()/2-iconHeight/2, iconWidth, iconHeight, null);
 
-        g.setFont(nameFont);
-        FontMetrics metrics = g.getFontMetrics();
-        int nameY = heightCompensation+metrics.getHeight()/2;
+            g.setFont(nameFont);
+            FontMetrics metrics = g.getFontMetrics();
+            int nameY = heightCompensation+metrics.getHeight()/2;
+            drawShadowedString(g, pokemon.getEnglishName(), pokeballWidth+iconWidth, nameY);
+
+
+            g.setFont(levelFont);
+            metrics = g.getFontMetrics();
+            int level = 100; // TODO
+
+            drawShadowedString(g, "Lv."+level, pokeballWidth+iconWidth, getHeight()-nameY+metrics.getHeight()-5);
+        }
+    }
+
+    public void drawShadowedString(Graphics g, String text, int x, int y)
+    {
         g.setColor(Color.black);
-        g.drawString(pokemon.getEnglishName(), pokeballWidth+iconWidth+1, nameY+1);
-
+        g.drawString(text, x+1, y+1);
         g.setColor(Color.white);
-        g.drawString(pokemon.getEnglishName(), pokeballWidth+iconWidth, nameY);
-
-
-        g.setFont(levelFont);
-        metrics = g.getFontMetrics();
-        int level = 100; // TODO
-
-        g.setColor(Color.black);
-        g.drawString("Lv."+level, pokeballWidth+iconWidth+1, getHeight()-nameY+metrics.getHeight()-5+1);
-        g.setColor(Color.white);
-        g.drawString("Lv."+level, pokeballWidth+iconWidth, getHeight()-nameY+metrics.getHeight()-5);
+        g.drawString(text, x, y);
     }
 
 }
