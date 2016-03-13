@@ -4,14 +4,17 @@ import uranoscopidae.teambuilder.app.refreshers.DexRefresher;
 import uranoscopidae.teambuilder.app.refreshers.ItemsRefresher;
 import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 import uranoscopidae.teambuilder.utils.Constants;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.zip.ZipInputStream;
 
@@ -251,5 +254,49 @@ public class TeamBuilderApp
         ZipInputStream input = new ZipInputStream(new FileInputStream(file));
         Pokemon pkmn = Pokemon.readPokemon(this, input);
         return pkmn;
+    }
+
+    public boolean hasItem(String name)
+    {
+        return new File(settings.getItemsLocation(), name+".itemd").exists();
+    }
+
+    public void registerItem(Item definition) throws IOException
+    {
+        if(!settings.getItemsLocation().exists())
+        {
+            settings.getItemsLocation().mkdirs();
+        }
+        FileOutputStream out = new FileOutputStream(new File(settings.getItemsLocation(), definition.getName()+".itemd"));
+        definition.writeTo(out);
+        out.flush();
+        out.close();
+    }
+
+    public Item getItem(String name) throws IOException
+    {
+        if(!ItemMap.has(name))
+        {
+            FileInputStream in = new FileInputStream(settings.getItemsLocation().getAbsolutePath()+File.separatorChar+name+".itemd");
+            Item def = Item.readFrom(in);
+            in.close();
+            ItemMap.registerItem(def);
+        }
+        return ItemMap.getItem(name);
+    }
+
+    public ItemsRefresher getItemRefresher()
+    {
+        return itemsRefresher;
+    }
+
+    public BufferedImage getBallIcon(String s) throws IOException
+    {
+        File file = new File(settings.getMainFolder(), s+".png");
+        if(!file.exists())
+        {
+            ImageIO.write(getItemRefresher().getExtractor().getExtractor().getImageFromName("File:Dream_"+s.replace(" ", "_")+"_Sprite.png"), "png", file);
+        }
+        return ImageIO.read(file);
     }
 }

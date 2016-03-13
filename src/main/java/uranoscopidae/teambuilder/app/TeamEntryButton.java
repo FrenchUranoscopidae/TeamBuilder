@@ -3,6 +3,7 @@ package uranoscopidae.teambuilder.app;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.items.Pokeballs;
 import uranoscopidae.teambuilder.utils.IOHelper;
 
 import javax.imageio.ImageIO;
@@ -12,19 +13,25 @@ import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TeamEntryButton extends JButton
 {
 
     private final static Font levelFont = new Font(null, Font.PLAIN, 16);
     private final static Font nameFont = new Font(null, Font.PLAIN, 20);
+    private final TeamBuilderApp app;
     private final TeamEntry entry;
-    private BufferedImage maleIcon;
-    private BufferedImage femaleIcon;
-    private BufferedImage pokeball;
+    private static BufferedImage grayedPokeball;
+    private static BufferedImage maleIcon;
+    private static BufferedImage femaleIcon;
+
+    private static Map<String, BufferedImage> ballIcons;
 
     public TeamEntryButton(TeamBuilderApp app, TeamEntry entry)
     {
+        this.app = app;
         this.entry = entry;
 
         setOpaque(false);
@@ -38,14 +45,29 @@ public class TeamEntryButton extends JButton
 
         try
         {
-            pokeball = ImageIO.read(getClass().getResourceAsStream("/pokeball.png"));
-            maleIcon = ImageIO.read(getClass().getResourceAsStream("/maleIcon.png"));
-            femaleIcon = ImageIO.read(getClass().getResourceAsStream("/femaleIcon.png"));
+            if(ballIcons == null)
+            {
+                ballIcons = new HashMap<>();
+                for(Pokeballs p : Pokeballs.values())
+                {
+                    String name = p.getItemName();
+                    registerBallIcon(name);
+                }
+
+                grayedPokeball = ImageIO.read(getClass().getResourceAsStream("/grayedPokeball.png"));
+                maleIcon = ImageIO.read(getClass().getResourceAsStream("/maleIcon.png"));
+                femaleIcon = ImageIO.read(getClass().getResourceAsStream("/femaleIcon.png"));
+            }
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
+    }
+
+    private void registerBallIcon(String s) throws IOException
+    {
+        ballIcons.put(s, app.getBallIcon(s));
     }
 
     @Override
@@ -54,9 +76,10 @@ public class TeamEntryButton extends JButton
         Graphics2D g = (Graphics2D)gr;
         g.setColor(Color.black);
 
+        BufferedImage pokeballIcon = entry.hasPokemon() ? ballIcons.get(entry.getBall().getName()) : grayedPokeball;
         // Draw box
-        float sizeFactor = (float)getHeight()/pokeball.getHeight();
-        final int pokeballWidth = (int) (pokeball.getWidth()*sizeFactor);
+        float sizeFactor = (float)getHeight()/pokeballIcon.getHeight();
+        final int pokeballWidth = (int) (pokeballIcon.getWidth()*sizeFactor);
         final int boxOffset = pokeballWidth/2;
         final int offset = 20;
         final int heightCompensation = 20;
@@ -73,14 +96,27 @@ public class TeamEntryButton extends JButton
         Shape s = new Polygon(new int[]{boxOffset+offset, getWidth()-1, getWidth()-offset-1, boxOffset},
                 new int[]{heightCompensation/2,heightCompensation/2, getHeight()-heightCompensation/2-1, getHeight()-heightCompensation/2-1},
                 4);
-        GradientPaint gradient = new GradientPaint(0,heightCompensation/2,Color.cyan.darker(), 0, getHeight()-heightCompensation/2-1, new Color(80,80,255));
+        Color startColor;
+        Color endColor;
+        if(entry.hasPokemon())
+        {
+            startColor = Color.cyan.darker();
+            endColor = new Color(80, 80, 255);
+        }
+        else
+        {
+            startColor = Color.lightGray.darker();
+            endColor = new Color(80, 80, 255/4);
+        }
+        GradientPaint gradient = new GradientPaint(0,heightCompensation/2, startColor, 0, getHeight()-heightCompensation/2-1, endColor);
         g.setPaint(gradient);
         g.fill(s);
 
         g.setPaint(Color.white);
 
         // Draw pokeball
-        g.drawImage(pokeball, 0, 0, pokeballWidth, (int) (pokeball.getHeight()*sizeFactor), null);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        g.drawImage(pokeballIcon, 0, 0, pokeballWidth, (int) (pokeballIcon.getHeight()*sizeFactor), null);
 
         // Draw pokemon infos
         if(entry.hasPokemon())

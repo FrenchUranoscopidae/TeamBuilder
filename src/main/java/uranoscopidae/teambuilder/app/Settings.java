@@ -12,6 +12,7 @@ public class Settings
     private File movesLocation;
     private File itemsLocation;
     private int nThreads;
+    private File mainFolder;
 
     public Settings()
     {
@@ -19,7 +20,8 @@ public class Settings
         dexLocation = new File(".", "dexdata");
         movesLocation = new File(".", "movedata");
         itemsLocation= new File(".", "itemdata");
-        file = new File(System.getProperty("user.home")+"/TeamBuilder", "settings.txt");
+        mainFolder = new File(System.getProperty("user.home")+"/TeamBuilder");
+        file = new File(mainFolder, "settings.txt");
     }
 
     public File getDexLocation()
@@ -101,5 +103,10 @@ public class Settings
     public void setItemsLocation(File itemsLocation)
     {
         this.itemsLocation = itemsLocation;
+    }
+
+    public File getMainFolder()
+    {
+        return mainFolder;
     }
 }

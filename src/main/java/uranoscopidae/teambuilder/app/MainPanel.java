@@ -2,6 +2,7 @@ package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.Team;
+import uranoscopidae.teambuilder.pkmn.items.Pokeballs;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,11 +21,10 @@ public class MainPanel extends JPanel
 
         teamList = new JTabbedPane();
 
-        Team testTeam = new Team("Test team");
+        Team testTeam = new Team(app, "Test team");
         try
         {
             testTeam.getParty()[0].setPokemon(app.getPokemon("025Pikachu"));
-            testTeam.getParty()[1].setPokemon(app.getPokemon("003Venusaur"));
             testTeam.getParty()[2].setPokemon(app.getPokemon("151Mew"));
             testTeam.getParty()[3].setPokemon(app.getPokemon("384Rayquaza"));
             testTeam.getParty()[4].setPokemon(app.getPokemon("065Alakazam"));
@@ -33,7 +33,6 @@ public class MainPanel extends JPanel
             testTeam.getParty()[0].setGender(PokemonGender.FEMALE);
             testTeam.getParty()[2].setGender(PokemonGender.FEMALE);
             testTeam.getParty()[4].setGender(PokemonGender.FEMALE);
-            testTeam.getParty()[1].setGender(PokemonGender.MALE);
             testTeam.getParty()[3].setGender(PokemonGender.MALE);
             testTeam.getParty()[5].setGender(PokemonGender.MALE);
 
@@ -41,6 +40,8 @@ public class MainPanel extends JPanel
             for (int i = 0; i < testTeam.getParty().length; i++)
             {
                 testTeam.getParty()[i].setLevel((byte) rand.nextInt(100+1));
+                int randIndex = rand.nextInt(Pokeballs.values().length);
+                testTeam.getParty()[i].setBall(app.getItem(Pokeballs.values()[randIndex].getItemName()));
             }
         }
         catch (IOException | ReflectiveOperationException e)

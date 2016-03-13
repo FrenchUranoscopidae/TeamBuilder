@@ -1,6 +1,9 @@
 package uranoscopidae.teambuilder.app.team;
 
 import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.items.Item;
+
+import java.io.IOException;
 
 public class TeamEntry
 {
@@ -10,9 +13,18 @@ public class TeamEntry
     private PokemonGender gender;
     private Pokemon pokemon;
     private byte level;
+    private Item ball;
 
     public TeamEntry(Team team, int index)
     {
+        try
+        {
+            this.ball = team.getApp().getItem("Poké Ball");
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
         this.team = team;
         this.index = index;
         level = 50;
@@ -62,5 +74,15 @@ public class TeamEntry
     public void setLevel(byte level)
     {
         this.level = level;
+    }
+
+    public Item getBall()
+    {
+        return ball;
+    }
+
+    public void setBall(Item ball)
+    {
+        this.ball = ball;
     }
 }

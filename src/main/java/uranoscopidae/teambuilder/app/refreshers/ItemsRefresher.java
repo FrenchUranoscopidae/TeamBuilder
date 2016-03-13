@@ -53,4 +53,9 @@ public class ItemsRefresher extends Refresher<Item>
     {
         return "Items: Retrieved "+part.getName();
     }
+
+    public ItemsExtractor getExtractor()
+    {
+        return extractor;
+    }
 }
