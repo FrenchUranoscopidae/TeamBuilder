@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.utils.IOHelper;
@@ -18,6 +19,8 @@ public class TeamEntryButton extends JButton
     private final static Font levelFont = new Font(null, Font.PLAIN, 16);
     private final static Font nameFont = new Font(null, Font.PLAIN, 20);
     private final TeamEntry entry;
+    private BufferedImage maleIcon;
+    private BufferedImage femaleIcon;
     private BufferedImage pokeball;
 
     public TeamEntryButton(TeamBuilderApp app, TeamEntry entry)
@@ -36,6 +39,8 @@ public class TeamEntryButton extends JButton
         try
         {
             pokeball = ImageIO.read(getClass().getResourceAsStream("/pokeball.png"));
+            maleIcon = ImageIO.read(getClass().getResourceAsStream("/maleIcon.png"));
+            femaleIcon = ImageIO.read(getClass().getResourceAsStream("/femaleIcon.png"));
         }
         catch (IOException e)
         {
@@ -89,15 +94,23 @@ public class TeamEntryButton extends JButton
 
             g.setFont(nameFont);
             FontMetrics metrics = g.getFontMetrics();
+            int nameWidth = metrics.stringWidth(pokemon.getEnglishName());
             int nameY = heightCompensation+metrics.getHeight()/2;
-            drawShadowedString(g, pokemon.getEnglishName(), pokeballWidth+iconWidth, nameY);
+            int nameX = pokeballWidth+iconWidth;
+            drawShadowedString(g, pokemon.getEnglishName(), nameX, nameY);
 
 
             g.setFont(levelFont);
             metrics = g.getFontMetrics();
-            int level = 100; // TODO
+            int level = entry.getLevel();
 
             drawShadowedString(g, "Lv."+level, pokeballWidth+iconWidth, getHeight()-nameY+metrics.getHeight()-5);
+
+            if(entry.getGender() != PokemonGender.ASEXUAL)
+            {
+                BufferedImage genderIcon = entry.getGender() == PokemonGender.MALE ? maleIcon : femaleIcon;
+                g.drawImage(genderIcon, nameX+nameWidth+1, nameY-genderIcon.getHeight(), (int) (genderIcon.getWidth()*pokemonSizeFactor), (int) (genderIcon.getHeight()*pokemonSizeFactor), null);
+            }
         }
     }
 

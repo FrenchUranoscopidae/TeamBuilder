@@ -1,10 +1,12 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.Team;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
+import java.util.Random;
 
 public class MainPanel extends JPanel
 {
@@ -27,6 +29,19 @@ public class MainPanel extends JPanel
             testTeam.getParty()[3].setPokemon(app.getPokemon("384Rayquaza"));
             testTeam.getParty()[4].setPokemon(app.getPokemon("065Alakazam"));
             testTeam.getParty()[5].setPokemon(app.getPokemon("306Aggron"));
+
+            testTeam.getParty()[0].setGender(PokemonGender.FEMALE);
+            testTeam.getParty()[2].setGender(PokemonGender.FEMALE);
+            testTeam.getParty()[4].setGender(PokemonGender.FEMALE);
+            testTeam.getParty()[1].setGender(PokemonGender.MALE);
+            testTeam.getParty()[3].setGender(PokemonGender.MALE);
+            testTeam.getParty()[5].setGender(PokemonGender.MALE);
+
+            Random rand = new Random();
+            for (int i = 0; i < testTeam.getParty().length; i++)
+            {
+                testTeam.getParty()[i].setLevel((byte) rand.nextInt(100+1));
+            }
         }
         catch (IOException | ReflectiveOperationException e)
         {
