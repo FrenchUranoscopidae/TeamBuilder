@@ -25,12 +25,14 @@ public class MainPanel extends JPanel
         try
         {
             testTeam.getParty()[0].setPokemon(app.getPokemon("025Pikachu"));
+            testTeam.getParty()[1].setPokemon(app.getPokemon("208Steelix"));
             testTeam.getParty()[2].setPokemon(app.getPokemon("151Mew"));
             testTeam.getParty()[3].setPokemon(app.getPokemon("384Rayquaza"));
             testTeam.getParty()[4].setPokemon(app.getPokemon("065Alakazam"));
             testTeam.getParty()[5].setPokemon(app.getPokemon("306Aggron"));
 
             testTeam.getParty()[0].setGender(PokemonGender.FEMALE);
+            testTeam.getParty()[1].setGender(PokemonGender.ASEXUAL);
             testTeam.getParty()[2].setGender(PokemonGender.FEMALE);
             testTeam.getParty()[4].setGender(PokemonGender.FEMALE);
             testTeam.getParty()[3].setGender(PokemonGender.MALE);

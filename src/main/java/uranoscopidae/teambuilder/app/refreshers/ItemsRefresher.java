@@ -40,7 +40,7 @@ public class ItemsRefresher extends Refresher<Item>
         BufferedImage icon = extractor.getExtractor().getImageFromName("File:Bag_"+part.getName().replace(" "," _")+"_Sprite.png");
         if(icon == null)
         {
-            icon = extractor.getExtractor().getImageFromName("File:Bag_unknown_Sprite.png");
+            icon = extractor.getExtractor().getImageFromName("File:Bag_unknown_Sprite.png"); // Handle tms
         }
         part.setIcon(icon);
         FileOutputStream out = new FileOutputStream(new File(settings.getItemsLocation(), part.getName()+".itemd"));
