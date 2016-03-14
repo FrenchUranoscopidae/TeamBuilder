@@ -15,16 +15,19 @@ public class TeamPanel extends JPanel
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(new TitledBorder("Your team"));
+        setLayout(new BorderLayout());
+
+        BuilderArea area = new BuilderArea();
         for (int i = 0; i < team.getParty().length; i++)
         {
             TeamEntry entry = team.getParty()[i];
             TeamEntryButton pokemonEntry = new TeamEntryButton(app, entry);
             panel.add(pokemonEntry);
+            pokemonEntry.addActionListener(e -> area.setSpecificView(entry));
         }
 
-        setLayout(new BorderLayout());
+        add(area, "Center");
         add(panel, "West");
-
-        add(new JButton("TeamBuilder area"), "Center");
     }
+
 }
