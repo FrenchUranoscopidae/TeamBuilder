@@ -16,6 +16,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.zip.ZipInputStream;
 
 public class TeamBuilderApp
@@ -59,6 +61,7 @@ public class TeamBuilderApp
     protected void start()
     {
         frame = new JFrame("Teambuilder - v"+ Constants.VERSION);
+        frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setJMenuBar(buildMenuBar());
         frame.add(new MainPanel(this), "Center");
         frame.add(buildProgressPanel(), "South");
@@ -298,5 +301,22 @@ public class TeamBuilderApp
             ImageIO.write(getItemRefresher().getExtractor().getExtractor().getImageFromName("File:Dream_"+s.replace(" ", "_")+"_Sprite.png"), "png", file);
         }
         return ImageIO.read(file);
+    }
+
+    public java.util.List<String> getItemNames()
+    {
+        File[] children = settings.getItemsLocation().listFiles((dir, name) -> {
+            return name.endsWith(".itemd");
+        });
+        if(children == null)
+        {
+            return Collections.emptyList();
+        }
+        java.util.List<String> names = new LinkedList<>();
+        for(File f : children)
+        {
+            names.add(f.getName().replace(".itemd", ""));
+        }
+        return names;
     }
 }
