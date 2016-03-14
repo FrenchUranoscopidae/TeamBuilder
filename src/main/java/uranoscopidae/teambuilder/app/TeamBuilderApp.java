@@ -1,8 +1,10 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.refreshers.AbilitiesRefresher;
 import uranoscopidae.teambuilder.app.refreshers.DexRefresher;
 import uranoscopidae.teambuilder.app.refreshers.ItemsRefresher;
 import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
+import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
@@ -27,6 +29,7 @@ public class TeamBuilderApp
     private final MovesRefresher movesRefresher;
     private final DexRefresher dexRefresher;
     private final ItemsRefresher itemsRefresher;
+    private final AbilitiesRefresher abilitiesRefresher;
     private JFrame frame;
 
     public static void main(String[] args)
@@ -56,6 +59,7 @@ public class TeamBuilderApp
         dexRefresher = new DexRefresher(settings, this);
         movesRefresher = new MovesRefresher(settings, this);
         itemsRefresher = new ItemsRefresher(settings, this);
+        abilitiesRefresher = new AbilitiesRefresher(settings, this);
     }
 
     protected void start()
@@ -85,17 +89,21 @@ public class TeamBuilderApp
         JProgressBar dexBar = dexRefresher.getBar();
         JProgressBar moveBar = movesRefresher.getBar();
         JProgressBar itemBar = itemsRefresher.getBar();
+        JProgressBar abilityBar = abilitiesRefresher.getBar();
         dexBar.setStringPainted(true);
         moveBar.setStringPainted(true);
         itemBar.setStringPainted(true);
+        abilityBar.setStringPainted(true);
 
         dexBar.setString("Pokédex not updating");
         moveBar.setString("Moves not updating");
+        abilityBar.setString("Abilities not updating");
         itemBar.setString("Items not updating");
 
         panel.add(dexBar);
         panel.add(moveBar);
         panel.add(itemBar);
+        panel.add(abilityBar);
         return panel;
     }
 
@@ -108,8 +116,9 @@ public class TeamBuilderApp
 
         file.add("TODO");
 
-        JMenuItem refreshMoves = new JMenuItem("Refresh move database");
+        JMenuItem refreshMoves = new JMenuItem("Refresh move and abilities database");
         refreshMoves.addActionListener(e -> refreshMoves());
+        refreshMoves.addActionListener(e -> refreshAbilities());
         database.add(refreshMoves);
 
         JMenuItem refreshDex = new JMenuItem("Refresh Pokémon database");
@@ -177,6 +186,11 @@ public class TeamBuilderApp
     private void refreshMoves()
     {
         movesRefresher.launch();
+    }
+
+    private void refreshAbilities()
+    {
+        abilitiesRefresher.launch();
     }
 
     private void refreshDex()
@@ -318,5 +332,29 @@ public class TeamBuilderApp
             names.add(f.getName().replace(".itemd", ""));
         }
         return names;
+    }
+
+    public void registerAbility(Ability part) throws IOException
+    {
+        if(!settings.getMovesLocation().exists())
+        {
+            settings.getMovesLocation().mkdirs();
+        }
+        FileOutputStream out = new FileOutputStream(new File(settings.getMovesLocation(), part.getName()+".abid"));
+        part.writeTo(out);
+        out.flush();
+        out.close();
+    }
+
+    public Ability getAbility(String name) throws IOException
+    {
+        if(!AbilityMap.has(name))
+        {
+            FileInputStream in = new FileInputStream(settings.getMovesLocation().getAbsolutePath()+File.separatorChar+name+".abid");
+            Ability def = Ability.readFrom(in);
+            in.close();
+            AbilityMap.registerAbility(def);
+        }
+        return AbilityMap.getAbility(name);
     }
 }

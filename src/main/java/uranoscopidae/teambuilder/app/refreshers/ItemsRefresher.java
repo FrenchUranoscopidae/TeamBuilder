@@ -51,7 +51,7 @@ public class ItemsRefresher extends Refresher<Item>
     @Override
     public String getText(Item part) throws IOException
     {
-        return "Items: Retrieved "+part.getName();
+        return "Retrieved "+part.getName();
     }
 
     public ItemsExtractor getExtractor()
