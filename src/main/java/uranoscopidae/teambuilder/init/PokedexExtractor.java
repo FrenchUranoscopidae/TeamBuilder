@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.init;
 
+import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.Type;
 import uranoscopidae.teambuilder.pkmn.TypeList;
@@ -47,7 +48,53 @@ public class PokedexExtractor
 
         addLearningMoves(entry, gameData);
 
+        addAbilities(entry, source);
+
         entry.setIcon(extractor.getImageFromName("File:"+format.format(entry.getNationalDexID())+"MS.png"));
+    }
+
+    private void addAbilities(Pokemon entry, String source)
+    {
+        int start = source.indexOf("{{Pokémon Infobox");
+        int end = source.indexOf("}}", start);
+        String infobox = source.substring(start, end);
+        String[] parts = infobox.split(Pattern.quote("|"));
+        String lastAbility = "1";
+        for(String s : parts)
+        {
+            if(s.contains("abilityn="))
+            {
+                lastAbility = s.split("=")[1];
+            }
+            else if(s.contains("ability"))
+            {
+                String abilityData = s.substring(s.indexOf("ability")+"ability".length());
+                if(abilityData.contains("="))
+                {
+                    String[] data = abilityData.split("=");
+                    System.out.println(">> "+abilityData);
+                    String number = data[0];
+                    String name = data[1];
+                    while(name.endsWith(" "))
+                        name = name.substring(0, name.length()-1);
+                    while(name.startsWith(" "))
+                        name = name.substring(1);
+                    try
+                    {
+                        Ability ability = app.getAbility(name.replace("\n", ""));
+                        entry.getAbilities().add(ability);
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    if(number.equals(lastAbility))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public void readArtwork(Pokemon entry, OutputStream out) throws IOException

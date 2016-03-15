@@ -2,6 +2,7 @@ package uranoscopidae.teambuilder.pkmn.moves;
 
 import uranoscopidae.teambuilder.pkmn.Type;
 import uranoscopidae.teambuilder.pkmn.TypeList;
+import uranoscopidae.teambuilder.utils.Constants;
 import uranoscopidae.teambuilder.utils.IOHelper;
 
 import java.io.*;
@@ -59,6 +60,7 @@ public class Move
     public void writeTo(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
+        dataOut.writeInt(Constants.MOVE_FORMAT_VERSION_NUMBER);
         IOHelper.writeUTF(dataOut, type.getName());
         IOHelper.writeUTF(dataOut, category.name().toUpperCase());
         IOHelper.writeUTF(dataOut, englishName);
@@ -71,6 +73,11 @@ public class Move
     public static Move readFrom(InputStream in) throws IOException
     {
         DataInputStream dataIn = new DataInputStream(in);
+        int version = dataIn.readInt();
+        if(version != Constants.MOVE_FORMAT_VERSION_NUMBER)
+        {
+            throw new UnsupportedOperationException("Format versions do not match (current: "+Constants.MOVE_FORMAT_VERSION_NUMBER+", found: "+version+")");
+        }
         String type = IOHelper.readUTF(dataIn);
         String category = IOHelper.readUTF(dataIn);
         String name = IOHelper.readUTF(dataIn);

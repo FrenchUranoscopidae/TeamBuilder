@@ -257,8 +257,9 @@ public class TeamBuilderApp
                 in.close();
                 MoveMap.registerMove(def);
             }
-            catch (IndexOutOfBoundsException e)
+            catch (Exception e)
             {
+                e.printStackTrace();
                 System.out.println("blame>>> "+name);
             }
         }

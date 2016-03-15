@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.pkmn.items;
 
+import uranoscopidae.teambuilder.utils.Constants;
 import uranoscopidae.teambuilder.utils.IOHelper;
 
 import javax.imageio.ImageIO;
@@ -33,6 +34,7 @@ public class Item
     public void writeTo(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
+        dataOut.writeInt(Constants.ITEM_FORMAT_VERSION_NUMBER);
         IOHelper.writeUTF(dataOut, name);
         IOHelper.writeUTF(dataOut, type);
         ImageIO.write(icon, "png", out);
@@ -42,6 +44,11 @@ public class Item
     public static Item readFrom(InputStream in) throws IOException
     {
         DataInputStream dataIn = new DataInputStream(in);
+        int version = dataIn.readInt();
+        if(version != Constants.ITEM_FORMAT_VERSION_NUMBER)
+        {
+            throw new UnsupportedOperationException("Format versions do not match (current: "+Constants.ITEM_FORMAT_VERSION_NUMBER+", found: "+version+")");
+        }
         String name = IOHelper.readUTF(dataIn);
         String type = IOHelper.readUTF(dataIn);
         Item item = new Item(name, type);

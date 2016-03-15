@@ -43,7 +43,14 @@ public class MainPanel extends JPanel
             {
                 testTeam.getParty()[i].setLevel((byte) rand.nextInt(100+1));
                 int randIndex = rand.nextInt(Pokeballs.values().length);
-                testTeam.getParty()[i].setBall(app.getItem(Pokeballs.values()[randIndex].getItemName()));
+                try
+                {
+                    testTeam.getParty()[i].setBall(app.getItem(Pokeballs.values()[randIndex].getItemName()));
+                }
+                catch (UnsupportedOperationException e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
         catch (IOException | ReflectiveOperationException e)

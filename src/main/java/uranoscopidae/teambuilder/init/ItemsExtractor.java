@@ -33,7 +33,6 @@ public class ItemsExtractor
         {
             if(l.startsWith("{{hexlist|"))
             {
-                System.out.println(">> "+l);
                 String content = l.substring(2, l.lastIndexOf("}}"));
                 String[] parts = content.split(Pattern.quote("|"));
                 String name = parts[1];

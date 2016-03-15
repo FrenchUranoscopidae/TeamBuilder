@@ -13,6 +13,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.DoubleStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -22,11 +23,12 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     private final String name;
     private final Type firstType;
     private final Type secondType;
+
     private final List<Move> moves;
-
+    private final List<Ability> abilities;
     private final int regionalDexID;
-    private final int nationalDexID;
 
+    private final int nationalDexID;
     private String description;
     private BufferedImage sprite;
     private BufferedImage icon;
@@ -50,6 +52,8 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         this.firstType = firstType;
         this.secondType = secondType;
         this.moves = moves;
+
+        abilities = new LinkedList<Ability>();
 
         description = "Not fetched yet";
 
@@ -206,8 +210,20 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         out.putNextEntry(new ZipEntry("globalInfos"));
         writeGlobalInfo(dataOut);
 
+        out.putNextEntry(new ZipEntry("abilities"));
+        dataOut.writeInt(getAbilities().size());
+        for(Ability ability : getAbilities())
+        {
+            writeAbility(dataOut, ability);
+        }
+
         dataOut.flush();
         out.flush();
+    }
+
+    private void writeAbility(DataOutputStream dataOut, Ability ability) throws IOException
+    {
+        IOHelper.writeUTF(dataOut, ability.getName());
     }
 
     private void writeMove(DataOutputStream out, Move move) throws IOException
@@ -239,6 +255,12 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         return app.getMove(definition);
     }
 
+    private static Ability readAbility(TeamBuilderApp app, DataInputStream dataIn) throws IOException
+    {
+        String name = IOHelper.readUTF(dataIn);
+        return app.getAbility(name);
+    }
+
     public static Pokemon readPokemon(TeamBuilderApp app, ZipInputStream in) throws IOException, ReflectiveOperationException
     {
         ZipEntry entry;
@@ -247,6 +269,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         BufferedImage icon = null;
         Pokemon pokemon = null;
         List<Move> moves = new LinkedList<>();
+        List<Ability> abilities = new LinkedList<>();
         while ((entry = in.getNextEntry()) != null)
         {
             switch (entry.getName())
@@ -282,8 +305,31 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
                     int count = dataIn.readInt();
                     for(int i = 0;i<count;i++)
                     {
-                        Move move = readMove(app, dataIn);
-                        moves.add(move);
+                        try
+                        {
+                            Move move = readMove(app, dataIn);
+                            moves.add(move);
+                        }
+                        catch (UnsupportedOperationException e)
+                        {
+                            e.printStackTrace();
+                        }
+                    }
+                    break;
+
+                case "abilities":
+                    int abilityCount = dataIn.readInt();
+                    for(int i = 0;i<abilityCount;i++)
+                    {
+                        try
+                        {
+                            Ability ability = readAbility(app, dataIn);
+                            abilities.add(ability);
+                        }
+                        catch (UnsupportedOperationException e)
+                        {
+                            e.printStackTrace();
+                        }
                     }
                     break;
 
@@ -295,6 +341,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         }
         if(pokemon != null)
         {
+            pokemon.getAbilities().addAll(abilities);
             if(sprite != null)
                 pokemon.setSprite(sprite);
             if(icon != null)
@@ -303,4 +350,8 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         return pokemon;
     }
 
+    public List<Ability> getAbilities()
+    {
+        return abilities;
+    }
 }

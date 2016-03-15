@@ -29,7 +29,7 @@ public class TeamEntry
             int randIndex = new Random().nextInt(items.size());
             item = team.getApp().getItem(items.get(randIndex)); // TODO: Change
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
