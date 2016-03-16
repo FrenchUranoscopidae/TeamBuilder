@@ -56,7 +56,7 @@ public class PokedexExtractor
     private void addAbilities(Pokemon entry, String source)
     {
         int start = source.indexOf("{{Pokémon Infobox");
-        int end = source.indexOf("}}", start);
+        int end = findCorrespondingBrace(source, start);
         String infobox = source.substring(start, end);
         String[] parts = infobox.split(Pattern.quote("|"));
         String lastAbility = "1";
@@ -65,6 +65,7 @@ public class PokedexExtractor
             if(s.contains("abilityn="))
             {
                 lastAbility = s.split("=")[1];
+                System.out.println("<< last for "+entry.getEnglishName()+" = "+lastAbility);
             }
             else if(s.contains("ability"))
             {
@@ -72,7 +73,6 @@ public class PokedexExtractor
                 if(abilityData.contains("="))
                 {
                     String[] data = abilityData.split("=");
-                    System.out.println(">> "+abilityData);
                     String number = data[0];
                     String name = data[1];
                     while(name.endsWith(" "))
@@ -82,6 +82,7 @@ public class PokedexExtractor
                     try
                     {
                         Ability ability = app.getAbility(name.replace("\n", ""));
+                        System.out.println("Added "+ability.getName()+" for "+entry.getEnglishName());
                         entry.getAbilities().add(ability);
                     }
                     catch (IOException e)
@@ -94,7 +95,33 @@ public class PokedexExtractor
                     }
                 }
             }
+            else
+            {
+                System.out.println(entry.getEnglishName()+" nah: "+s);
+            }
         }
+    }
+
+    private int findCorrespondingBrace(String source, int start)
+    {
+        int unclosed = 0;
+        for (int i = start; i < source.length(); i++)
+        {
+            char c = source.charAt(i);
+            switch (c)
+            {
+                case '{':
+                    unclosed++;
+                    break;
+
+                case '}':
+                    unclosed--;
+                    if(unclosed == 0)
+                        return i;
+                    break;
+            }
+        }
+        return -1;
     }
 
     public void readArtwork(Pokemon entry, OutputStream out) throws IOException

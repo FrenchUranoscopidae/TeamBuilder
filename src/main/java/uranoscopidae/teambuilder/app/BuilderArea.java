@@ -2,6 +2,7 @@ package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
+import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.utils.YesNoEnum;
 
 import javax.swing.*;
@@ -105,10 +106,10 @@ public class BuilderArea extends JPanel
 
         characteristicsPanel.add(itemPanel);
 
-        JPanel abilityPanel = new JPanel();
-        abilityPanel.add(new JTextField("ABILITY", 20));
-        abilityPanel.setBorder(BorderFactory.createTitledBorder("Ability"));
-        characteristicsPanel.add(abilityPanel);
+        JComboBox<Ability> abilities = new JComboBox<>(entry.getPokemon().getAbilities().toArray(new Ability[0]));
+        abilities.setSelectedItem(entry.getAbility());
+        abilities.setRenderer((list, value, index, isSelected, cellHasFocus) -> new JLabel(value.getName()));
+        addPart("Ability", abilities, characteristicsPanel, new FlowLayout());
 
         infosPanel.add(characteristicsPanel);
     }
@@ -150,8 +151,13 @@ public class BuilderArea extends JPanel
 
     public void addPart(String title, JComponent part, JPanel to)
     {
+        addPart(title, part, to, new BorderLayout());
+    }
+
+    public void addPart(String title, JComponent part, JPanel to, LayoutManager layout)
+    {
         JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout());
+        panel.setLayout(layout);
         panel.add(part);
         panel.setBorder(BorderFactory.createTitledBorder(title));
 

@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.app.team;
 
+import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 
@@ -19,6 +20,7 @@ public class TeamEntry
     private int happiness;
     private boolean shiny;
     private Item item;
+    private Ability ability;
 
     public TeamEntry(Team team, int index)
     {
@@ -58,6 +60,8 @@ public class TeamEntry
     public void setPokemon(Pokemon pokemon)
     {
         this.pokemon = pokemon;
+        if(pokemon.getAbilities().size() > 0)
+            ability = pokemon.getAbilities().get(0);
     }
 
     public boolean hasPokemon()
@@ -123,5 +127,15 @@ public class TeamEntry
     public void setItem(Item item)
     {
         this.item = item;
+    }
+
+    public Ability getAbility()
+    {
+        return ability;
+    }
+
+    public void setAbility(Ability ability)
+    {
+        this.ability = ability;
     }
 }
