@@ -1,8 +1,11 @@
 package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.app.search.ItemSearchItem;
+import uranoscopidae.teambuilder.app.search.MoveSearchItem;
 import uranoscopidae.teambuilder.app.search.SearchItem;
 import uranoscopidae.teambuilder.pkmn.items.Item;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,6 +36,19 @@ public class SearchZone extends JPanel
             if(!item.getName().toLowerCase().startsWith(nameStart.toLowerCase())) // filter out item names not starting with given text
                 continue;
             data.add(new ItemSearchItem(this, item));
+        }
+        setData(data);
+    }
+
+    public void searchMove(JTextField moveName)
+    {
+        data.clear();
+        for(Move move : MoveMap.getAllMoves())
+        {
+            String nameStart = moveName.getText();
+            if(!move.getEnglishName().toLowerCase().startsWith(nameStart.toLowerCase())) // filter out item names not starting with given text
+                continue;
+            data.add(new MoveSearchItem(this, move));
         }
         setData(data);
     }

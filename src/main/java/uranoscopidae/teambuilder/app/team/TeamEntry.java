@@ -3,8 +3,8 @@ package uranoscopidae.teambuilder.app.team;
 import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.items.Item;
+import uranoscopidae.teambuilder.pkmn.moves.Move;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
@@ -21,6 +21,7 @@ public class TeamEntry
     private boolean shiny;
     private Item item;
     private Ability ability;
+    private Move[] moves;
 
     public TeamEntry(Team team, int index)
     {
@@ -35,6 +36,7 @@ public class TeamEntry
         {
             e.printStackTrace();
         }
+        moves = new Move[4];
         this.team = team;
         this.index = index;
         level = 50;
@@ -62,6 +64,11 @@ public class TeamEntry
         this.pokemon = pokemon;
         if(pokemon.getAbilities().size() > 0)
             ability = pokemon.getAbilities().get(0);
+
+        for (int i = 0; i < moves.length && i < pokemon.getMoves().size(); i++)
+        {
+            moves[i] = pokemon.getMoves().get(i);
+        }
     }
 
     public boolean hasPokemon()
@@ -137,5 +144,15 @@ public class TeamEntry
     public void setAbility(Ability ability)
     {
         this.ability = ability;
+    }
+
+    public Move[] getMoves()
+    {
+        return moves;
+    }
+
+    public void setMove(Move move, int index)
+    {
+        this.moves[index] = move;
     }
 }

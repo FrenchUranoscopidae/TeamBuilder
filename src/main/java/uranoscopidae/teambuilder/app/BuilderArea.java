@@ -140,6 +140,17 @@ public class BuilderArea extends JPanel
         abilities.setRenderer((list, value, index, isSelected, cellHasFocus) -> new JLabel(value.getName()));
         addPart("Ability", abilities, characteristicsPanel, new FlowLayout());
 
+
+        JPanel movePanel = new JPanel();
+        for (int i = 0; i < 4; i++)
+        {
+            JTextField moveField = new JTextField(30);
+            if(entry.getMoves()[i] != null)
+                moveField.setText(entry.getMoves()[i].getEnglishName());
+            movePanel.add(moveField);
+        }
+        addPart("Moves", movePanel, characteristicsPanel);
+
         infosPanel.add(characteristicsPanel);
     }
 
