@@ -8,17 +8,22 @@ import uranoscopidae.teambuilder.utils.YesNoEnum;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
 
 public class BuilderArea extends JPanel
 {
 
+    private final TeamBuilderApp app;
     private boolean general;
     private TeamEntry entry;
+    private SearchZone searchZone;
 
-    public BuilderArea()
+    public BuilderArea(TeamBuilderApp app)
     {
+        this.app = app;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setGeneralView();
     }
@@ -43,8 +48,7 @@ public class BuilderArea extends JPanel
             JPanel infosPanel = new JPanel();
             buildInfosPanel(infosPanel);
             add(infosPanel,"North");
-            JPanel searchZone = new JPanel();
-            searchZone.add(new JButton("TEST"));
+            searchZone = new SearchZone(this);
             add(new JScrollPane(searchZone));
         }
         repaint();
@@ -100,8 +104,33 @@ public class BuilderArea extends JPanel
 
         JPanel itemPanel = new JPanel();
         itemPanel.add(Box.createVerticalGlue());
-        itemPanel.add(createImageLabel(entry.getItem().getIcon(), 24, 24));
-        itemPanel.add(new JTextField(entry.getItem().getName(), 20));
+        JLabel itemIcon = createImageLabel(entry.getItem().getIcon(), 24, 24);
+        itemPanel.add(itemIcon);
+        JTextField itemName = new JTextField(entry.getItem().getName(), 20);
+        itemPanel.add(itemName);
+
+        itemName.addActionListener((e) -> searchZone.searchItem(itemName, itemIcon));
+        itemName.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                searchZone.searchItem(itemName, itemIcon);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                searchZone.searchItem(itemName, itemIcon);
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+                searchZone.searchItem(itemName, itemIcon);
+            }
+        });
+
         itemPanel.setBorder(BorderFactory.createTitledBorder("Item"));
 
         characteristicsPanel.add(itemPanel);
@@ -119,10 +148,16 @@ public class BuilderArea extends JPanel
         return createImageLabel(image, image.getWidth(), image.getHeight());
     }
 
-    private JLabel createImageLabel(BufferedImage image, int minW, int minH)
+    public JLabel createImageLabel(BufferedImage image, int minW, int minH)
     {
         JLabel label = new JLabel();
         label.setPreferredSize(new Dimension(minW, minH));
+        loadImage(image, label);
+        return label;
+    }
+
+    public void loadImage(BufferedImage image, JLabel label)
+    {
         SwingWorker<ImageIcon, BufferedImage> worker = new SwingWorker<ImageIcon, BufferedImage>()
         {
             @Override
@@ -146,7 +181,6 @@ public class BuilderArea extends JPanel
             }
         };
         worker.execute();
-        return label;
     }
 
     public void addPart(String title, JComponent part, JPanel to)
@@ -169,5 +203,10 @@ public class BuilderArea extends JPanel
         this.entry = entry;
         this.general = false;
         updateContents();
+    }
+
+    public TeamBuilderApp getApp()
+    {
+        return app;
     }
 }

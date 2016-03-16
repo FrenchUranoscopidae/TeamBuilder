@@ -17,7 +17,7 @@ public class TeamPanel extends JPanel
         panel.setBorder(new TitledBorder("Your team"));
         setLayout(new BorderLayout());
 
-        BuilderArea area = new BuilderArea();
+        BuilderArea area = new BuilderArea(app);
         for (int i = 0; i < team.getParty().length; i++)
         {
             TeamEntry entry = team.getParty()[i];

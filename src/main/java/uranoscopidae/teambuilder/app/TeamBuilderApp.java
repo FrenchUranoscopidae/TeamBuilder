@@ -64,6 +64,7 @@ public class TeamBuilderApp
 
     protected void start()
     {
+        loadData();
         frame = new JFrame("Teambuilder - v"+ Constants.VERSION);
         frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setJMenuBar(buildMenuBar());
@@ -80,6 +81,25 @@ public class TeamBuilderApp
             }
         });
         frame.setVisible(true);
+    }
+
+    private void loadData()
+    {
+        LoadingFrame loadingFrame = new LoadingFrame();
+        loadingFrame.waitFor("Loading items into memory...", () -> {
+            for(String s : this.getItemNames())
+            {
+                try
+                {
+                    getItem(s); // registers the item into the item map
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        });
+        loadingFrame.dispose();
     }
 
     private Component buildProgressPanel()
