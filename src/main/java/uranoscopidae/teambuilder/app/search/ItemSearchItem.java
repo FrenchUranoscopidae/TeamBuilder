@@ -17,13 +17,17 @@ public class ItemSearchItem extends SearchItem
     }
 
     @Override
-    public JComponent generateComponent()
+    public JComponent generateComponent(int index, int totalCount)
     {
         JPanel panel = new JPanel();
-        panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        panel.setBackground(index % 2 == 0 ? Color.lightGray : Color.gray);
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         JLabel iconLabel = parent.getBuilderPane().createImageLabel(item.getIcon(), 24, 24);
         panel.add(iconLabel);
         panel.add(new JLabel(item.getName()+" ("+item.getType()+")"));
+        panel.add(Box.createHorizontalGlue());
+        panel.add(new JLabel(item.getDescription()));
+        panel.add(Box.createHorizontalStrut(15));
         // TODO: Add description
         return panel;
     }

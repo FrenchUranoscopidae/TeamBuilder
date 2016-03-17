@@ -13,5 +13,5 @@ public abstract class SearchItem implements Comparable<SearchItem>
         this.parent = searchZone;
     }
 
-    public abstract JComponent generateComponent();
+    public abstract JComponent generateComponent(int index, int totalCount);
 }

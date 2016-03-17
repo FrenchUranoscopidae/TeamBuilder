@@ -4,6 +4,7 @@ import uranoscopidae.teambuilder.utils.Constants;
 import uranoscopidae.teambuilder.utils.IOHelper;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 
@@ -12,6 +13,7 @@ public class Item
     private final String name;
     private final String type;
     private BufferedImage icon;
+    private String description;
 
     public Item(String name, String type)
     {
@@ -19,6 +21,7 @@ public class Item
         this.type = type;
 
         icon = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
+        description = "NOT FETCHED";
     }
 
     public String getName()
@@ -37,6 +40,7 @@ public class Item
         dataOut.writeInt(Constants.ITEM_FORMAT_VERSION_NUMBER);
         IOHelper.writeUTF(dataOut, name);
         IOHelper.writeUTF(dataOut, type);
+        IOHelper.writeUTF(dataOut, description);
         ImageIO.write(icon, "png", out);
         dataOut.flush();
     }
@@ -51,7 +55,9 @@ public class Item
         }
         String name = IOHelper.readUTF(dataIn);
         String type = IOHelper.readUTF(dataIn);
+        String desc = IOHelper.readUTF(dataIn);
         Item item = new Item(name, type);
+        item.setDescription(desc);
         item.icon = ImageIO.read(in);
         return item;
     }
@@ -64,5 +70,15 @@ public class Item
     public BufferedImage getIcon()
     {
         return icon;
+    }
+
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
     }
 }

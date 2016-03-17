@@ -18,8 +18,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.zip.ZipInputStream;
 
 public class TeamBuilderApp
@@ -86,17 +85,25 @@ public class TeamBuilderApp
     private void loadData()
     {
         LoadingFrame loadingFrame = new LoadingFrame();
-        loadingFrame.waitFor("Loading items into memory...", () -> {
-            for(String s : this.getItemNames())
+        loadingFrame.waitForList("Loading items into memory...", this::getItemNames, s -> {
+            try
             {
-                try
-                {
-                    getItem(s); // registers the item into the item map
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
+                getItem(s); // registers the item into the item map
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        });
+
+        loadingFrame.waitForList("Loading moves into memory...", this::getMoveNames, s -> {
+            try
+            {
+                getMove(s); // registers the move into the move map
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
             }
         });
         loadingFrame.dispose();
@@ -338,10 +345,10 @@ public class TeamBuilderApp
         return ImageIO.read(file);
     }
 
-    public java.util.List<String> getItemNames()
+    public java.util.List<String> getNames(File folder, String extension)
     {
-        File[] children = settings.getItemsLocation().listFiles((dir, name) -> {
-            return name.endsWith(".itemd");
+        File[] children = folder.listFiles((dir, name) -> {
+            return name.endsWith(extension);
         });
         if(children == null)
         {
@@ -350,9 +357,19 @@ public class TeamBuilderApp
         java.util.List<String> names = new LinkedList<>();
         for(File f : children)
         {
-            names.add(f.getName().replace(".itemd", ""));
+            names.add(f.getName().replace(extension, ""));
         }
         return names;
+    }
+
+    public java.util.List<String> getItemNames()
+    {
+        return getNames(settings.getItemsLocation(), ".itemd");
+    }
+
+    public java.util.List<String> getMoveNames()
+    {
+        return getNames(settings.getMovesLocation(), ".movd");
     }
 
     public void registerAbility(Ability part) throws IOException

@@ -14,7 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class PokedexExtractor
+public class PokedexExtractor extends Extractor
 {
 
     private final BulbapediaExtractor extractor;
@@ -100,28 +100,6 @@ public class PokedexExtractor
                 System.out.println(entry.getEnglishName()+" nah: "+s);
             }
         }
-    }
-
-    private int findCorrespondingBrace(String source, int start)
-    {
-        int unclosed = 0;
-        for (int i = start; i < source.length(); i++)
-        {
-            char c = source.charAt(i);
-            switch (c)
-            {
-                case '{':
-                    unclosed++;
-                    break;
-
-                case '}':
-                    unclosed--;
-                    if(unclosed == 0)
-                        return i;
-                    break;
-            }
-        }
-        return -1;
     }
 
     public void readArtwork(Pokemon entry, OutputStream out) throws IOException

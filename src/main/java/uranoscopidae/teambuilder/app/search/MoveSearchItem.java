@@ -4,6 +4,7 @@ import uranoscopidae.teambuilder.app.SearchZone;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MoveSearchItem extends SearchItem
 {
@@ -16,9 +17,12 @@ public class MoveSearchItem extends SearchItem
     }
 
     @Override
-    public JComponent generateComponent()
+    public JComponent generateComponent(int index, int totalCount)
     {
-        return new JLabel(move.getEnglishName());
+        JPanel panel = new JPanel();
+        panel.setBackground(index % 2 == 0 ? Color.gray : Color.darkGray);
+        panel.add(new JLabel(move.getEnglishName()));
+        return panel;
     }
 
     @Override

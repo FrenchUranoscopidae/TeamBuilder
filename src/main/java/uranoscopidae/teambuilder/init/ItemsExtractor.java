@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class ItemsExtractor
+public class ItemsExtractor extends Extractor
 {
 
     private final BulbapediaExtractor extractor;
@@ -92,5 +92,79 @@ public class ItemsExtractor
     public BulbapediaExtractor getExtractor()
     {
         return extractor;
+    }
+
+    public void addDescription(Item part)
+    {
+        try
+        {
+            String sourceCode = extractor.getPageSourceCode(part.getName().replace(" ", "_"));
+            int start = sourceCode.indexOf("{{Item");
+            while(start >= 0)
+            {
+                int end = findCorrespondingBrace(sourceCode, start);
+                String content = sourceCode.substring(start, end);
+                String[] parts = content.split(Pattern.quote("|"));
+                String name = null;
+                String effect = null;
+                for(String s : parts)
+                {
+                    if(s.contains("effect="))
+                    {
+                        String[] data = s.split("=");
+                        effect = data[1].replace("\n", "");
+                        while(effect.endsWith(" "))
+                            effect = effect.substring(0, effect.length()-1);
+                        while(effect.startsWith(" "))
+                            effect = effect.substring(1);
+                    }
+
+                    if(s.contains("name=") && name == null)
+                    {
+                        String[] data = s.split("=");
+                        name = data[1].replace("\n", "");
+                        while(name.endsWith(" "))
+                        {
+                            name = name.substring(0, name.length()-1);
+                        }
+                        while(name.startsWith(" "))
+                        {
+                            name = name.substring(1);
+                        }
+
+                        if(!name.equalsIgnoreCase(part.getName()))
+                        {
+                            System.out.println("Does not match "+name+" / "+part.getName());
+                            name = null;
+                        }
+                        else
+                        {
+                            System.out.println("Matches! "+name);
+                        }
+                    }
+
+                }
+
+                if(name != null && effect != null)
+                {
+                    part.setDescription(effect);
+                //    System.out.println(">> Set desc: "+effect+" ("+part.getName()+")");
+                }
+                if(name == null)
+                {
+                    System.out.println(">> "+effect+" / null name");
+                }
+
+                if(effect == null)
+                {
+                    System.out.println(">> "+name+" / null effect");
+                }
+                start = sourceCode.indexOf("{{Item", end);
+            }
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
     }
 }

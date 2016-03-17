@@ -58,11 +58,12 @@ public class SearchZone extends JPanel
         removeAll();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Collections.sort(data);
-        for(SearchItem item : data)
+        for (int i = 0; i < data.size(); i++)
         {
-            add(item.generateComponent());
+            add(data.get(i).generateComponent(i, data.size()));
         }
-        repaint();
+        add(Box.createVerticalGlue());
+        //repaint();
     }
 
     public BuilderArea getBuilderPane()

@@ -10,6 +10,8 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
 
@@ -110,6 +112,20 @@ public class BuilderArea extends JPanel
         itemPanel.add(itemName);
 
         itemName.addActionListener((e) -> searchZone.searchItem(itemName, itemIcon));
+        itemName.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mousePressed(MouseEvent e)
+            {
+                searchZone.searchItem(itemName, itemIcon);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e)
+            {
+                searchZone.searchItem(itemName, itemIcon);
+            }
+        });
         itemName.addKeyListener(new KeyAdapter()
         {
             @Override

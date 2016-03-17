@@ -37,12 +37,20 @@ public class ItemsRefresher extends Refresher<Item>
         {
             settings.getItemsLocation().mkdirs();
         }
-        BufferedImage icon = extractor.getExtractor().getImageFromName("File:Bag_"+part.getName().replace(" "," _")+"_Sprite.png");
+        extractor.addDescription(part);
+        String itemName = part.getName().replace(" "," _");
+        if(part.getType().startsWith("TM "))
+        {
+            itemName = part.getType().replace(" ", "_");
+        }
+        BufferedImage icon = extractor.getExtractor().getImageFromName("File:Bag_"+itemName+"_Sprite.png");
         if(icon == null)
         {
             icon = extractor.getExtractor().getImageFromName("File:Bag_unknown_Sprite.png"); // Handle tms
         }
         part.setIcon(icon);
+
+
         FileOutputStream out = new FileOutputStream(new File(settings.getItemsLocation(), part.getName()+".itemd"));
         part.writeTo(out);
         out.close();
