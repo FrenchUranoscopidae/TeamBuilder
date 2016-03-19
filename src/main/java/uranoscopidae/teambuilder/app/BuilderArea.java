@@ -48,7 +48,9 @@ public class BuilderArea extends JPanel
             buildInfosPanel(infosPanel);
             add(infosPanel,"North");
             searchZone = new SearchZone(this);
-            add(new JScrollPane(searchZone));
+            JScrollPane pane = new JScrollPane(searchZone);
+            pane.getVerticalScrollBar().setUnitIncrement(8);
+            add(pane);
         }
         repaint();
     }

@@ -39,7 +39,7 @@ public class ItemsRefresher extends Refresher<Item>
         }
         extractor.addDescription(part);
         String itemName = part.getName().replace(" "," _");
-        if(part.getType().startsWith("TM "))
+        if(part.getType().startsWith("TM ") || part.getType().startsWith("HM "))
         {
             itemName = part.getType().replace(" ", "_");
         }

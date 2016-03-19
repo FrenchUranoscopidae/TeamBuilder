@@ -12,9 +12,9 @@ public class TeamPanel extends JPanel
 
     public TeamPanel(TeamBuilderApp app, Team team)
     {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(new TitledBorder("Your team"));
+        JPanel teamPanel = new JPanel();
+        teamPanel.setLayout(new BoxLayout(teamPanel, BoxLayout.Y_AXIS));
+        teamPanel.setBorder(new TitledBorder("Your team"));
         setLayout(new BorderLayout());
 
         BuilderArea area = new BuilderArea(app);
@@ -22,12 +22,17 @@ public class TeamPanel extends JPanel
         {
             TeamEntry entry = team.getParty()[i];
             TeamEntryButton pokemonEntry = new TeamEntryButton(app, entry);
-            panel.add(pokemonEntry);
+            teamPanel.add(pokemonEntry);
             pokemonEntry.addActionListener(e -> area.setSpecificView(entry));
         }
 
+        JButton saveButton = new JButton("Save");
+        JButton saveToButton = new JButton("Save to...");
+        teamPanel.add(saveButton);
+        teamPanel.add(saveToButton);
+
         add(area, "Center");
-        add(panel, "West");
+        add(teamPanel, "West");
     }
 
 }
