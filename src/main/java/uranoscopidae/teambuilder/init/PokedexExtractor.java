@@ -65,7 +65,6 @@ public class PokedexExtractor extends Extractor
             if(s.contains("abilityn="))
             {
                 lastAbility = s.split("=")[1];
-                System.out.println("<< last for "+entry.getEnglishName()+" = "+lastAbility);
             }
             else if(s.contains("ability"))
             {
@@ -82,7 +81,6 @@ public class PokedexExtractor extends Extractor
                     try
                     {
                         Ability ability = app.getAbility(name.replace("\n", ""));
-                        System.out.println("Added "+ability.getName()+" for "+entry.getEnglishName());
                         entry.getAbilities().add(ability);
                     }
                     catch (IOException e)
@@ -94,10 +92,6 @@ public class PokedexExtractor extends Extractor
                         break;
                     }
                 }
-            }
-            else
-            {
-                System.out.println(entry.getEnglishName()+" nah: "+s);
             }
         }
     }
@@ -166,7 +160,6 @@ public class PokedexExtractor extends Extractor
 
                     if(!app.hasMove(name))
                     {
-                        System.out.println("NOT FOUND: "+name);
                         Type type = TypeList.getFromID(parts[3+off]);
                         MoveCategory category = MoveCategory.valueOf(parts[4+off].toUpperCase());
                         int power = MoveExtractor.readInt(parts[5+off]);

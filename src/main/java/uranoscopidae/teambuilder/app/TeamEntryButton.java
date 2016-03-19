@@ -129,18 +129,27 @@ public class TeamEntryButton extends JButton
             g.drawImage(icon, pokeballWidth, getHeight()/2-iconHeight/2, iconWidth, iconHeight, null);
 
             g.setFont(nameFont);
+            String name;
+            if(entry.hasNickname())
+            {
+                name = entry.getNickname();
+            }
+            else
+            {
+                name = entry.getPokemon().getEnglishName();
+            }
             FontMetrics metrics = g.getFontMetrics();
-            int nameWidth = metrics.stringWidth(pokemon.getEnglishName());
+            int nameWidth = metrics.stringWidth(name);
             int nameY = heightCompensation+metrics.getHeight()/2;
             int nameX = pokeballWidth+iconWidth;
-            drawShadowedString(g, pokemon.getEnglishName(), nameX, nameY);
+            drawShadowedString(g, name, nameX, nameY);
 
 
             g.setFont(levelFont);
             metrics = g.getFontMetrics();
             int level = entry.getLevel();
 
-            drawShadowedString(g, "Lv."+level, pokeballWidth+iconWidth, getHeight()-nameY+metrics.getHeight()-5);
+            drawShadowedString(g, "Lv."+level+(entry.hasNickname() ? (" ("+entry.getPokemon().getEnglishName()+")") : ""), pokeballWidth+iconWidth, getHeight()-nameY+metrics.getHeight()-5);
 
             if(entry.getGender() != PokemonGender.ASEXUAL)
             {

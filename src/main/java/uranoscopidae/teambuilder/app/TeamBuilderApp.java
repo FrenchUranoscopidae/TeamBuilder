@@ -395,4 +395,9 @@ public class TeamBuilderApp
         }
         return AbilityMap.getAbility(name);
     }
+
+    public void refreshFrame()
+    {
+        frame.repaint();
+    }
 }

@@ -8,10 +8,7 @@ import uranoscopidae.teambuilder.utils.YesNoEnum;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.ExecutionException;
 
@@ -60,13 +57,12 @@ public class BuilderArea extends JPanel
     {
         if(entry == null)
             return;
-        JLabel spriteLabel = createImageLabel(entry.getPokemon().getSprite());
+        JLabel spriteLabel = createImageLabel(entry.isShiny() ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite());
         infosPanel.setLayout(new BoxLayout(infosPanel, BoxLayout.X_AXIS));
 
         JPanel globalInfos = new JPanel();
         globalInfos.setLayout(new BoxLayout(globalInfos, BoxLayout.Y_AXIS));
-        JTextField nicknameField = new JTextField(15);
-        nicknameField.setText(entry.getPokemon().getEnglishName());
+        JTextField nicknameField = createNicknameField(app, entry);
         JTextField nameField = new JTextField(entry.getPokemon().getEnglishName(), 15);
 
         nameField.setOpaque(false);
@@ -90,17 +86,13 @@ public class BuilderArea extends JPanel
         levelField.setValue(entry.getLevel());
         addPart("Level", levelField, details);
 
-        JComboBox<PokemonGender> genders = new JComboBox<>(PokemonGender.values());
-        genders.setSelectedItem(entry.getGender());
-        addPart("Gender", genders, details);
+        addPart("Gender", createGenderPanel(app, entry), details);
 
         JSpinner happiness = new JSpinner(new SpinnerNumberModel(entry.getLevel(), 0, 255, 1));
         happiness.setValue(entry.getHappiness());
         addPart("Happiness", happiness, details);
 
-        JComboBox<YesNoEnum> shiny = new JComboBox<>(YesNoEnum.values());
-        shiny.setSelectedItem(entry.isShiny() ? YesNoEnum.YES : YesNoEnum.NO);
-        addPart("Shiny", shiny, details);
+        addPart("Shiny", createShinyPanel(spriteLabel, entry), details);
 
         characteristicsPanel.add(details);
 
@@ -151,10 +143,7 @@ public class BuilderArea extends JPanel
 
         characteristicsPanel.add(itemPanel);
 
-        JComboBox<Ability> abilities = new JComboBox<>(entry.getPokemon().getAbilities().toArray(new Ability[0]));
-        abilities.setSelectedItem(entry.getAbility());
-        abilities.setRenderer((list, value, index, isSelected, cellHasFocus) -> new JLabel(value.getName()));
-        addPart("Ability", abilities, characteristicsPanel, new FlowLayout());
+        addPart("Ability", createAbilityPanel(entry), characteristicsPanel, new FlowLayout());
 
 
         JPanel movePanel = new JPanel();
@@ -168,6 +157,95 @@ public class BuilderArea extends JPanel
         addPart("Moves", movePanel, characteristicsPanel);
 
         infosPanel.add(characteristicsPanel);
+    }
+
+    private JComponent createAbilityPanel(TeamEntry entry)
+    {
+        JComboBox<Ability> abilities = new JComboBox<>(entry.getPokemon().getAbilities().toArray(new Ability[0]));
+        abilities.setSelectedItem(entry.getAbility());
+        abilities.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
+            JPanel panel = new JPanel();
+            JLabel label = new JLabel(value.getName());
+            if(isSelected)
+            {
+                panel.setBackground(Color.gray);
+            }
+            panel.add(label);
+            return panel;
+        });
+        abilities.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED)
+            {
+                Ability ability = (Ability) e.getItem();
+                entry.setAbility(ability);
+            }
+        });
+        return abilities;
+    }
+
+    private JComponent createGenderPanel(TeamBuilderApp app, TeamEntry entry)
+    {
+        JComboBox<PokemonGender> genders = new JComboBox<>(PokemonGender.values());
+        genders.setSelectedItem(entry.getGender());
+        genders.addItemListener(e -> {
+            if(e.getStateChange() == ItemEvent.SELECTED)
+            {
+                entry.setGender((PokemonGender) e.getItem());
+                app.refreshFrame();
+            }
+        });
+        return genders;
+    }
+
+    private JTextField createNicknameField(TeamBuilderApp app, TeamEntry entry)
+    {
+        JTextField field = new JTextField(15);
+        field.setText(entry.getNickname());
+        field.addKeyListener(new KeyAdapter()
+        {
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                if(field.getText() != null)
+                    entry.setNickname(field.getText());
+                app.refreshFrame();
+                super.keyPressed(e);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e)
+            {
+                if(field.getText() != null)
+                    entry.setNickname(field.getText());
+                app.refreshFrame();
+                super.keyReleased(e);
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e)
+            {
+                if(field.getText() != null)
+                    entry.setNickname(field.getText());
+                app.refreshFrame();
+                super.keyTyped(e);
+            }
+        });
+        return field;
+    }
+
+    private JComponent createShinyPanel(JLabel spriteLabel, TeamEntry entry)
+    {
+        JComboBox<YesNoEnum> shiny = new JComboBox<>(YesNoEnum.values());
+        shiny.setSelectedItem(entry.isShiny() ? YesNoEnum.YES : YesNoEnum.NO);
+        shiny.addItemListener(e1 -> {
+            if(e1.getStateChange() == ItemEvent.SELECTED)
+            {
+                boolean isShiny = e1.getItem() == YesNoEnum.YES;
+                entry.setShiny(isShiny);
+                loadImage(isShiny ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite(), spriteLabel);
+            }
+        });
+        return shiny;
     }
 
     private JLabel createImageLabel(BufferedImage image)

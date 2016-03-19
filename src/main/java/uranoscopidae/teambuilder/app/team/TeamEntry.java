@@ -22,6 +22,7 @@ public class TeamEntry
     private Item item;
     private Ability ability;
     private Move[] moves;
+    private String nickname;
 
     public TeamEntry(Team team, int index)
     {
@@ -69,6 +70,7 @@ public class TeamEntry
         {
             moves[i] = pokemon.getMoves().get(i);
         }
+        nickname = null;
     }
 
     public boolean hasPokemon()
@@ -154,5 +156,20 @@ public class TeamEntry
     public void setMove(Move move, int index)
     {
         this.moves[index] = move;
+    }
+
+    public String getNickname()
+    {
+        return nickname;
+    }
+
+    public boolean hasNickname()
+    {
+        return nickname != null && !nickname.isEmpty();
+    }
+
+    public void setNickname(String nickname)
+    {
+        this.nickname = nickname;
     }
 }

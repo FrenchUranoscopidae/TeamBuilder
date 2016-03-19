@@ -13,7 +13,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.DoubleStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -31,8 +30,10 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     private final int nationalDexID;
     private String description;
     private BufferedImage sprite;
+    private BufferedImage shinySprite;
     private BufferedImage icon;
     private boolean spriteFetched;
+    private boolean shinySpriteFetched;
 
     public Pokemon(String name, Type firstType, int regionalID, int nationalDexID)
     {
@@ -59,6 +60,9 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
         sprite = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
         sprite.setRGB(0,0,0xFF000000);
+
+        shinySprite = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
+        shinySprite.setRGB(0,0,0xFF000000);
 
         icon = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
         icon.setRGB(0,0,0xFF000000);
@@ -197,6 +201,29 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
             ImageIO.write(sprite, "png", out);
         }
 
+        out.putNextEntry(new ZipEntry("shiny_sprite.png"));
+        if(!shinySpriteFetched)
+        {
+            if(!extractor.getExtractor().outputImageTo(out, extractor.getSpriteFullID(this, "6x")+"_s.png"))
+            {
+                // try male form
+                if(!extractor.getExtractor().outputImageTo(out, extractor.getSpriteFullID(this, "6x", "m")+"_s.png"))
+                {
+                    // try unreleased
+                    if(!extractor.getExtractor().outputImageTo(out, extractor.getSpriteFullID(this, "6o")+"_s.png"))
+                    {
+                        extractor.getExtractor().outputImageTo(out, "File:Question_Mark.png");
+                        // no other options...
+                    }
+                }
+            }
+            shinySpriteFetched = true;
+        }
+        else
+        {
+            ImageIO.write(shinySprite, "png", out);
+        }
+
         out.putNextEntry(new ZipEntry("icon.png"));
         ImageIO.write(icon, "png", out);
 
@@ -266,6 +293,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         ZipEntry entry;
         DataInputStream dataIn = new DataInputStream(in);
         BufferedImage sprite = null;
+        BufferedImage shinySprite = null;
         BufferedImage icon = null;
         Pokemon pokemon = null;
         List<Move> moves = new LinkedList<>();
@@ -286,6 +314,10 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
                     sprite = ImageIO.read(in);
                     break;
 
+                case "shiny_sprite.png":
+                    shinySprite = ImageIO.read(in);
+                    break;
+
                 case "icon.png":
                     icon = ImageIO.read(in);
                     break;
@@ -303,7 +335,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
                 case "moves":
                     int count = dataIn.readInt();
-                    for(int i = 0;i<count;i++)
+                    for (int i = 0; i < count; i++)
                     {
                         try
                         {
@@ -319,7 +351,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
                 case "abilities":
                     int abilityCount = dataIn.readInt();
-                    for(int i = 0;i<abilityCount;i++)
+                    for (int i = 0; i < abilityCount; i++)
                     {
                         try
                         {
@@ -339,13 +371,15 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
             }
         }
-        if(pokemon != null)
+        if (pokemon != null)
         {
             pokemon.getAbilities().addAll(abilities);
-            if(sprite != null)
+            if (sprite != null)
                 pokemon.setSprite(sprite);
-            if(icon != null)
+            if (icon != null)
                 pokemon.setIcon(icon);
+            if (shinySprite != null)
+                pokemon.setShinySprite(shinySprite);
         }
         return pokemon;
     }
@@ -353,5 +387,15 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     public List<Ability> getAbilities()
     {
         return abilities;
+    }
+
+    public void setShinySprite(BufferedImage shinySprite)
+    {
+        this.shinySprite = shinySprite;
+    }
+
+    public BufferedImage getShinySprite()
+    {
+        return shinySprite;
     }
 }
