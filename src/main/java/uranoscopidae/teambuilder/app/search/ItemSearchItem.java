@@ -26,9 +26,9 @@ public class ItemSearchItem extends SearchItem
         panel.add(iconLabel);
         panel.add(new JLabel(item.getName()+" ("+item.getType()+")"));
         panel.add(Box.createHorizontalGlue());
-        panel.add(new JLabel(item.getDescription()));
+        JLabel descLabel = new JLabel(item.getDescription());
+        panel.add(descLabel);
         panel.add(Box.createHorizontalStrut(15));
-        // TODO: Add description
         return panel;
     }
 

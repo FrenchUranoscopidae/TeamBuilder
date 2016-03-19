@@ -12,6 +12,7 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class SearchZone extends JPanel
 {
@@ -33,11 +34,35 @@ public class SearchZone extends JPanel
         for(Item item : ItemMap.getAllItems())
         {
             String nameStart = itemName.getText();
-            if(!item.getName().toLowerCase().startsWith(nameStart.toLowerCase())) // filter out item names not starting with given text
+            if(!matches(item.getName(), item.getDescription(), nameStart)) // filter out item names not starting with given text
                 continue;
             data.add(new ItemSearchItem(this, item));
         }
         setData(data);
+    }
+
+    private boolean matches(String value, String desc, String expr)
+    {
+        if(expr.isEmpty())
+        {
+            return true;
+        }
+        if(value.toLowerCase().startsWith(expr.toLowerCase()))
+        {
+            return true;
+        }
+
+        if(expr.contains("[") && expr.contains("]") && desc != null)
+        {
+            if(expr.indexOf("[") > expr.lastIndexOf("]"))
+                return false;
+            String descToMatch = expr.substring(expr.indexOf("[")+1, expr.lastIndexOf("]"));
+            String name = expr.substring(0, expr.indexOf("["));
+            boolean isDescMatched = desc.toLowerCase().contains(descToMatch.toLowerCase());
+            boolean isNameMatched = value.toLowerCase().startsWith(name.toLowerCase());
+            return isDescMatched && isNameMatched;
+        }
+        return false;
     }
 
     public void searchMove(JTextField moveName)
@@ -46,7 +71,7 @@ public class SearchZone extends JPanel
         for(Move move : MoveMap.getAllMoves())
         {
             String nameStart = moveName.getText();
-            if(!move.getEnglishName().toLowerCase().startsWith(nameStart.toLowerCase())) // filter out item names not starting with given text
+            if(!matches(move.getEnglishName(), "UNOWN", nameStart)) // filter out item names not starting with given text
                 continue;
             data.add(new MoveSearchItem(this, move));
         }
@@ -63,7 +88,7 @@ public class SearchZone extends JPanel
             add(data.get(i).generateComponent(i, data.size()));
         }
         add(Box.createVerticalGlue());
-        //repaint();
+        updateUI();
     }
 
     public BuilderArea getBuilderPane()

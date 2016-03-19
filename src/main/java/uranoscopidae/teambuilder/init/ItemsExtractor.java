@@ -99,17 +99,25 @@ public class ItemsExtractor extends Extractor
         try
         {
             String sourceCode = extractor.getPageSourceCode(part.getName().replace(" ", "_"));
+            int endFirstLine = sourceCode.indexOf("\n");
+            if(endFirstLine < 0)
+                endFirstLine = sourceCode.length();
+            String firstLine = sourceCode.substring(0, endFirstLine);
+            if(firstLine.contains("several referrals"))
+            {
+                sourceCode = extractor.getPageSourceCode((part.getName()+"_(Item)").replace(" ", "_"));
+            }
             int start = sourceCode.indexOf("{{Item");
             while(start >= 0)
             {
                 int end = findCorrespondingBrace(sourceCode, start);
-                String content = sourceCode.substring(start, end);
-                String[] parts = content.split(Pattern.quote("|"));
+                String content = sourceCode.substring(start+2, end);
+                List<String> parts = properSplit(content, '|');
                 String name = null;
                 String effect = null;
                 for(String s : parts)
                 {
-                    if(s.contains("effect="))
+                    if((s.contains("desc") && s.contains("=")) && name != null)
                     {
                         String[] data = s.split("=");
                         effect = data[1].replace("\n", "");
@@ -118,8 +126,7 @@ public class ItemsExtractor extends Extractor
                         while(effect.startsWith(" "))
                             effect = effect.substring(1);
                     }
-
-                    if(s.contains("name=") && name == null)
+                    else if(s.contains("name=") && name == null)
                     {
                         String[] data = s.split("=");
                         name = data[1].replace("\n", "");
@@ -134,30 +141,16 @@ public class ItemsExtractor extends Extractor
 
                         if(!name.equalsIgnoreCase(part.getName()))
                         {
-                            System.out.println("Does not match "+name+" / "+part.getName());
                             name = null;
                         }
-                        else
-                        {
-                            System.out.println("Matches! "+name);
-                        }
                     }
-
                 }
 
                 if(name != null && effect != null)
                 {
                     part.setDescription(effect);
-                //    System.out.println(">> Set desc: "+effect+" ("+part.getName()+")");
-                }
-                if(name == null)
-                {
-                    System.out.println(">> "+effect+" / null name");
-                }
-
-                if(effect == null)
-                {
-                    System.out.println(">> "+name+" / null effect");
+                    System.out.println("No prob "+name);
+                    break;
                 }
                 start = sourceCode.indexOf("{{Item", end);
             }
@@ -166,5 +159,34 @@ public class ItemsExtractor extends Extractor
         {
             e.printStackTrace();
         }
+    }
+
+    private List<String> properSplit(String content, char splitter)
+    {
+        List<String> list = new LinkedList<>();
+        char[] chars = content.toCharArray();
+        int unclosed = 0;
+        StringBuilder builder = new StringBuilder();
+        for (char c : chars)
+        {
+            if (c == splitter && unclosed == 0)
+            {
+                list.add(builder.toString());
+                builder.delete(0, builder.length());
+                continue;
+            }
+            else if (c == '{')
+            {
+                unclosed++;
+            }
+            else if (c == '}')
+            {
+                unclosed--;
+            }
+            builder.append(c);
+        }
+        if(builder.length() > 0)
+            list.add(builder.toString());
+        return list;
     }
 }

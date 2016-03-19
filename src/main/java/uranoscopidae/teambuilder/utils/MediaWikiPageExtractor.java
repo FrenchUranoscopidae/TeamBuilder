@@ -45,6 +45,11 @@ public class MediaWikiPageExtractor
 
     public String getPageSourceCode(URL location) throws IOException
     {
+        return getPageSourceCode(location, true);
+    }
+
+    public String getPageSourceCode(URL location, boolean redirect) throws IOException
+    {
         String apiResult = fetchFromApi(location);
         JsonObject result = gson.fromJson(apiResult, JsonObject.class);
         JsonObject queryObject = result.getAsJsonObject("query");
@@ -52,7 +57,16 @@ public class MediaWikiPageExtractor
         JsonObject pageObject = pages.entrySet().iterator().next().getValue().getAsJsonObject();
         JsonArray revisions = pageObject.getAsJsonArray("revisions");
         JsonObject revisionContent = revisions.get(0).getAsJsonObject();
-        return revisionContent.get("*").getAsString();
+        String content = revisionContent.get("*").getAsString();
+        if(content.contains("#REDIRECT") && redirect)
+        {
+            String redirection = content.substring(content.indexOf("[[")+2, content.lastIndexOf("]]"));
+            String path = location.toExternalForm();
+            String newLocation = path.substring(0, path.lastIndexOf("=")+1)+redirection;
+            newLocation = newLocation.replace(" ", "_");
+            return getPageSourceCode(new URL(newLocation));
+        }
+        return content;
     }
 
     public String fetchFromApi(URL location) throws IOException

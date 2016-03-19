@@ -90,7 +90,7 @@ public class TeamBuilderApp
             {
                 getItem(s); // registers the item into the item map
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
@@ -101,7 +101,7 @@ public class TeamBuilderApp
             {
                 getMove(s); // registers the move into the move map
             }
-            catch (IOException e)
+            catch (Exception e)
             {
                 e.printStackTrace();
             }
