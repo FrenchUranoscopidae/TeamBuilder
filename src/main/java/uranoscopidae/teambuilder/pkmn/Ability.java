@@ -17,7 +17,7 @@ public class Ability
         this.desc = desc;
     }
 
-    public String getName()
+    public String getEnglishName()
     {
         return name;
     }

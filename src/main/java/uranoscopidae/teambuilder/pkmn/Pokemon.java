@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -250,7 +251,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
     private void writeAbility(DataOutputStream dataOut, Ability ability) throws IOException
     {
-        IOHelper.writeUTF(dataOut, ability.getName());
+        IOHelper.writeUTF(dataOut, ability.getEnglishName());
     }
 
     private void writeMove(DataOutputStream out, Move move) throws IOException
@@ -397,5 +398,11 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     public BufferedImage getShinySprite()
     {
         return shinySprite;
+    }
+
+    public String getFullID()
+    {
+        DecimalFormat format = new DecimalFormat("000");
+        return format.format(getNationalDexID())+getEnglishName();
     }
 }

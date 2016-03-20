@@ -2,6 +2,8 @@ package uranoscopidae.teambuilder.app;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
@@ -78,7 +80,14 @@ public class LoadingFrame
                 frame.setVisible(false);
             }
         };
-        worker.execute();
+        frame.addWindowListener(new WindowAdapter()
+        {
+            @Override
+            public void windowActivated(WindowEvent e)
+            {
+                worker.execute();
+            }
+        });
         frame.setVisible(true);
     }
 

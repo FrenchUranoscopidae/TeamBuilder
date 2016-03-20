@@ -1,7 +1,6 @@
 package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.pkmn.items.Item;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ public class ItemMap
 
     public static void registerItem(Item def)
     {
-        internalMap.put(def.getName(), def);
+        internalMap.put(def.getEnglishName(), def);
     }
 
     public static Item getItem(String englishName)

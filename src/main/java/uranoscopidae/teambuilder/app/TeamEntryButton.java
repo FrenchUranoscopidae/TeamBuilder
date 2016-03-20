@@ -4,13 +4,10 @@ import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.items.Pokeballs;
-import uranoscopidae.teambuilder.utils.IOHelper;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.QuadCurve2D;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.HashMap;
@@ -76,7 +73,7 @@ public class TeamEntryButton extends JButton
         Graphics2D g = (Graphics2D)gr;
         g.setColor(Color.black);
 
-        BufferedImage pokeballIcon = entry.hasPokemon() ? ballIcons.get(entry.getBall().getName()) : grayedPokeball;
+        BufferedImage pokeballIcon = entry.hasPokemon() ? ballIcons.get(entry.getBall().getEnglishName()) : grayedPokeball;
         // Draw box
         float sizeFactor = (float)getHeight()/pokeballIcon.getHeight();
         final int pokeballWidth = (int) (pokeballIcon.getWidth()*sizeFactor);

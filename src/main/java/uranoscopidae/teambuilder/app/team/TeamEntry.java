@@ -1,31 +1,56 @@
 package uranoscopidae.teambuilder.app.team;
 
+import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
+import uranoscopidae.teambuilder.utils.SerializableField;
+import uranoscopidae.teambuilder.utils.DataHolder;
 
+import java.io.*;
 import java.util.List;
 import java.util.Random;
 
-public class TeamEntry
+public class TeamEntry extends DataHolder
 {
 
     private final Team team;
     private final int index;
+
+    @SerializableField
     private PokemonGender gender;
+
+    @SerializableField("getFullID")
     private Pokemon pokemon;
+
+    @SerializableField
     private byte level;
+
+    @SerializableField("getEnglishName")
     private Item ball;
+
+    @SerializableField
     private int happiness;
+
+    @SerializableField
     private boolean shiny;
+
+    @SerializableField("getEnglishName")
     private Item item;
+
+    @SerializableField("getEnglishName")
     private Ability ability;
+
+    @SerializableField("getEnglishName")
     private Move[] moves;
+
+    @SerializableField
     private String nickname;
 
     public TeamEntry(Team team, int index)
     {
+        super(team.getApp());
         try
         {
             this.ball = team.getApp().getItem("Poké Ball");
@@ -171,5 +196,36 @@ public class TeamEntry
     public void setNickname(String nickname)
     {
         this.nickname = nickname;
+    }
+
+    @Override
+    public void writeTo(OutputStream out) throws IOException
+    {
+        super.writeTo(out);
+        DataOutputStream dataOut = new DataOutputStream(out);
+        if(pokemon != null)
+            dataOut.writeUTF(pokemon.getFullID());
+        else
+            dataOut.writeUTF("null");
+        dataOut.flush();
+    }
+
+    @Override
+    public void readFrom(InputStream in) throws IOException
+    {
+        super.readFrom(in);
+        DataInputStream dataIn = new DataInputStream(in);
+        String pokemonName = dataIn.readUTF();
+        if(!pokemonName.equals("null"))
+        {
+            try
+            {
+                pokemon = getTeam().getApp().getPokemon(pokemonName);
+            }
+            catch (ReflectiveOperationException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

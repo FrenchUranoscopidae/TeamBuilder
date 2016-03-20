@@ -312,7 +312,7 @@ public class TeamBuilderApp
         {
             settings.getItemsLocation().mkdirs();
         }
-        FileOutputStream out = new FileOutputStream(new File(settings.getItemsLocation(), definition.getName()+".itemd"));
+        FileOutputStream out = new FileOutputStream(new File(settings.getItemsLocation(), definition.getEnglishName()+".itemd"));
         definition.writeTo(out);
         out.flush();
         out.close();
@@ -378,7 +378,7 @@ public class TeamBuilderApp
         {
             settings.getMovesLocation().mkdirs();
         }
-        FileOutputStream out = new FileOutputStream(new File(settings.getMovesLocation(), part.getName()+".abid"));
+        FileOutputStream out = new FileOutputStream(new File(settings.getMovesLocation(), part.getEnglishName()+".abid"));
         part.writeTo(out);
         out.flush();
         out.close();

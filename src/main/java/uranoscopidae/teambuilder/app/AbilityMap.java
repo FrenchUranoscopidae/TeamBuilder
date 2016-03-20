@@ -1,7 +1,6 @@
 package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.items.Item;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ public class AbilityMap
 
     public static void registerAbility(Ability def)
     {
-        internalMap.put(def.getName(), def);
+        internalMap.put(def.getEnglishName(), def);
     }
 
     public static Ability getAbility(String englishName)

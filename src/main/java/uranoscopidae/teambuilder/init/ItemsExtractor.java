@@ -3,7 +3,6 @@ package uranoscopidae.teambuilder.init;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
@@ -98,14 +97,14 @@ public class ItemsExtractor extends Extractor
     {
         try
         {
-            String sourceCode = extractor.getPageSourceCode(part.getName().replace(" ", "_"));
+            String sourceCode = extractor.getPageSourceCode(part.getEnglishName().replace(" ", "_"));
             int endFirstLine = sourceCode.indexOf("\n");
             if(endFirstLine < 0)
                 endFirstLine = sourceCode.length();
             String firstLine = sourceCode.substring(0, endFirstLine);
             if(firstLine.contains("several referrals"))
             {
-                sourceCode = extractor.getPageSourceCode((part.getName()+"_(Item)").replace(" ", "_"));
+                sourceCode = extractor.getPageSourceCode((part.getEnglishName()+"_(Item)").replace(" ", "_"));
             }
             int start = sourceCode.indexOf("{{Item");
             while(start >= 0)
@@ -139,7 +138,7 @@ public class ItemsExtractor extends Extractor
                             name = name.substring(1);
                         }
 
-                        if(!name.equalsIgnoreCase(part.getName()))
+                        if(!name.equalsIgnoreCase(part.getEnglishName()))
                         {
                             name = null;
                         }

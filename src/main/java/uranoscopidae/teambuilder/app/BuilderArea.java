@@ -102,7 +102,7 @@ public class BuilderArea extends JPanel
         itemPanel.add(Box.createVerticalGlue());
         JLabel itemIcon = createImageLabel(entry.getItem().getIcon(), 24, 24);
         itemPanel.add(itemIcon);
-        JTextField itemName = new JTextField(entry.getItem().getName(), 20);
+        JTextField itemName = new JTextField(entry.getItem().getEnglishName(), 20);
         itemPanel.add(itemName);
 
         itemName.addActionListener((e) -> searchZone.searchItem(itemName, itemIcon));
@@ -167,7 +167,7 @@ public class BuilderArea extends JPanel
         abilities.setSelectedItem(entry.getAbility());
         abilities.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JPanel panel = new JPanel();
-            JLabel label = new JLabel(value.getName());
+            JLabel label = new JLabel(value.getEnglishName());
             if(isSelected)
             {
                 panel.setBackground(Color.gray);

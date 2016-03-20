@@ -24,7 +24,7 @@ public class Item
         description = "NOT FETCHED";
     }
 
-    public String getName()
+    public String getEnglishName()
     {
         return name;
     }

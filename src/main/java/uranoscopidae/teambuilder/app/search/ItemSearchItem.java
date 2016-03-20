@@ -24,7 +24,7 @@ public class ItemSearchItem extends SearchItem
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         JLabel iconLabel = parent.getBuilderPane().createImageLabel(item.getIcon(), 24, 24);
         panel.add(iconLabel);
-        panel.add(new JLabel(item.getName()+" ("+item.getType()+")"));
+        panel.add(new JLabel(item.getEnglishName()+" ("+item.getType()+")"));
         panel.add(Box.createHorizontalGlue());
         JLabel descLabel = new JLabel(item.getDescription());
         panel.add(descLabel);
@@ -37,7 +37,7 @@ public class ItemSearchItem extends SearchItem
     {
         if(o instanceof ItemSearchItem)
         {
-            return item.getName().compareTo(((ItemSearchItem) o).item.getName());
+            return item.getEnglishName().compareTo(((ItemSearchItem) o).item.getEnglishName());
         }
         return 0;
     }

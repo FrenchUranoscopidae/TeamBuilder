@@ -39,7 +39,7 @@ public class DexRefresher extends Refresher<Pokemon>
             settings.getDexLocation().mkdirs();
         }
         extractor.fillEntryFromWiki(part);
-        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File(settings.getDexLocation(), format.format(part.getNationalDexID())+part.getEnglishName()+".dexd")));
+        ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File(settings.getDexLocation(), part.getFullID()+".dexd")));
         part.writeTo(extractor, out);
         out.close();
     }

@@ -12,7 +12,6 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class SearchZone extends JPanel
 {
@@ -34,7 +33,7 @@ public class SearchZone extends JPanel
         for(Item item : ItemMap.getAllItems())
         {
             String nameStart = itemName.getText();
-            if(!matches(item.getName(), item.getDescription(), nameStart)) // filter out item names not starting with given text
+            if(!matches(item.getEnglishName(), item.getDescription(), nameStart)) // filter out item names not starting with given text
                 continue;
             data.add(new ItemSearchItem(this, item));
         }

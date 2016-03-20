@@ -3,9 +3,7 @@ package uranoscopidae.teambuilder.app.refreshers;
 import uranoscopidae.teambuilder.app.Settings;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.init.AbilityExtractor;
-import uranoscopidae.teambuilder.init.MoveExtractor;
 import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import java.io.IOException;
 import java.util.List;
@@ -38,6 +36,6 @@ public class AbilitiesRefresher extends Refresher<Ability>
     @Override
     public String getText(Ability part) throws IOException
     {
-        return "Retrieved "+part.getName();
+        return "Retrieved "+part.getEnglishName();
     }
 }
