@@ -1,11 +1,12 @@
 package uranoscopidae.teambuilder.app.team;
 
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
+import uranoscopidae.teambuilder.utils.DataHolder;
 import uranoscopidae.teambuilder.utils.IOHelper;
 
 import java.io.*;
 
-public class Team
+public class Team extends DataHolder
 {
 
     private final TeamEntry[] party;
@@ -15,6 +16,7 @@ public class Team
 
     public Team(TeamBuilderApp app, String name)
     {
+        super(app);
         this.app = app;
         this.name = name;
         party = new TeamEntry[6];

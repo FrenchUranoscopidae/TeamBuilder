@@ -63,4 +63,9 @@ public class MainPanel extends JPanel
 
         add(teamList);
     }
+
+    public void addTeam(Team team)
+    {
+        teamList.add(team.getName(), new TeamPanel(app, team));
+    }
 }

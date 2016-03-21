@@ -96,6 +96,8 @@ public abstract class DataHolder
     public void writeTo(OutputStream out) throws IOException
     {
         DataOutputStream dataOut = new DataOutputStream(out);
+        dataOut.writeInt(0xCAFEBABE);
+        dataOut.writeUTF(getClass().getCanonicalName());
         for (int i = 0; i < fields.size(); i++)
         {
             Field f = fields.get(i);
@@ -115,9 +117,13 @@ public abstract class DataHolder
 
     private void writeValue(DataOutputStream out, Class<?> type, Object val, MethodHandle pointer) throws Throwable
     {
+        out.writeBoolean(val == null);
+        if(val == null)
+            return;
         if(type.isArray())
         {
             int l = Array.getLength(val);
+            out.writeInt(l);
             Class<?> compType = type.getComponentType();
             for (int i = 0; i < l; i++)
             {
@@ -130,14 +136,7 @@ public abstract class DataHolder
         }
         else if(type == String.class)
         {
-            if(val == null)
-            {
-                out.writeUTF("null");
-            }
-            else
-            {
-                out.writeUTF((String) val);
-            }
+            out.writeUTF((String) val);
         }
         else if(type.isPrimitive())
         {
@@ -194,6 +193,11 @@ public abstract class DataHolder
     public void readFrom(InputStream in) throws IOException
     {
         DataInputStream dataIn = new DataInputStream(in);
+        int magicNumber = dataIn.readInt();
+        if(magicNumber != 0xCAFEBABE)
+        {
+            throw new IOException("Invalid magic number: "+magicNumber+" (expected: "+0xCAFEBABE+")");
+        }
         String id = dataIn.readUTF();
         if(!id.equals(getClass().getCanonicalName()))
             throw new UnsupportedOperationException("Invalid id: "+id+" (expected "+getClass().getCanonicalName()+")");
@@ -203,7 +207,7 @@ public abstract class DataHolder
             boolean hasPointer = pointers.get(i) != null;
             try
             {
-                readField(dataIn, f, f.getType(), hasPointer);
+                f.set(this, readField(dataIn, f, f.getType(), hasPointer));
             }
             catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e)
             {
@@ -214,6 +218,10 @@ public abstract class DataHolder
 
     private Object readField(DataInputStream dataIn, Field f, Class<?> type, boolean hasPointer) throws NoSuchMethodException, IOException, InvocationTargetException, IllegalAccessException, InstantiationException
     {
+        if(dataIn.readBoolean())
+        {
+            return null;
+        }
         if (type.isEnum())
         {
             String value = dataIn.readUTF();
@@ -223,7 +231,7 @@ public abstract class DataHolder
         else if(type.isArray())
         {
             int length = dataIn.readInt();
-            Class<?> compType = f.getType().getComponentType();
+            Class<?> compType = type.getComponentType();
             Object array = Array.newInstance(compType, length);
             List l = new LinkedList<>();
             for (int i = 0; i < length; i++)
@@ -232,13 +240,17 @@ public abstract class DataHolder
             }
             return l.toArray((Object[]) array);
         }
+        else if(type == String.class)
+        {
+            return dataIn.readUTF();
+        }
         else if(type.isPrimitive())
         {
-            return null;
+            return readPrimitive(dataIn, type);
         }
         else if(hasPointer)
         {
-            String name = f.getType().getSimpleName();
+            String name = type.getSimpleName();
             String toCall = "get"+name;
             Method m = app.getClass().getDeclaredMethod(toCall, String.class);
             String value = dataIn.readUTF();
@@ -252,5 +264,42 @@ public abstract class DataHolder
             newInstance.readFrom(dataIn);
             return newInstance;
         }
+    }
+
+    private Object readPrimitive(DataInputStream dataIn, Class<?> type) throws IOException
+    {
+        if(type == boolean.class)
+        {
+            return dataIn.readBoolean();
+        }
+        else if(type == byte.class)
+        {
+            return dataIn.readByte();
+        }
+        else if(type == char.class)
+        {
+            return dataIn.readChar();
+        }
+        else if(type == double.class)
+        {
+            return dataIn.readDouble();
+        }
+        else if(type == float.class)
+        {
+            return dataIn.readFloat();
+        }
+        else if(type == int.class)
+        {
+            return dataIn.readInt();
+        }
+        else if(type == long.class)
+        {
+            return dataIn.readLong();
+        }
+        else if(type == short.class)
+        {
+            return dataIn.readShort();
+        }
+        throw new IllegalArgumentException("Unknown primitive type: "+type.getCanonicalName());
     }
 }

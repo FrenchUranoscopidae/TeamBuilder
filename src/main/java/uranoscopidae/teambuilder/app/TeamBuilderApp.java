@@ -4,6 +4,7 @@ import uranoscopidae.teambuilder.app.refreshers.AbilitiesRefresher;
 import uranoscopidae.teambuilder.app.refreshers.DexRefresher;
 import uranoscopidae.teambuilder.app.refreshers.ItemsRefresher;
 import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
+import uranoscopidae.teambuilder.app.team.Team;
 import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
 import uranoscopidae.teambuilder.pkmn.items.Item;
@@ -30,6 +31,7 @@ public class TeamBuilderApp
     private final ItemsRefresher itemsRefresher;
     private final AbilitiesRefresher abilitiesRefresher;
     private JFrame frame;
+    private MainPanel mainPanel;
 
     public static void main(String[] args)
     {
@@ -67,7 +69,8 @@ public class TeamBuilderApp
         frame = new JFrame("Teambuilder - v"+ Constants.VERSION);
         frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setJMenuBar(buildMenuBar());
-        frame.add(new MainPanel(this), "Center");
+        mainPanel = new MainPanel(this);
+        frame.add(mainPanel, "Center");
         frame.add(buildProgressPanel(), "South");
         frame.pack();
         frame.setLocationRelativeTo(null);
@@ -141,7 +144,24 @@ public class TeamBuilderApp
         JMenu database = new JMenu("Databases");
         JMenu settings = new JMenu("Settings");
 
-        file.add("TODO");
+        JMenuItem importTeam = new JMenuItem("Import team");
+        importTeam.addActionListener(e -> {
+            File teamFile = selectFile(null);
+            if(teamFile != null)
+            {
+                try
+                {
+                    FileInputStream in = new FileInputStream(teamFile);
+                    Team team = Team.readFrom(this, in);
+                    mainPanel.addTeam(team);
+                }
+                catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        file.add(importTeam);
 
         JMenuItem refreshMoves = new JMenuItem("Refresh move and abilities database");
         refreshMoves.addActionListener(e -> refreshMoves());
@@ -208,6 +228,19 @@ public class TeamBuilderApp
         menuBar.add(database);
         menuBar.add(settings);
         return menuBar;
+    }
+
+    private File selectFile(File current)
+    {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        if(current != null)
+        {
+            chooser.setCurrentDirectory(current.getParentFile());
+            chooser.setSelectedFile(current);
+        }
+        chooser.showOpenDialog(frame);
+        return chooser.getSelectedFile();
     }
 
     private void refreshMoves()

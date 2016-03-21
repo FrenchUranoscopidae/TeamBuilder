@@ -198,34 +198,4 @@ public class TeamEntry extends DataHolder
         this.nickname = nickname;
     }
 
-    @Override
-    public void writeTo(OutputStream out) throws IOException
-    {
-        super.writeTo(out);
-        DataOutputStream dataOut = new DataOutputStream(out);
-        if(pokemon != null)
-            dataOut.writeUTF(pokemon.getFullID());
-        else
-            dataOut.writeUTF("null");
-        dataOut.flush();
-    }
-
-    @Override
-    public void readFrom(InputStream in) throws IOException
-    {
-        super.readFrom(in);
-        DataInputStream dataIn = new DataInputStream(in);
-        String pokemonName = dataIn.readUTF();
-        if(!pokemonName.equals("null"))
-        {
-            try
-            {
-                pokemon = getTeam().getApp().getPokemon(pokemonName);
-            }
-            catch (ReflectiveOperationException e)
-            {
-                e.printStackTrace();
-            }
-        }
-    }
 }
