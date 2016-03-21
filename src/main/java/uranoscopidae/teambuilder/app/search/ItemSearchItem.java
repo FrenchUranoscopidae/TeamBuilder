@@ -20,7 +20,7 @@ public class ItemSearchItem extends SearchItem
     public JComponent generateComponent(int index, int totalCount)
     {
         JPanel panel = new JPanel();
-        panel.setBackground(index % 2 == 0 ? Color.lightGray : Color.gray);
+        setBackgroundColor(panel, index);
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         JLabel iconLabel = parent.getBuilderPane().createImageLabel(item.getIcon(), 24, 24);
         panel.add(iconLabel);

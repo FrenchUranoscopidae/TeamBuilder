@@ -9,7 +9,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.util.*;
 
-public abstract class DataHolder
+public abstract class DataHolder implements Serializable
 {
 
     private final List<Field> fields;
@@ -301,5 +301,17 @@ public abstract class DataHolder
             return dataIn.readShort();
         }
         throw new IllegalArgumentException("Unknown primitive type: "+type.getCanonicalName());
+    }
+
+    @Override
+    public void readFrom(DataInputStream in) throws IOException
+    {
+        readFrom((InputStream) in);
+    }
+
+    @Override
+    public void writeTo(DataOutputStream out) throws IOException
+    {
+        writeTo((OutputStream)out);
     }
 }

@@ -3,21 +3,25 @@ package uranoscopidae.teambuilder.app;
 import uranoscopidae.teambuilder.app.search.ItemSearchItem;
 import uranoscopidae.teambuilder.app.search.MoveSearchItem;
 import uranoscopidae.teambuilder.app.search.SearchItem;
+import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 
+import javax.annotation.processing.Completion;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class SearchZone extends JPanel
 {
     private final BuilderArea parent;
     private final List<SearchItem> data;
     private final TeamBuilderApp app;
+    private TeamEntry entry;
 
     public SearchZone(BuilderArea parent)
     {
@@ -27,20 +31,25 @@ public class SearchZone extends JPanel
         data = new LinkedList<>();
     }
 
+    public void setCurrentEntry(TeamEntry pokemon)
+    {
+        this.entry = pokemon;
+    }
+
     public void searchItem(JTextField itemName, JLabel itemIcon)
     {
         data.clear();
         for(Item item : ItemMap.getAllItems())
         {
             String nameStart = itemName.getText();
-            if(!matches(item.getEnglishName(), item.getDescription(), nameStart)) // filter out item names not starting with given text
+            if(!matches(item.getEnglishName(), item.getDescription(), nameStart, false)) // filter out item names not starting with given text
                 continue;
             data.add(new ItemSearchItem(this, item));
         }
         setData(data);
     }
 
-    private boolean matches(String value, String desc, String expr)
+    private boolean matches(String value, String desc, String expr, boolean strictDescMatch)
     {
         if(expr.isEmpty())
         {
@@ -57,7 +66,15 @@ public class SearchZone extends JPanel
                 return false;
             String descToMatch = expr.substring(expr.indexOf("[")+1, expr.lastIndexOf("]"));
             String name = expr.substring(0, expr.indexOf("["));
-            boolean isDescMatched = desc.toLowerCase().contains(descToMatch.toLowerCase());
+            boolean isDescMatched;
+            if(strictDescMatch)
+            {
+                isDescMatched = desc.toLowerCase().startsWith(descToMatch.toLowerCase());
+            }
+            else
+            {
+                isDescMatched = desc.toLowerCase().contains(descToMatch.toLowerCase());
+            }
             boolean isNameMatched = value.toLowerCase().startsWith(name.toLowerCase());
             return isDescMatched && isNameMatched;
         }
@@ -67,10 +84,17 @@ public class SearchZone extends JPanel
     public void searchMove(JTextField moveName)
     {
         data.clear();
+        String nameStart = moveName.getText();
+        final boolean allowIllegal = nameStart.startsWith("!");
+        if(allowIllegal)
+        {
+            nameStart = nameStart.substring(1);
+        }
         for(Move move : MoveMap.getAllMoves())
         {
-            String nameStart = moveName.getText();
-            if(!matches(move.getEnglishName(), "UNOWN", nameStart)) // filter out item names not starting with given text
+            if(!allowIllegal && !getCurrentEntry().getPokemon().canLearn(move))
+                continue;
+            if(!matches(move.getEnglishName(), move.getType().getName(), nameStart, true)) // filter out item names not starting with given text
                 continue;
             data.add(new MoveSearchItem(this, move));
         }
@@ -93,5 +117,10 @@ public class SearchZone extends JPanel
     public BuilderArea getBuilderPane()
     {
         return parent;
+    }
+
+    public TeamEntry getCurrentEntry()
+    {
+        return entry;
     }
 }

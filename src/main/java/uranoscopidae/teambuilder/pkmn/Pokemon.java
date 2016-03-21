@@ -405,4 +405,9 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         DecimalFormat format = new DecimalFormat("000");
         return format.format(getNationalDexID())+getEnglishName();
     }
+
+    public boolean canLearn(Move move)
+    {
+        return moves.contains(move);
+    }
 }

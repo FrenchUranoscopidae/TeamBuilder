@@ -86,4 +86,14 @@ public class Move
         int pp = dataIn.readInt();
         return new Move(TypeList.getFromID(type), MoveCategory.valueOf(category), name, power, accuracy, pp);
     }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(obj instanceof Move)
+        {
+            return ((Move) obj).getEnglishName().equals(getEnglishName());
+        }
+        return super.equals(obj);
+    }
 }

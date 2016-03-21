@@ -1,11 +1,17 @@
 package uranoscopidae.teambuilder.pkmn;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * Created by philippine on 04/03/2016.
  */
 public class Type
 {
     private final String name;
+    private BufferedImage icon;
     private Type[] superEffectiveOn;
     private Type[] notEffectiveOn;
     private Type[] ineffectiveOn;
@@ -13,6 +19,16 @@ public class Type
     public Type(String name)
     {
         this.name = name;
+        try
+        {
+            InputStream in = getClass().getResourceAsStream("/typeicons/"+name+".png");
+            this.icon = ImageIO.read(in);
+            in.close();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
         superEffectiveOn = new Type[0];
         notEffectiveOn = new Type[0];
         ineffectiveOn = new Type[0];
@@ -70,9 +86,8 @@ public class Type
 
     private boolean arrayContains(Type[] arr, Type elem)
     {
-        for (int i = 0; i < arr.length; i++)
+        for (Type arrayElem : arr)
         {
-            Type arrayElem = arr[i];
             if (arrayElem == elem)
             {
                 return true;
@@ -99,5 +114,10 @@ public class Type
         {
             return 1f;
         }
+    }
+
+    public BufferedImage getIcon()
+    {
+        return icon;
     }
 }

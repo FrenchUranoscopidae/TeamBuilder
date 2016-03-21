@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.search.SearchZoneSearchListener;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Ability;
@@ -48,6 +49,7 @@ public class BuilderArea extends JPanel
             buildInfosPanel(infosPanel);
             add(infosPanel,"North");
             searchZone = new SearchZone(this);
+            searchZone.setCurrentEntry(entry);
             JScrollPane pane = new JScrollPane(searchZone);
             pane.getVerticalScrollBar().setUnitIncrement(8);
             add(pane);
@@ -106,40 +108,9 @@ public class BuilderArea extends JPanel
         itemPanel.add(itemName);
 
         itemName.addActionListener((e) -> searchZone.searchItem(itemName, itemIcon));
-        itemName.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mousePressed(MouseEvent e)
-            {
-                searchZone.searchItem(itemName, itemIcon);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e)
-            {
-                searchZone.searchItem(itemName, itemIcon);
-            }
-        });
-        itemName.addKeyListener(new KeyAdapter()
-        {
-            @Override
-            public void keyPressed(KeyEvent e)
-            {
-                searchZone.searchItem(itemName, itemIcon);
-            }
-
-            @Override
-            public void keyReleased(KeyEvent e)
-            {
-                searchZone.searchItem(itemName, itemIcon);
-            }
-
-            @Override
-            public void keyTyped(KeyEvent e)
-            {
-                searchZone.searchItem(itemName, itemIcon);
-            }
-        });
+        SearchZoneSearchListener itemSearchListener = new SearchZoneSearchListener(() -> searchZone.searchItem(itemName, itemIcon));
+        itemName.addMouseListener(itemSearchListener);
+        itemName.addKeyListener(itemSearchListener);
 
         itemPanel.setBorder(BorderFactory.createTitledBorder("Item"));
 
@@ -154,6 +125,9 @@ public class BuilderArea extends JPanel
             JTextField moveField = new JTextField(30);
             if(entry.getMoves()[i] != null)
                 moveField.setText(entry.getMoves()[i].getEnglishName());
+            SearchZoneSearchListener moveSearchListener = new SearchZoneSearchListener(() -> searchZone.searchMove(moveField));
+            moveField.addMouseListener(moveSearchListener);
+            moveField.addKeyListener(moveSearchListener);
             movePanel.add(moveField);
         }
         addPart("Moves", movePanel, characteristicsPanel);
