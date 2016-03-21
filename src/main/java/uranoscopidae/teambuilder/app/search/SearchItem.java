@@ -8,6 +8,7 @@ import java.awt.*;
 public abstract class SearchItem implements Comparable<SearchItem>
 {
     protected final SearchZone parent;
+    private boolean hovered;
 
     public SearchItem(SearchZone searchZone)
     {
@@ -16,8 +17,27 @@ public abstract class SearchItem implements Comparable<SearchItem>
 
     public abstract JComponent generateComponent(int index, int totalCount);
 
-    protected void setBackgroundColor(JComponent comp, int index)
+    public void setBackgroundColor(JComponent comp, int index)
     {
-        comp.setBackground(index % 2 == 0 ? Color.lightGray : Color.gray);
+        if(hovered)
+        {
+            comp.setBackground(index % 2 == 0 ? new Color(0x91C9F7) : new Color(0x91C9F7).darker());
+        }
+        else
+        {
+            comp.setBackground(index % 2 == 0 ? Color.lightGray : Color.gray);
+        }
+    }
+
+    public abstract String toString();
+
+    public void setHovered(boolean hovered)
+    {
+        this.hovered = hovered;
+    }
+
+    public boolean isHovered()
+    {
+        return hovered;
     }
 }

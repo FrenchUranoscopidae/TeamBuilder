@@ -373,7 +373,12 @@ public class TeamBuilderApp
         File file = new File(settings.getMainFolder(), s+".png");
         if(!file.exists())
         {
-            ImageIO.write(getItemRefresher().getExtractor().getExtractor().getImageFromName("File:Dream_"+s.replace(" ", "_")+"_Sprite.png"), "png", file);
+            BufferedImage image = getItemRefresher().getExtractor().getExtractor().getImageFromName("File:Dream_"+s.replace(" ", "_")+"_Sprite.png");
+            if(image.getWidth() == 80)
+            {
+                image = image.getSubimage(10,10,60,60);
+            }
+            ImageIO.write(image, "png", file);
         }
         return ImageIO.read(file);
     }

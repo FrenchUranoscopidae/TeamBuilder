@@ -33,6 +33,12 @@ public class ItemSearchItem extends SearchItem
     }
 
     @Override
+    public String toString()
+    {
+        return item.getEnglishName();
+    }
+
+    @Override
     public int compareTo(SearchItem o)
     {
         if(o instanceof ItemSearchItem)

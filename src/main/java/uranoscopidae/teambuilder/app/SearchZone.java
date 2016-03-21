@@ -8,13 +8,13 @@ import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 
-import javax.annotation.processing.Completion;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class SearchZone extends JPanel
 {
@@ -46,7 +46,7 @@ public class SearchZone extends JPanel
                 continue;
             data.add(new ItemSearchItem(this, item));
         }
-        setData(data);
+        setData(itemName, data);
     }
 
     private boolean matches(String value, String desc, String expr, boolean strictDescMatch)
@@ -98,17 +98,43 @@ public class SearchZone extends JPanel
                 continue;
             data.add(new MoveSearchItem(this, move));
         }
-        setData(data);
+        setData(moveName, data);
     }
 
-    private void setData(List<SearchItem> data)
+    private void setData(JTextField toModify, List<SearchItem> data)
     {
         removeAll();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Collections.sort(data);
         for (int i = 0; i < data.size(); i++)
         {
-            add(data.get(i).generateComponent(i, data.size()));
+            SearchItem item = data.get(i);
+            JComponent component = item.generateComponent(i, data.size());
+            add(component);
+            final int index = i;
+            component.addMouseListener(new MouseAdapter()
+            {
+                @Override
+                public void mouseClicked(MouseEvent e)
+                {
+                    toModify.setText(item.toString());
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e)
+                {
+                    item.setHovered(true);
+                    item.setBackgroundColor(component, index);
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e)
+                {
+                    item.setHovered(false);
+                    item.setBackgroundColor(component, index);
+                }
+            });
+            component.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
         add(Box.createVerticalGlue());
         updateUI();

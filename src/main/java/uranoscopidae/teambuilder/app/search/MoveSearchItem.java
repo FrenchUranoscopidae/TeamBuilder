@@ -52,4 +52,10 @@ public class MoveSearchItem extends SearchItem
         }
         return 0;
     }
+
+    @Override
+    public String toString()
+    {
+        return move.getEnglishName();
+    }
 }
