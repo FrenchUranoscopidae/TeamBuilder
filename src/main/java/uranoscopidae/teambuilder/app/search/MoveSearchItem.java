@@ -1,6 +1,5 @@
 package uranoscopidae.teambuilder.app.search;
 
-import uranoscopidae.teambuilder.app.SearchZone;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 
 import javax.swing.*;

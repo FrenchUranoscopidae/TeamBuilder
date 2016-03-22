@@ -1,5 +1,6 @@
-package uranoscopidae.teambuilder.app;
+package uranoscopidae.teambuilder.app.team;
 
+import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
@@ -23,6 +24,7 @@ public class TeamEntryButton extends JButton
     private static BufferedImage grayedPokeball;
     private static BufferedImage maleIcon;
     private static BufferedImage femaleIcon;
+    private static BufferedImage shinyIcon;
 
     private static Map<String, BufferedImage> ballIcons;
 
@@ -54,6 +56,7 @@ public class TeamEntryButton extends JButton
                 grayedPokeball = ImageIO.read(getClass().getResourceAsStream("/grayedPokeball.png"));
                 maleIcon = ImageIO.read(getClass().getResourceAsStream("/maleIcon.png"));
                 femaleIcon = ImageIO.read(getClass().getResourceAsStream("/femaleIcon.png"));
+                shinyIcon = ImageIO.read(getClass().getResourceAsStream("/shinyIcon.png"));
             }
         }
         catch (IOException e)
@@ -146,7 +149,14 @@ public class TeamEntryButton extends JButton
             metrics = g.getFontMetrics();
             int level = entry.getLevel();
 
-            drawShadowedString(g, "Lv."+level+(entry.hasNickname() ? (" ("+entry.getPokemon().getEnglishName()+")") : ""), pokeballWidth+iconWidth, getHeight()-nameY+metrics.getHeight()-5);
+            String levelText = "Lv."+level+(entry.hasNickname() ? (" ("+entry.getPokemon().getEnglishName()+")") : "");
+            int levelX = pokeballWidth+iconWidth;
+            int levelY = getHeight()-nameY+metrics.getHeight()-5;
+            drawShadowedString(g, levelText, levelX, levelY);
+            if(entry.isShiny())
+            {
+                g.drawImage(shinyIcon, levelX+1+metrics.stringWidth(levelText), levelY-shinyIcon.getHeight(), null);
+            }
 
             if(entry.getGender() != PokemonGender.ASEXUAL)
             {

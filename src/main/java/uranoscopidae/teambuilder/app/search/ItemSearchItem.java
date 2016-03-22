@@ -1,10 +1,8 @@
 package uranoscopidae.teambuilder.app.search;
 
-import uranoscopidae.teambuilder.app.SearchZone;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class ItemSearchItem extends SearchItem
 {

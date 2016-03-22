@@ -1,7 +1,7 @@
-package uranoscopidae.teambuilder.app;
+package uranoscopidae.teambuilder.app.team;
 
-import uranoscopidae.teambuilder.app.team.Team;
-import uranoscopidae.teambuilder.app.team.TeamEntry;
+import uranoscopidae.teambuilder.app.BuilderArea;
+import uranoscopidae.teambuilder.app.TeamBuilderApp;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;

@@ -1,7 +1,5 @@
 package uranoscopidae.teambuilder.app.search;
 
-import uranoscopidae.teambuilder.app.SearchZone;
-
 import javax.swing.*;
 import java.awt.*;
 

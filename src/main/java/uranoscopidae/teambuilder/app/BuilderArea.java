@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.search.SearchZone;
 import uranoscopidae.teambuilder.app.search.SearchZoneSearchListener;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
@@ -11,6 +12,7 @@ import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class BuilderArea extends JPanel
@@ -45,14 +47,15 @@ public class BuilderArea extends JPanel
         {
             setBorder(new TitledBorder("Your Pokémon"));
             setLayout(new BorderLayout());
-            JPanel infosPanel = new JPanel();
-            buildInfosPanel(infosPanel);
-            add(infosPanel,"North");
             searchZone = new SearchZone(this);
             searchZone.setCurrentEntry(entry);
+            JPanel infosPanel = new JPanel();
+            buildInfosPanel(infosPanel);
+
             JScrollPane pane = new JScrollPane(searchZone);
             pane.getVerticalScrollBar().setUnitIncrement(8);
-            add(pane);
+            add(infosPanel,"North");
+            add(pane, "Center");
         }
         repaint();
     }
@@ -86,17 +89,13 @@ public class BuilderArea extends JPanel
         details.setBorder(BorderFactory.createTitledBorder("Details"));
         details.setLayout(new FlowLayout());
 
-        JSpinner levelField = new JSpinner(new SpinnerNumberModel(entry.getLevel(), 1, 100, 1));
-        levelField.setValue(entry.getLevel());
-        addPart("Level", levelField, details);
+        addPart("Level", createLevelField(app, entry), details);
 
         addPart("Gender", createGenderPanel(app, entry), details);
 
-        JSpinner happiness = new JSpinner(new SpinnerNumberModel(entry.getLevel(), 0, 255, 1));
-        happiness.setValue(entry.getHappiness());
-        addPart("Happiness", happiness, details);
+        addPart("Happiness", createHappinessField(app, entry), details);
 
-        addPart("Shiny", createShinyPanel(spriteLabel, entry), details);
+        addPart("Shiny", createShinyPanel(app, spriteLabel, entry), details);
 
         characteristicsPanel.add(details);
 
@@ -104,11 +103,21 @@ public class BuilderArea extends JPanel
         itemPanel.add(Box.createVerticalGlue());
         JLabel itemIcon = createImageLabel(entry.getItem().getIcon(), 24, 24);
         itemPanel.add(itemIcon);
-        JTextField itemName = new JTextField(entry.getItem().getEnglishName(), 20);
+        ConfirmableTextField itemName = new ConfirmableTextField(entry.getItem().getEnglishName(), app.getItemNames());
         itemPanel.add(itemName);
+        itemName.addConfirmationListener(s -> {
+            try
+            {
+                loadImage(app.getItem(s).getIcon(), itemIcon);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        });
 
         itemName.addActionListener((e) -> searchZone.searchItem(itemName, itemIcon));
-        SearchZoneSearchListener itemSearchListener = new SearchZoneSearchListener(() -> searchZone.searchItem(itemName, itemIcon));
+        SearchZoneSearchListener itemSearchListener = new SearchZoneSearchListener(() -> searchZone.searchItem(itemName, itemIcon), searchZone::confirm);
         itemName.addMouseListener(itemSearchListener);
         itemName.addKeyListener(itemSearchListener);
 
@@ -122,10 +131,11 @@ public class BuilderArea extends JPanel
         JPanel movePanel = new JPanel();
         for (int i = 0; i < 4; i++)
         {
-            JTextField moveField = new JTextField(30);
+            ConfirmableTextField moveField = new ConfirmableTextField(30, app.getMoveNames());
             if(entry.getMoves()[i] != null)
                 moveField.setText(entry.getMoves()[i].getEnglishName());
-            SearchZoneSearchListener moveSearchListener = new SearchZoneSearchListener(() -> searchZone.searchMove(moveField));
+            moveField.updateConfirmationState();
+            SearchZoneSearchListener moveSearchListener = new SearchZoneSearchListener(() -> searchZone.searchMove(moveField), searchZone::confirm);
             moveField.addMouseListener(moveSearchListener);
             moveField.addKeyListener(moveSearchListener);
             movePanel.add(moveField);
@@ -133,6 +143,26 @@ public class BuilderArea extends JPanel
         addPart("Moves", movePanel, characteristicsPanel);
 
         infosPanel.add(characteristicsPanel);
+    }
+
+    private JComponent createHappinessField(TeamBuilderApp app, TeamEntry entry)
+    {
+        JSpinner happiness = new JSpinner(new SpinnerNumberModel(entry.getLevel(), 0, 255, 1));
+        happiness.setValue(entry.getHappiness());
+        happiness.addChangeListener(e -> entry.setHappiness((Integer) happiness.getValue()));
+        return happiness;
+    }
+
+    private JComponent createLevelField(TeamBuilderApp app, TeamEntry entry)
+    {
+        JSpinner levelField = new JSpinner(new SpinnerNumberModel(entry.getLevel(), 1, 100, 1));
+        levelField.setValue(entry.getLevel());
+        levelField.addChangeListener(e -> {
+            int intLevel = ((Integer) levelField.getValue());
+            entry.setLevel((byte)intLevel);
+            app.refreshFrame();
+        });
+        return levelField;
     }
 
     private JComponent createAbilityPanel(TeamEntry entry)
@@ -209,7 +239,7 @@ public class BuilderArea extends JPanel
         return field;
     }
 
-    private JComponent createShinyPanel(JLabel spriteLabel, TeamEntry entry)
+    private JComponent createShinyPanel(TeamBuilderApp app, JLabel spriteLabel, TeamEntry entry)
     {
         JComboBox<YesNoEnum> shiny = new JComboBox<>(YesNoEnum.values());
         shiny.setSelectedItem(entry.isShiny() ? YesNoEnum.YES : YesNoEnum.NO);
@@ -219,6 +249,7 @@ public class BuilderArea extends JPanel
                 boolean isShiny = e1.getItem() == YesNoEnum.YES;
                 entry.setShiny(isShiny);
                 loadImage(isShiny ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite(), spriteLabel);
+                app.refreshFrame();
             }
         });
         return shiny;

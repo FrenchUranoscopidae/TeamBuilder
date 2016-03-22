@@ -9,10 +9,12 @@ public class SearchZoneSearchListener implements KeyListener, MouseListener
 {
 
     private final Runnable runnable;
+    private final Runnable confirmationAction;
 
-    public SearchZoneSearchListener(Runnable runnable)
+    public SearchZoneSearchListener(Runnable runnable, Runnable confirmationAction)
     {
         this.runnable = runnable;
+        this.confirmationAction = confirmationAction;
     }
 
     @Override
@@ -31,6 +33,10 @@ public class SearchZoneSearchListener implements KeyListener, MouseListener
     public void keyReleased(KeyEvent e)
     {
         runnable.run();
+        if(e.getKeyCode() == KeyEvent.VK_ENTER)
+        {
+            confirmationAction.run();
+        }
     }
 
     @Override

@@ -1,5 +1,9 @@
-package uranoscopidae.teambuilder.app;
+package uranoscopidae.teambuilder.app.search;
 
+import uranoscopidae.teambuilder.app.BuilderArea;
+import uranoscopidae.teambuilder.app.ConfirmableTextField;
+import uranoscopidae.teambuilder.app.ItemMap;
+import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.search.ItemSearchItem;
 import uranoscopidae.teambuilder.app.search.MoveSearchItem;
 import uranoscopidae.teambuilder.app.search.SearchItem;
@@ -22,6 +26,8 @@ public class SearchZone extends JPanel
     private final List<SearchItem> data;
     private final TeamBuilderApp app;
     private TeamEntry entry;
+    private ConfirmableTextField currentField;
+    private List<SearchItem> currentItems;
 
     public SearchZone(BuilderArea parent)
     {
@@ -36,7 +42,7 @@ public class SearchZone extends JPanel
         this.entry = pokemon;
     }
 
-    public void searchItem(JTextField itemName, JLabel itemIcon)
+    public void searchItem(ConfirmableTextField itemName, JLabel itemIcon)
     {
         data.clear();
         for(Item item : ItemMap.getAllItems())
@@ -81,7 +87,7 @@ public class SearchZone extends JPanel
         return false;
     }
 
-    public void searchMove(JTextField moveName)
+    public void searchMove(ConfirmableTextField moveName)
     {
         data.clear();
         String nameStart = moveName.getText();
@@ -101,8 +107,10 @@ public class SearchZone extends JPanel
         setData(moveName, data);
     }
 
-    private void setData(JTextField toModify, List<SearchItem> data)
+    private void setData(ConfirmableTextField toModify, List<SearchItem> data)
     {
+        currentField = toModify;
+        currentItems = data;
         removeAll();
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         Collections.sort(data);
@@ -118,6 +126,7 @@ public class SearchZone extends JPanel
                 public void mouseClicked(MouseEvent e)
                 {
                     toModify.setText(item.toString());
+                    confirm();
                 }
 
                 @Override
@@ -148,5 +157,39 @@ public class SearchZone extends JPanel
     public TeamEntry getCurrentEntry()
     {
         return entry;
+    }
+
+    public void confirm()
+    {
+        if(currentField != null && currentItems != null)
+        {
+            if(currentItems.size() == 1)
+            {
+                currentField.setText(currentItems.get(0).toString());
+                currentField.updateConfirmationState();
+                clear();
+            }
+            else
+            {
+                for (SearchItem item : currentItems)
+                {
+                    String stringRepresentation = item.toString();
+                    if(stringRepresentation.equals(currentField.getText()))
+                    {
+                        currentField.setText(stringRepresentation);
+                        currentField.updateConfirmationState();
+                        clear();
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    public void clear()
+    {
+        currentField = null;
+        currentItems = null;
+        removeAll();
     }
 }

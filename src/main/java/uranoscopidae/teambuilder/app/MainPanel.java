@@ -2,6 +2,7 @@ package uranoscopidae.teambuilder.app;
 
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.Team;
+import uranoscopidae.teambuilder.app.team.TeamPanel;
 import uranoscopidae.teambuilder.pkmn.items.Pokeballs;
 
 import javax.swing.*;
