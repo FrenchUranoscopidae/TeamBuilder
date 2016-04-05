@@ -35,6 +35,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     private BufferedImage icon;
     private boolean spriteFetched;
     private boolean shinySpriteFetched;
+    private PokemonStats stats;
 
     public Pokemon(String name, Type firstType, int regionalID, int nationalDexID)
     {
@@ -67,6 +68,8 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
 
         icon = new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB);
         icon.setRGB(0,0,0xFF000000);
+
+        stats = new PokemonStats(TeamBuilderApp.instance);
     }
 
     public int getNationalDexID()
@@ -245,6 +248,9 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
             writeAbility(dataOut, ability);
         }
 
+        out.putNextEntry(new ZipEntry("stats"));
+        stats.writeTo(out);
+
         dataOut.flush();
         out.flush();
     }
@@ -299,6 +305,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         Pokemon pokemon = null;
         List<Move> moves = new LinkedList<>();
         List<Ability> abilities = new LinkedList<>();
+        PokemonStats stats = new PokemonStats(app);
         while ((entry = in.getNextEntry()) != null)
         {
             switch (entry.getName())
@@ -366,6 +373,10 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
                     }
                     break;
 
+                case "stats":
+                    stats.readFrom(dataIn);
+                    break;
+
                 default:
                     System.err.println("Unknown entry for Pokédex entry: " + entry.getName());
                     break;
@@ -381,6 +392,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
                 pokemon.setIcon(icon);
             if (shinySprite != null)
                 pokemon.setShinySprite(shinySprite);
+            pokemon.setStats(stats);
         }
         return pokemon;
     }
@@ -409,5 +421,15 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     public boolean canLearn(Move move)
     {
         return moves.contains(move);
+    }
+
+    public void setStats(PokemonStats stats)
+    {
+        this.stats = stats;
+    }
+
+    public PokemonStats getStats()
+    {
+        return stats;
     }
 }

@@ -25,6 +25,7 @@ import java.util.zip.ZipInputStream;
 public class TeamBuilderApp
 {
 
+    public static TeamBuilderApp instance;
     private final Settings settings;
     private final MovesRefresher movesRefresher;
     private final DexRefresher dexRefresher;
@@ -43,7 +44,8 @@ public class TeamBuilderApp
         {
             e.printStackTrace();
         }
-        new TeamBuilderApp().start();
+        instance = new TeamBuilderApp();
+        instance.start();
     }
 
     public TeamBuilderApp()
