@@ -10,7 +10,6 @@ import uranoscopidae.teambuilder.pkmn.moves.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -37,7 +36,7 @@ public class PokedexExtractor extends Extractor
     public void fillEntryFromWiki(Pokemon entry) throws IOException
     {
         String name = entry.getEnglishName();
-        String source = extractor.getPageSourceCode(name+" (Pokémon)");
+        String source = extractor.getPageSourceCode(name+" (Pokémon)").getRaw();
         String startString = "==Game data==";
         String gameData = source.substring(source.indexOf(startString)+startString.length());
 
@@ -238,7 +237,7 @@ public class PokedexExtractor extends Extractor
     public List<Pokemon> readPokedexEntries() throws IOException
     {
         List<Pokemon> entries = new LinkedList<>();
-        String code = extractor.getPageSourceCode("List_of_Pokémon_by_National_Pokédex_number");
+        String code = extractor.getPageSourceCode("List_of_Pokémon_by_National_Pokédex_number").getRaw();
         String[] lines = code.split("\n");
         for(String l : lines)
         {

@@ -1,9 +1,8 @@
-package uranoscopidae.teambuilder.utils;
+package uranoscopidae.teambuilder.utils.mediawiki;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,12 +42,12 @@ public class MediaWikiPageExtractor
         return gson;
     }
 
-    public String getPageSourceCode(URL location) throws IOException
+    public WikiSourceElement getPageSourceCode(URL location) throws IOException
     {
         return getPageSourceCode(location, true);
     }
 
-    public String getPageSourceCode(URL location, boolean redirect) throws IOException
+    public WikiSourceElement getPageSourceCode(URL location, boolean redirect) throws IOException
     {
         String apiResult = fetchFromApi(location);
         JsonObject result = gson.fromJson(apiResult, JsonObject.class);
@@ -66,7 +65,7 @@ public class MediaWikiPageExtractor
             newLocation = newLocation.replace(" ", "_");
             return getPageSourceCode(new URL(newLocation));
         }
-        return content;
+        return new WikiSourceElement(content);
     }
 
     public String fetchFromApi(URL location) throws IOException

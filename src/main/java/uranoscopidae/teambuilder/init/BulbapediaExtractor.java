@@ -2,10 +2,9 @@ package uranoscopidae.teambuilder.init;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.internal.Streams;
-import sun.misc.IOUtils;
 import uranoscopidae.teambuilder.utils.IOHelper;
-import uranoscopidae.teambuilder.utils.MediaWikiPageExtractor;
+import uranoscopidae.teambuilder.utils.mediawiki.MediaWikiPageExtractor;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiSourceElement;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -15,7 +14,7 @@ import java.net.URLEncoder;
 
 public class BulbapediaExtractor extends MediaWikiPageExtractor
 {
-    public String getPageSourceCode(String title) throws IOException
+    public WikiSourceElement getPageSourceCode(String title) throws IOException
     {
         return getPageSourceCode(new URL("http://bulbapedia.bulbagarden.net/w/api.php" +
                 "?action=query&prop=revisions&rvprop=content&format=json&titles="+ URLEncoder.encode(title, "UTF-8")));

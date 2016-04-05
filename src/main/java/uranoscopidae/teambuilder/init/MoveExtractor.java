@@ -27,7 +27,7 @@ public class MoveExtractor
     public List<Move> findAllMoves() throws IOException
     {
         List<Move> moves = new LinkedList<>();
-        String source = extractor.getPageSourceCode("List_of_moves");
+        String source = extractor.getPageSourceCode("List_of_moves").getRaw();
         String start = "|-";
         String end = "|}\n" +
                 "|}";

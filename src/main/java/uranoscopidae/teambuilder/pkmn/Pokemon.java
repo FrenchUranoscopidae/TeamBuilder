@@ -56,7 +56,7 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
         this.secondType = secondType;
         this.moves = moves;
 
-        abilities = new LinkedList<Ability>();
+        abilities = new LinkedList<>();
 
         description = "Not fetched yet";
 

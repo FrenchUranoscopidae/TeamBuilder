@@ -2,12 +2,13 @@ package uranoscopidae.teambuilder.init;
 
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.items.Item;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiSourceElement;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiTemplate;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class ItemsExtractor extends Extractor
 {
@@ -26,20 +27,29 @@ public class ItemsExtractor extends Extractor
     public List<Item> findAllItems(String generation) throws IOException
     {
         List<Item> list = new LinkedList<>();
-        String source = extractor.getPageSourceCode("List_of_items_by_index_number_(Generation_"+generation+")");
-        String[] lines = source.split("\n");
+        WikiSourceElement source = extractor.getPageSourceCode("List_of_items_by_index_number_(Generation_"+generation+")");
+        String[] lines = source.getRaw().split("\n");
+        WikiTemplate template = new WikiTemplate();
         for(String l : lines)
         {
-            if(l.startsWith("{{hexlist|"))
+            try
             {
-                String content = l.substring(2, l.lastIndexOf("}}"));
-                String[] parts = content.split(Pattern.quote("|"));
-                String name = parts[1];
+                template.setRaw(l);
+            }
+            catch (IllegalArgumentException e)
+            {
+                // malformed template or just not a template yet
+                e.printStackTrace();
+                continue;
+            }
+            if(template.getName().equals("hexlist"))
+            {
+                String name = template.getElement(0).getRaw();
                 if(name.equalsIgnoreCase("unknown"))
                 {
                     continue;
                 }
-                if(parts.length <= 4)
+                if(template.getElementCount() <= 3)
                 {
                     if(name.equalsIgnoreCase("none"))
                     {
@@ -48,16 +58,16 @@ public class ItemsExtractor extends Extractor
                 }
                 else
                 {
-                    String location = parts[4];
+                    String location = template.getElement(3).getRaw();
                     if(location.equals("yes"))
                     {
-                        if(parts.length > 6)
+                        if(template.getElementCount() > 5)
                         {
-                            location = parts[6];
+                            location = template.getElement(5).getRaw();
                         }
                         else
                         {
-                            location = parts[5];
+                            location = template.getElement(4).getRaw();
                         }
                     }
                     if(!location.contains("Key") && !location.startsWith("6=X ") && !location.startsWith("6=Data Card") && !location.contains("nknown"))
@@ -97,14 +107,14 @@ public class ItemsExtractor extends Extractor
     {
         try
         {
-            String sourceCode = extractor.getPageSourceCode(part.getEnglishName().replace(" ", "_"));
+            String sourceCode = extractor.getPageSourceCode(part.getEnglishName().replace(" ", "_")).getRaw();
             int endFirstLine = sourceCode.indexOf("\n");
             if(endFirstLine < 0)
                 endFirstLine = sourceCode.length();
             String firstLine = sourceCode.substring(0, endFirstLine);
             if(firstLine.contains("several referrals"))
             {
-                sourceCode = extractor.getPageSourceCode((part.getEnglishName()+"_(Item)").replace(" ", "_"));
+                sourceCode = extractor.getPageSourceCode((part.getEnglishName()+"_(Item)").replace(" ", "_")).getRaw();
             }
             int start = sourceCode.indexOf("{{Item");
             while(start >= 0)
@@ -148,7 +158,6 @@ public class ItemsExtractor extends Extractor
                 if(name != null && effect != null)
                 {
                     part.setDescription(effect);
-                    System.out.println("No prob "+name);
                     break;
                 }
                 start = sourceCode.indexOf("{{Item", end);

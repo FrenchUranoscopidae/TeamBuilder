@@ -1,9 +1,6 @@
 package uranoscopidae.teambuilder.init;
 
 import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.TypeList;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
-import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -28,7 +25,7 @@ public class AbilityExtractor
     public List<Ability> findAllAbilities() throws IOException
     {
         List<Ability> abilities = new LinkedList<>();
-        String source = extractor.getPageSourceCode("Ability");
+        String source = extractor.getPageSourceCode("Ability").getRaw();
         String start = "|-";
         String end = "|}\n" +
                 "|}";
