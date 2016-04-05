@@ -11,7 +11,6 @@ import java.util.function.Predicate;
 
 public class ConfirmableTextField extends JTextField
 {
-    private List<String> allowedNames;
     private LinkedList<Predicate<String>> confirmationPredicates;
     private Border confirmedBorder;
     private Border unconfirmedBorder;
@@ -25,7 +24,6 @@ public class ConfirmableTextField extends JTextField
 
     private void init(List<String> allowedNames)
     {
-        this.allowedNames = allowedNames;
         confirmationPredicates = new LinkedList<>();
         confirmationListeners = new LinkedList<>();
         addConfirmationPredicate(allowedNames::contains);

@@ -191,5 +191,6 @@ public class SearchZone extends JPanel
         currentField = null;
         currentItems = null;
         removeAll();
+        updateUI();
     }
 }
