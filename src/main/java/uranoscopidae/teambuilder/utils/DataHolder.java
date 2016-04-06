@@ -70,14 +70,12 @@ public abstract class DataHolder implements Serializable
         {
             f.setAccessible(true);
             fields.add(f);
-            System.out.println("Found field: "+f.getName());
             return; // we are writing a string value, it is indeed serializable
         }
         if(Serializable.class.isAssignableFrom(type) || type.isEnum() || type.isPrimitive())
         {
             f.setAccessible(true);
             fields.add(f);
-            System.out.println("Found field: "+f.getName());
         }
         else if(type.isArray())
         {
@@ -85,7 +83,6 @@ public abstract class DataHolder implements Serializable
             checkType(f, arrayType);
             f.setAccessible(true);
             fields.add(f);
-            System.out.println("Found field: "+f.getName());
         }
         else
         {

@@ -120,12 +120,12 @@ public class ItemsExtractor extends Extractor
             while(start >= 0)
             {
                 int end = findCorrespondingBrace(sourceCode, start);
-                String content = sourceCode.substring(start+2, end);
-                List<String> parts = properSplit(content, '|');
+                WikiTemplate content = new WikiTemplate(sourceCode.substring(start, end+2));
                 String name = null;
                 String effect = null;
-                for(String s : parts)
+                for(WikiSourceElement elem : content.getElements())
                 {
+                    String s = elem.getRaw();
                     if((s.contains("desc") && s.contains("=")) && name != null)
                     {
                         String[] data = s.split("=");

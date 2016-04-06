@@ -1,6 +1,7 @@
 package uranoscopidae.teambuilder.init;
 
 import uranoscopidae.teambuilder.pkmn.Ability;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiSourceElement;
 
 import java.io.IOException;
 import java.util.LinkedList;
@@ -25,11 +26,11 @@ public class AbilityExtractor
     public List<Ability> findAllAbilities() throws IOException
     {
         List<Ability> abilities = new LinkedList<>();
-        String source = extractor.getPageSourceCode("Ability").getRaw();
+        WikiSourceElement source = extractor.getPageSourceCode("Ability");
         String start = "|-";
         String end = "|}\n" +
                 "|}";
-        String list = source.substring(source.indexOf(start)+start.length(), source.indexOf(end, source.indexOf(start)));
+        String list = source.getRaw().substring(source.indexOf(start)+start.length(), source.indexOf(end, source.indexOf(start)));
         String[] movesList = list.split(Pattern.quote("|-"));
 
         // skip first 2 because starts with table definition

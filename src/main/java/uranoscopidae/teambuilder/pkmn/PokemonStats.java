@@ -49,12 +49,12 @@ public class PokemonStats extends DataHolder
         this.defense = defense;
     }
 
-    public int getHp()
+    public int getHP()
     {
         return hp;
     }
 
-    public void setHp(int hp)
+    public void setHP(int hp)
     {
         this.hp = hp;
     }
@@ -87,5 +87,35 @@ public class PokemonStats extends DataHolder
     public void setSpeed(int speed)
     {
         this.speed = speed;
+    }
+
+    public void set(String key, int actualValue)
+    {
+        key = key.toLowerCase();
+        switch (key) {
+            case "hp":
+                hp = actualValue;
+                break;
+
+            case "attack":
+                attack = actualValue;
+                break;
+
+            case "defense":
+                defense = actualValue;
+                break;
+
+            case "spatk":
+                specialAttack = actualValue;
+                break;
+
+            case "spdef":
+                specialDefense = actualValue;
+                break;
+
+            case "speed":
+                speed = actualValue;
+                break;
+        }
     }
 }

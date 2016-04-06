@@ -1,11 +1,12 @@
 package uranoscopidae.teambuilder.init;
 
-import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.Pokemon;
-import uranoscopidae.teambuilder.pkmn.Type;
-import uranoscopidae.teambuilder.pkmn.TypeList;
+import uranoscopidae.teambuilder.pkmn.*;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.moves.*;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiKeyValue;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiSourceElement;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiTable;
+import uranoscopidae.teambuilder.utils.mediawiki.WikiTemplate;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,9 +37,64 @@ public class PokedexExtractor extends Extractor
     public void fillEntryFromWiki(Pokemon entry) throws IOException
     {
         String name = entry.getEnglishName();
-        String source = extractor.getPageSourceCode(name+" (Pokémon)").getRaw();
+        WikiSourceElement source = extractor.getPageSourceCode(name + " (Pokémon)");
+        WikiSourceElement gameDataSection = source.getSection("Game data");
+        WikiSourceElement statsSection = gameDataSection.getSection("Stats");
+        WikiSourceElement baseStats = statsSection.getSection("Base stats");
+
+        if(baseStats == null || baseStats.getRaw() == null)
+        {
+            System.err.println(">>> "+statsSection.getRaw()+" / "+(statsSection.getIndentationLevel()+2));
+            if(baseStats != null)
+                System.err.println(">>>>> "+baseStats.getRaw());
+        }
+        WikiTemplate statsInfos = null;
+        if(baseStats.indexOf("=") == 0)
+        {
+            try
+            {
+                WikiSourceElement element = baseStats.getSection(name);
+
+                if(element == null)
+                {
+                    statsInfos = baseStats.getSection("Generation VI").asTemplate();
+                }
+                else
+                {
+                    statsInfos = element.asTemplate();
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                System.err.println(">> ERREUR: "+name);
+            }
+        }
+        else
+        {
+            statsInfos = baseStats.asTemplate();
+        }
+
+        PokemonStats stats = new PokemonStats(app);
+        if(statsInfos != null)
+        for (WikiSourceElement stat : statsInfos.getElements())
+        {
+            if(stat.getRaw().equals("\n"))
+                continue;
+            WikiKeyValue value = stat.asKeyValue();
+            if(value.getValue().isNumber())
+            {
+                String key = value.getKey().getRaw();
+                int actualValue = (int) value.getValue().asNumber();
+
+                stats.set(key, actualValue);
+            }
+        }
+
+
+        String rawSource = source.getRaw();
         String startString = "==Game data==";
-        String gameData = source.substring(source.indexOf(startString)+startString.length());
+        String gameData = rawSource.substring(rawSource.indexOf(startString)+startString.length());
 
         //System.out.println(gameData);
 
@@ -51,7 +107,7 @@ public class PokedexExtractor extends Extractor
         addTMMoves(entry, gameData);
         addTutorMoves(entry, gameData);
 
-        addAbilities(entry, source);
+        addAbilities(entry, rawSource);
 
         entry.setIcon(extractor.getImageFromName("File:"+format.format(entry.getNationalDexID())+"MS.png"));
     }

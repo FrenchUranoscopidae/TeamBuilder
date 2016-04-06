@@ -73,4 +73,9 @@ public class WikiTemplate extends WikiSourceElement
     {
         return elements.length;
     }
+
+    public WikiSourceElement[] getElements()
+    {
+        return elements;
+    }
 }
