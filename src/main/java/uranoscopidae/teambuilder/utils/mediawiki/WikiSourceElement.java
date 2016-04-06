@@ -147,7 +147,7 @@ public class WikiSourceElement
         {
             if (l.length() > halfWrapper.length() * 2 + 1)
             {
-                if (l.startsWith(halfWrapper) && l.charAt(halfWrapper.length()+1) != '=' && l.endsWith(halfWrapper))
+                if (l.startsWith(halfWrapper) && l.charAt(halfWrapper.length()) != '=' && l.endsWith(halfWrapper))
                 {
                     return potentialSection.substring(0, index);
                 }

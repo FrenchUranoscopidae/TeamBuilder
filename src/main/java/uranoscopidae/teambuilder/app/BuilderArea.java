@@ -5,6 +5,7 @@ import uranoscopidae.teambuilder.app.search.SearchZoneSearchListener;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Ability;
+import uranoscopidae.teambuilder.pkmn.PokemonStats;
 import uranoscopidae.teambuilder.utils.YesNoEnum;
 
 import javax.swing.*;
@@ -143,6 +144,21 @@ public class BuilderArea extends JPanel
         addPart("Moves", movePanel, characteristicsPanel);
 
         infosPanel.add(characteristicsPanel);
+
+        infosPanel.add(createStatsPanel(app, entry));
+    }
+
+    private JComponent createStatsPanel(TeamBuilderApp app, TeamEntry entry)
+    {
+        JPanel panel = new JPanel();
+        PokemonStats stats = entry.getPokemon().getStats();
+        panel.add(new JLabel("HP: "+stats.getHP())); // TODO: Each Pokémon must have their own stats
+        panel.add(new JLabel("Attack: "+stats.getAttack()));
+        panel.add(new JLabel("Defense: "+stats.getDefense()));
+        panel.add(new JLabel("Special Attack: "+stats.getSpecialAttack()));
+        panel.add(new JLabel("Special Defense: "+stats.getSpecialDefense()));
+        panel.add(new JLabel("Speed: "+stats.getSpeed()));
+        return panel;
     }
 
     private JComponent createHappinessField(TeamBuilderApp app, TeamEntry entry)

@@ -91,6 +91,8 @@ public class PokedexExtractor extends Extractor
             }
         }
 
+        entry.setStats(stats);
+
 
         String rawSource = source.getRaw();
         String startString = "==Game data==";

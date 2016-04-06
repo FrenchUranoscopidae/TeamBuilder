@@ -91,7 +91,7 @@ public class PokemonStats extends DataHolder
 
     public void set(String key, int actualValue)
     {
-        key = key.toLowerCase();
+        key = key.toLowerCase().replace("\n", "");
         switch (key) {
             case "hp":
                 hp = actualValue;
@@ -115,6 +115,13 @@ public class PokemonStats extends DataHolder
 
             case "speed":
                 speed = actualValue;
+                break;
+
+            case "special": // ignore, old value from Gen I (or II, don't remember)
+                break;
+
+            default:
+                System.err.println("Invalid stat: "+key);
                 break;
         }
     }
