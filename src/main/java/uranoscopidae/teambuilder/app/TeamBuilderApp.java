@@ -7,7 +7,9 @@ import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
 import uranoscopidae.teambuilder.app.team.Team;
 import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.PokemonMap;
 import uranoscopidae.teambuilder.pkmn.items.Item;
+import uranoscopidae.teambuilder.pkmn.items.ItemMap;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 import uranoscopidae.teambuilder.utils.Constants;
@@ -105,6 +107,17 @@ public class TeamBuilderApp
             try
             {
                 getMove(s); // registers the move into the move map
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        });
+
+        loadingFrame.waitForList("Loading Pokémon into memory...", this::getPokemonNames, s -> {
+            try
+            {
+                getPokemon(s); // registers the Pokémon into the Pokémon map
             }
             catch (Exception e)
             {
@@ -330,9 +343,12 @@ public class TeamBuilderApp
 
     public Pokemon getPokemon(String fullID) throws IOException, ReflectiveOperationException
     {
+        if(PokemonMap.has(fullID))
+            return PokemonMap.getPokemon(fullID);
         File file = new File(settings.getDexLocation(), fullID+".dexd");
         ZipInputStream input = new ZipInputStream(new FileInputStream(file));
         Pokemon pkmn = Pokemon.readPokemon(this, input);
+        PokemonMap.registerPokemon(pkmn);
         return pkmn;
     }
 
@@ -412,6 +428,11 @@ public class TeamBuilderApp
         return getNames(settings.getMovesLocation(), ".movd");
     }
 
+    public java.util.List<String> getPokemonNames()
+    {
+        return getNames(settings.getDexLocation(), ".dexd");
+    }
+
     public void registerAbility(Ability part) throws IOException
     {
         if(!settings.getMovesLocation().exists())
@@ -439,5 +460,15 @@ public class TeamBuilderApp
     public void refreshFrame()
     {
         frame.repaint();
+    }
+
+    public Pokemon getPokemonFromName(String name)
+    {
+        for(Pokemon p : PokemonMap.getAllPokemon())
+        {
+            if(p.getEnglishName().equals(name))
+                return p;
+        }
+        return null;
     }
 }

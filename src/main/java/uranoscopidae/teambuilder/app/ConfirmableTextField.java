@@ -37,7 +37,8 @@ public class ConfirmableTextField extends JTextField
             @Override
             public void keyReleased(KeyEvent e)
             {
-                updateConfirmationState();
+                if(e.getKeyChar() != KeyEvent.CHAR_UNDEFINED)
+                    updateConfirmationState();
             }
         });
     }

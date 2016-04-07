@@ -1,4 +1,4 @@
-package uranoscopidae.teambuilder.app;
+package uranoscopidae.teambuilder.pkmn;
 
 import uranoscopidae.teambuilder.pkmn.items.Item;
 
@@ -6,21 +6,21 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ItemMap
+public class PokemonMap
 {
-    private static final Map<String, Item> internalMap = new HashMap<>();
+    private static final Map<String, Pokemon> internalMap = new HashMap<>();
 
-    public static void registerItem(Item def)
+    public static void registerPokemon(Pokemon def)
     {
         internalMap.put(def.getEnglishName(), def);
     }
 
-    public static Item getItem(String englishName)
+    public static Pokemon getPokemon(String englishName)
     {
         return internalMap.get(englishName);
     }
 
-    public static Collection<Item> getAllItems()
+    public static Collection<Pokemon> getAllPokemon()
     {
         return internalMap.values();
     }

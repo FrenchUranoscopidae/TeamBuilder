@@ -2,13 +2,15 @@ package uranoscopidae.teambuilder.app.search;
 
 import uranoscopidae.teambuilder.app.BuilderArea;
 import uranoscopidae.teambuilder.app.ConfirmableTextField;
-import uranoscopidae.teambuilder.app.ItemMap;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.search.ItemSearchItem;
 import uranoscopidae.teambuilder.app.search.MoveSearchItem;
 import uranoscopidae.teambuilder.app.search.SearchItem;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
+import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.PokemonMap;
 import uranoscopidae.teambuilder.pkmn.items.Item;
+import uranoscopidae.teambuilder.pkmn.items.ItemMap;
 import uranoscopidae.teambuilder.pkmn.moves.Move;
 import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
 
@@ -40,6 +42,19 @@ public class SearchZone extends JPanel
     public void setCurrentEntry(TeamEntry pokemon)
     {
         this.entry = pokemon;
+    }
+
+    public void searchPokemon(ConfirmableTextField pokemonName)
+    {
+        data.clear();
+        for(Pokemon pokemon : PokemonMap.getAllPokemon())
+        {
+            String nameStart = pokemonName.getText();
+            if(!matches(pokemon.getEnglishName(), pokemon.getFirstType()+" "+pokemon.getSecondType(), nameStart, false))
+                continue;
+            data.add(new PokemonSearchItem(this, pokemon));
+        }
+        setData(pokemonName, data);
     }
 
     public void searchItem(ConfirmableTextField itemName, JLabel itemIcon)

@@ -5,6 +5,7 @@ import uranoscopidae.teambuilder.app.search.SearchZoneSearchListener;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Ability;
+import uranoscopidae.teambuilder.pkmn.PokemonMap;
 import uranoscopidae.teambuilder.pkmn.PokemonStats;
 import uranoscopidae.teambuilder.utils.YesNoEnum;
 
@@ -14,6 +15,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.*;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class BuilderArea extends JPanel
@@ -71,7 +74,7 @@ public class BuilderArea extends JPanel
         JPanel globalInfos = new JPanel();
         globalInfos.setLayout(new BoxLayout(globalInfos, BoxLayout.Y_AXIS));
         JTextField nicknameField = createNicknameField(app, entry);
-        JTextField nameField = new JTextField(entry.getPokemon().getEnglishName(), 15);
+        JTextField nameField = createNameField(app, entry);
 
         nameField.setOpaque(false);
         nicknameField.setOpaque(false);
@@ -146,6 +149,25 @@ public class BuilderArea extends JPanel
         infosPanel.add(characteristicsPanel);
 
         infosPanel.add(createStatsPanel(app, entry));
+    }
+
+    private JTextField createNameField(TeamBuilderApp app, TeamEntry entry)
+    {
+        List<String> list = app.getPokemonNames();
+        for (int i = 0; i < list.size(); i++)
+        {
+            list.set(i, list.get(i).substring(3));
+        }
+        ConfirmableTextField nameField = new ConfirmableTextField(entry.getPokemon().getEnglishName(), list);
+        nameField.updateConfirmationState();
+        nameField.addConfirmationListener((s) -> {
+            entry.setPokemon(app.getPokemonFromName(s));
+            setSpecificView(entry);
+        });
+        SearchZoneSearchListener moveSearchListener = new SearchZoneSearchListener(() -> searchZone.searchPokemon(nameField), searchZone::confirm);
+        nameField.addMouseListener(moveSearchListener);
+        nameField.addKeyListener(moveSearchListener);
+        return nameField;
     }
 
     private JComponent createStatsPanel(TeamBuilderApp app, TeamEntry entry)

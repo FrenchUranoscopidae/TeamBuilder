@@ -120,4 +120,10 @@ public class Type
     {
         return icon;
     }
+
+    @Override
+    public String toString()
+    {
+        return getName();
+    }
 }
