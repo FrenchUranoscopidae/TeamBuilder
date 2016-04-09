@@ -18,6 +18,7 @@ public abstract class Refresher<T> implements Runnable
     private final ReentrantLock lock;
     private int counter;
     private int nThreads;
+    private RefresherThread thread;
 
     public Refresher(String name, Settings settings)
     {
@@ -59,7 +60,8 @@ public abstract class Refresher<T> implements Runnable
     {
         if(!running)
         {
-            new Thread(this, "Refresher Thread").start();
+            thread = new RefresherThread(this, "Refresher Thread");
+            thread.start();
             return true;
         }
         return false;
@@ -126,6 +128,24 @@ public abstract class Refresher<T> implements Runnable
                 bar.setString("Error: "+e.getLocalizedMessage());
             }
             running = false;
+        }
+    }
+
+    public void waitFor()
+    {
+        if(thread != null)
+        {
+            while(!thread.isDone())
+            {
+                try
+                {
+                    Thread.sleep(1);
+                }
+                catch (InterruptedException e)
+                {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

@@ -144,6 +144,7 @@ public class BuilderArea extends JPanel
             moveField.addMouseListener(moveSearchListener);
             moveField.addKeyListener(moveSearchListener);
             moveField.addConfirmationPredicate(entry.getPokemon()::canLearn);
+            moveField.updateConfirmationState();
             movePanel.add(moveField);
         }
         addPart("Moves", movePanel, characteristicsPanel);

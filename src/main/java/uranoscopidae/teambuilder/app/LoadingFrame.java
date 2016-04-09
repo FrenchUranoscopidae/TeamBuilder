@@ -1,9 +1,12 @@
 package uranoscopidae.teambuilder.app;
 
+import uranoscopidae.teambuilder.app.refreshers.Refresher;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,13 +15,44 @@ import java.util.function.Supplier;
 public class LoadingFrame
 {
 
+    private final Settings settings;
     private JDialog frame;
 
-    public LoadingFrame()
+    public LoadingFrame(Settings settings)
     {
+        this.settings = settings;
         frame = new JDialog((Window) null);
         frame.setModal(true);
         frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+    }
+
+    public <T> void asyncWaitForList(String operationName, Supplier<java.util.List<T>> initer, Consumer<T> action)
+    {
+        waitFor(operationName, (bar) -> {
+            Refresher<T> refresher = new Refresher<T>("Pokémon loading", settings)
+            {
+                @Override
+                public List<T> init() throws IOException
+                {
+                    return initer.get();
+                }
+
+                @Override
+                public void handle(T part) throws IOException
+                {
+                    action.accept(part);
+                    bar.setString(this.getBar().getString());
+                }
+
+                @Override
+                public String getText(T part) throws IOException
+                {
+                    return part.toString();
+                }
+            };
+            refresher.launch();
+            refresher.waitFor();
+        });
     }
 
     public <T> void waitForList(String operationName, Supplier<java.util.List<T>> initer, Consumer<T> action)

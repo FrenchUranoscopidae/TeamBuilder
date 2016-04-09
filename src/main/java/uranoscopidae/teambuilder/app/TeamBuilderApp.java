@@ -91,7 +91,7 @@ public class TeamBuilderApp
 
     private void loadData()
     {
-        LoadingFrame loadingFrame = new LoadingFrame();
+        LoadingFrame loadingFrame = new LoadingFrame(settings);
         loadingFrame.waitForList("Loading items into memory...", this::getItemNames, s -> {
             try
             {
@@ -114,7 +114,7 @@ public class TeamBuilderApp
             }
         });
 
-        loadingFrame.waitForList("Loading Pokémon into memory...", this::getPokemonNames, s -> {
+        loadingFrame.asyncWaitForList("Loading Pokémon into memory...", this::getPokemonNames, s -> {
             try
             {
                 getPokemon(s); // registers the Pokémon into the Pokémon map
