@@ -2,6 +2,7 @@ package uranoscopidae.teambuilder.app;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -15,6 +16,7 @@ public class ConfirmableTextField extends JTextField
     private Border confirmedBorder;
     private Border unconfirmedBorder;
     private LinkedList<ConfirmationListener> confirmationListeners;
+    private Border surroundingBorder;
 
     public ConfirmableTextField(int size, List<String> allowedNames)
     {
@@ -61,6 +63,11 @@ public class ConfirmableTextField extends JTextField
 
     public void updateConfirmationState()
     {
+        updateConfirmationState(true);
+    }
+
+    private void updateConfirmationState(boolean fireEvent)
+    {
         String text = getText();
         boolean valid = true;
         for (Predicate<String> p : confirmationPredicates)
@@ -71,9 +78,9 @@ public class ConfirmableTextField extends JTextField
                 break;
             }
         }
-        setBorder(valid ? confirmedBorder : unconfirmedBorder);
+        setBorder(valid);
 
-        if(valid)
+        if(valid && fireEvent)
         {
             for (ConfirmationListener l : confirmationListeners)
             {
@@ -82,9 +89,27 @@ public class ConfirmableTextField extends JTextField
         }
     }
 
+    private void setBorder(boolean valid)
+    {
+        if(surroundingBorder == null)
+        {
+            setBorder(valid ? confirmedBorder : unconfirmedBorder);
+        }
+        else
+        {
+            setBorder(BorderFactory.createCompoundBorder(surroundingBorder, valid ? confirmedBorder : unconfirmedBorder));
+        }
+    }
+
     @Override
     public void setText(String t)
     {
         super.setText(t);
+    }
+
+    public void setSurroundingBorder(Border surroundingBorder)
+    {
+        this.surroundingBorder = surroundingBorder;
+        updateConfirmationState(false);
     }
 }

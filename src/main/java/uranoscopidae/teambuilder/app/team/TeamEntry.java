@@ -9,6 +9,7 @@ import uranoscopidae.teambuilder.utils.SerializableField;
 import uranoscopidae.teambuilder.utils.DataHolder;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -89,13 +90,17 @@ public class TeamEntry extends DataHolder
     {
         this.pokemon = pokemon;
         if(pokemon.getAbilities().size() > 0)
-            ability = pokemon.getAbilities().get(0);
-
-        for (int i = 0; i < moves.length && i < pokemon.getMoves().size(); i++)
         {
-            moves[i] = pokemon.getMoves().get(i);
+            ability = pokemon.getAbilities().get(0);
         }
-        nickname = null;
+
+        if(Arrays.equals(moves, new Move[4]))
+        {
+            for (int i = 0; i < moves.length && i < pokemon.getMoves().size(); i++)
+            {
+                moves[i] = pokemon.getMoves().get(i);
+            }
+        }
     }
 
     public boolean hasPokemon()

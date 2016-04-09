@@ -432,4 +432,14 @@ public class Pokemon implements Cloneable, Comparable<Pokemon>
     {
         return stats;
     }
+
+    public boolean canLearn(String s)
+    {
+        for (Move m : moves)
+        {
+            if(m.getEnglishName().equals(s))
+                return true;
+        }
+        return false;
+    }
 }

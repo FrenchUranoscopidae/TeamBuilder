@@ -5,7 +5,6 @@ import uranoscopidae.teambuilder.app.search.SearchZoneSearchListener;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.PokemonMap;
 import uranoscopidae.teambuilder.pkmn.PokemonStats;
 import uranoscopidae.teambuilder.utils.YesNoEnum;
 
@@ -15,7 +14,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -54,32 +52,35 @@ public class BuilderArea extends JPanel
             searchZone = new SearchZone(this);
             searchZone.setCurrentEntry(entry);
             JPanel infosPanel = new JPanel();
-            buildInfosPanel(infosPanel);
+            ConfirmableTextField textField = buildInfosPanel(infosPanel);
 
             JScrollPane pane = new JScrollPane(searchZone);
             pane.getVerticalScrollBar().setUnitIncrement(8);
             add(infosPanel,"North");
             add(pane, "Center");
+
+            if(textField != null)
+                textField.requestFocusInWindow();
         }
         repaint();
     }
 
-    private void buildInfosPanel(JPanel infosPanel)
+    private ConfirmableTextField buildInfosPanel(JPanel infosPanel)
     {
         if(entry == null)
-            return;
+            return null;
         JLabel spriteLabel = createImageLabel(entry.isShiny() ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite());
         infosPanel.setLayout(new BoxLayout(infosPanel, BoxLayout.X_AXIS));
 
         JPanel globalInfos = new JPanel();
         globalInfos.setLayout(new BoxLayout(globalInfos, BoxLayout.Y_AXIS));
         JTextField nicknameField = createNicknameField(app, entry);
-        JTextField nameField = createNameField(app, entry);
+        ConfirmableTextField nameField = createNameField(app, entry);
 
         nameField.setOpaque(false);
         nicknameField.setOpaque(false);
         nicknameField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Nickname"), BorderFactory.createLoweredBevelBorder()));
-        nameField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Pokémon"), BorderFactory.createLoweredBevelBorder()));
+        nameField.setSurroundingBorder(BorderFactory.createTitledBorder("Pokémon"));
         globalInfos.add(nicknameField);
         globalInfos.add(spriteLabel);
         globalInfos.add(nameField);
@@ -142,6 +143,7 @@ public class BuilderArea extends JPanel
             SearchZoneSearchListener moveSearchListener = new SearchZoneSearchListener(() -> searchZone.searchMove(moveField), searchZone::confirm);
             moveField.addMouseListener(moveSearchListener);
             moveField.addKeyListener(moveSearchListener);
+            moveField.addConfirmationPredicate(entry.getPokemon()::canLearn);
             movePanel.add(moveField);
         }
         addPart("Moves", movePanel, characteristicsPanel);
@@ -149,9 +151,11 @@ public class BuilderArea extends JPanel
         infosPanel.add(characteristicsPanel);
 
         infosPanel.add(createStatsPanel(app, entry));
+
+        return nameField;
     }
 
-    private JTextField createNameField(TeamBuilderApp app, TeamEntry entry)
+    private ConfirmableTextField createNameField(TeamBuilderApp app, TeamEntry entry)
     {
         List<String> list = app.getPokemonNames();
         for (int i = 0; i < list.size(); i++)
