@@ -5,7 +5,6 @@ import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.moves.*;
 import uranoscopidae.teambuilder.utils.mediawiki.WikiKeyValue;
 import uranoscopidae.teambuilder.utils.mediawiki.WikiSourceElement;
-import uranoscopidae.teambuilder.utils.mediawiki.WikiTable;
 import uranoscopidae.teambuilder.utils.mediawiki.WikiTemplate;
 
 import java.io.IOException;
@@ -34,7 +33,7 @@ public class PokedexExtractor extends Extractor
         return extractor;
     }
 
-    public void fillEntryFromWiki(Pokemon entry) throws IOException
+    public void fillEntryFromWiki(PokemonInfos entry) throws IOException
     {
         String name = entry.getEnglishName();
         WikiSourceElement source = extractor.getPageSourceCode(name + " (Pokémon)");
@@ -111,10 +110,10 @@ public class PokedexExtractor extends Extractor
 
         addAbilities(entry, rawSource);
 
-        entry.setIcon(extractor.getImageFromName("File:"+format.format(entry.getNationalDexID())+"MS.png"));
+        entry.setIcon(extractor.getImageFromName("File:"+format.format(entry.getPokeapiID())+"MS.png"));
     }
 
-    private void addAbilities(Pokemon entry, String source)
+    private void addAbilities(PokemonInfos entry, String source)
     {
         int start = source.indexOf("{{Pokémon Infobox");
         int end = findCorrespondingBrace(source, start);
@@ -157,32 +156,32 @@ public class PokedexExtractor extends Extractor
         }
     }
 
-    public void readArtwork(Pokemon entry, OutputStream out) throws IOException
+    public void readArtwork(PokemonInfos entry, OutputStream out) throws IOException
     {
-        entry.setSprite(extractor.getImageFromName(getArtworkFullID(entry)+".png"));
+        entry.setDefaultSprite(extractor.getImageFromName(getArtworkFullID(entry)+".png"));
     }
 
-    public String getArtworkFullID(Pokemon entry)
+    public String getArtworkFullID(PokemonInfos entry)
     {
-        return "File:"+format.format(entry.getNationalDexID())+entry.getEnglishName();
+        return "File:"+format.format(entry.getPokeapiID())+entry.getEnglishName();
     }
 
-    public String getSpriteFullID(Pokemon entry, String gen)
+    public String getSpriteFullID(PokemonInfos entry, String gen)
     {
         return getSpriteFullID(entry, gen, null);
     }
 
-    public String getSpriteFullID(Pokemon entry, String gen, String form)
+    public String getSpriteFullID(PokemonInfos entry, String gen, String form)
     {
         String formPart = "";
         if(form != null)
         {
             formPart = "_"+form;
         }
-        return "File:Spr_"+gen+"_"+format.format(entry.getNationalDexID())+formPart;
+        return "File:Spr_"+gen+"_"+format.format(entry.getPokeapiID())+formPart;
     }
 
-    private void addTMMoves(Pokemon dexEntry, String gameData) throws IOException
+    private void addTMMoves(PokemonInfos dexEntry, String gameData) throws IOException
     {
         String start = "{{learnlist/tmh";
         String end = "{{learnlist/tmf";
@@ -193,7 +192,7 @@ public class PokedexExtractor extends Extractor
         addMoves(dexEntry, gameData, start, end, "{{learnlist/tm", 0);
     }
 
-    private void addTutorMoves(Pokemon dexEntry, String gameData) throws IOException
+    private void addTutorMoves(PokemonInfos dexEntry, String gameData) throws IOException
     {
         String start = "{{learnlist/tutorh";
         String end = "{{learnlist/tutorf";
@@ -204,7 +203,7 @@ public class PokedexExtractor extends Extractor
         addMoves(dexEntry, gameData, start, end, "{{learnlist/tutor", -1);
     }
 
-    private void addBreedingMoves(Pokemon dexEntry, String gameData) throws IOException
+    private void addBreedingMoves(PokemonInfos dexEntry, String gameData) throws IOException
     {
         String start = "{{learnlist/breedh";
         String end = "{{learnlist/breedf";
@@ -215,7 +214,7 @@ public class PokedexExtractor extends Extractor
         addMoves(dexEntry, gameData, start, end, "{{learnlist/breed", 0);
     }
 
-    private void addLearningMoves(Pokemon dexEntry, String gameData) throws IOException
+    private void addLearningMoves(PokemonInfos dexEntry, String gameData) throws IOException
     {
         String start = "{{learnlist/levelh";
         String end = "{{learnlist/levelf";
@@ -226,7 +225,7 @@ public class PokedexExtractor extends Extractor
         addMoves(dexEntry, gameData, start, end, "{{learnlist/level", 0);
     }
 
-    private void addMoves(Pokemon dexEntry, String gameData, String header, String footer, String lineStart, int globalOffset) throws IOException
+    private void addMoves(PokemonInfos dexEntry, String gameData, String header, String footer, String lineStart, int globalOffset) throws IOException
     {
         try
         {
@@ -253,11 +252,11 @@ public class PokedexExtractor extends Extractor
                         int power = MoveExtractor.readInt(parts.get(5+off));
                         int accuracy = MoveExtractor.readInt(parts.get(6+off));
                         int pp = MoveExtractor.readInt(parts.get(7+off));
-                        Move definition = new Move(type, category, name, power, accuracy, pp);
+                        MoveInfos definition = new MoveInfos(-1, type, category, name, power, accuracy, pp);
                         app.registerMove(definition);
                     }
 
-                    Move def = app.getMove(name);
+                    MoveInfos def = app.getMove(name);
                     dexEntry.addMove(def);
                 }
             }
@@ -292,9 +291,9 @@ public class PokedexExtractor extends Extractor
         return "Could not find";
     }
 
-    public List<Pokemon> readPokedexEntries() throws IOException
+    public List<PokemonInfos> readPokedexEntries() throws IOException
     {
-        List<Pokemon> entries = new LinkedList<>();
+        List<PokemonInfos> entries = new LinkedList<>();
         String code = extractor.getPageSourceCode("List_of_Pokémon_by_National_Pokédex_number").getRaw();
         String[] lines = code.split("\n");
         for(String l : lines)
@@ -320,7 +319,7 @@ public class PokedexExtractor extends Extractor
 
                 try
                 {
-                    Pokemon pokemon = new Pokemon(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType), -1, Integer.parseInt(nationalID));
+                    PokemonInfos pokemon = new PokemonInfos(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType), Integer.parseInt(nationalID));
                     entries.add(pokemon);
                 }
                 catch (NumberFormatException e)

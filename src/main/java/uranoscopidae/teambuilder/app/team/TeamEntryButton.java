@@ -1,9 +1,8 @@
 package uranoscopidae.teambuilder.app.team;
 
+import me.sargunvohra.lib.pokekotlin.model.Pokemon;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
-import uranoscopidae.teambuilder.app.team.PokemonGender;
-import uranoscopidae.teambuilder.app.team.TeamEntry;
-import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.items.Pokeballs;
 
 import javax.imageio.ImageIO;
@@ -121,8 +120,9 @@ public class TeamEntryButton extends JButton
         // Draw pokemon infos
         if(entry.hasPokemon())
         {
-            Pokemon pokemon = entry.getPokemon();
+            PokemonInfos pokemon = entry.getPokemon();
             BufferedImage icon = pokemon.getIcon();
+            icon.setRGB(0,0,0xFF000000);
             float pokemonSizeFactor = (getHeight()-heightCompensation) / (float)icon.getHeight();
             int iconWidth = (int) (pokemonSizeFactor*icon.getWidth());
             int iconHeight = (int) (pokemonSizeFactor*icon.getHeight());

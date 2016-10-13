@@ -41,7 +41,7 @@ public class TypeList
     public static Type getFromID(String id)
     {
         return values.stream()
-                .filter(t -> t.getName().equals(id))
+                .filter(t -> t.getName().equalsIgnoreCase(id))
                 .findFirst().orElse(none);
     }
 

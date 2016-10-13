@@ -3,7 +3,7 @@ package uranoscopidae.teambuilder.app.refreshers;
 import uranoscopidae.teambuilder.app.Settings;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.init.PokedexExtractor;
-import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +12,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
-public class DexRefresher extends Refresher<Pokemon>
+public class DexRefresher extends Refresher<PokemonInfos>
 {
 
     private final PokedexExtractor extractor;
@@ -26,13 +26,13 @@ public class DexRefresher extends Refresher<Pokemon>
     }
 
     @Override
-    public List<Pokemon> init() throws IOException
+    public List<PokemonInfos> init() throws IOException
     {
         return extractor.readPokedexEntries();
     }
 
     @Override
-    public void handle(Pokemon part) throws IOException
+    public void handle(PokemonInfos part) throws IOException
     {
         if(!settings.getDexLocation().exists())
         {
@@ -40,14 +40,14 @@ public class DexRefresher extends Refresher<Pokemon>
         }
         extractor.fillEntryFromWiki(part);
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File(settings.getDexLocation(), part.getFullID()+".dexd")));
-        part.writeTo(extractor, out);
+        part.writeTo(out);
         out.close();
     }
 
     @Override
-    public String getText(Pokemon part) throws IOException
+    public String getText(PokemonInfos part) throws IOException
     {
-        return "Retrieved "+part.getEnglishName()+" #"+format.format(part.getNationalDexID());
+        return "Retrieved "+part.getEnglishName()+" #"+format.format(part.getPokeapiID());
     }
 
 }

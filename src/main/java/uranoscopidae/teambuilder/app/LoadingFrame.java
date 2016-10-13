@@ -26,6 +26,10 @@ public class LoadingFrame
         frame.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
     }
 
+    public void setTitle(String title) {
+        frame.setTitle(title);
+    }
+
     public <T> void asyncWaitForList(String operationName, Supplier<java.util.List<T>> initer, Consumer<T> action)
     {
         waitFor(operationName, (bar) -> {

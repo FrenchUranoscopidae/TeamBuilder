@@ -1,10 +1,10 @@
 import org.junit.Test;
-import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.TypeList;
 import uranoscopidae.teambuilder.init.MoveExtractor;
 import uranoscopidae.teambuilder.init.PokedexExtractor;
 import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 
 import java.io.*;
 import java.text.DecimalFormat;
@@ -28,8 +28,8 @@ public class TestExtractor
     {
         extractMoves();
         PokedexExtractor extractor = new PokedexExtractor(new TestApp());
-        List<Pokemon> entries = extractor.readPokedexEntries();
-        entries.forEach(Pokemon::echo);
+        List<PokemonInfos> entries = extractor.readPokedexEntries();
+        entries.forEach(PokemonInfos::echo);
         DecimalFormat format = new DecimalFormat("000");
         //int[] ids = new int[] { 1, 151, 150, 250, 249, 719};
 
@@ -38,12 +38,12 @@ public class TestExtractor
         {
             final int finalId = id;
             pool.execute(() -> {
-                Pokemon entry = entries.get(finalId -1);
+                PokemonInfos entry = entries.get(finalId -1);
                 try
                 {
                     extractor.fillEntryFromWiki(entry);
-                    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", format.format(entry.getNationalDexID())+entry.getEnglishName()+".dexd")));
-                    entry.writeTo(extractor, out);
+                    ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", format.format(entry.getPokeapiID())+entry.getEnglishName()+".dexd")));
+                    entry.writeTo(out);
                     out.close();
                     System.gc();
                 }
@@ -61,12 +61,12 @@ public class TestExtractor
     @Test
     public void writeEntryFromBulbapediaToFile() throws IOException
     {
-        Pokemon entry = new Pokemon("Pikachu", TypeList.electric, -1, 25);
+        PokemonInfos entry = new PokemonInfos("Pikachu", TypeList.electric, 25);
         PokedexExtractor extractor = new PokedexExtractor(new TestApp());
         extractor.fillEntryFromWiki(entry);
         entry.echo();
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(new File("./dexdata", "025Pikachu.dexd")));
-        entry.writeTo(extractor, out);
+        entry.writeTo(out);
         out.flush();
         out.close();
     }
@@ -75,7 +75,7 @@ public class TestExtractor
     public void readEntryFromFile() throws IOException, ReflectiveOperationException
     {
         ZipInputStream in = new ZipInputStream(new FileInputStream(new File("./dexdata", "025Pikachu.dexd")));
-        Pokemon entry = Pokemon.readPokemon(new TestApp(), in);
+        PokemonInfos entry = PokemonInfos.readPokemon(new TestApp(), in);
         in.close();
         entry.echo();
     }
@@ -83,7 +83,7 @@ public class TestExtractor
     @Test
     public void writeMoveEntry() throws IOException
     {
-        Move entry = new Move(TypeList.normal, MoveCategory.PHYSICAL, "Tackle", 50, 100, 35);
+        MoveInfos entry = new MoveInfos(-1, TypeList.normal, MoveCategory.PHYSICAL, "Tackle", 50, 100, 35);
         FileOutputStream out = new FileOutputStream(new File("./movedata", "Tackle.movd"));
         entry.writeTo(out);
         out.flush();
@@ -94,7 +94,7 @@ public class TestExtractor
     public void readMoveEntry() throws IOException
     {
         FileInputStream in = new FileInputStream(new File("./movedata", "Tackle.movd"));
-        Move def = Move.readFrom(in);
+        MoveInfos def = MoveInfos.readFrom(in);
         assertEquals("Tackle", def.getEnglishName());
         assertEquals(100, def.getAccuracy());
         assertEquals(50, def.getPower());
@@ -108,12 +108,12 @@ public class TestExtractor
     public void extractMoves() throws IOException
     {
         MoveExtractor extractor = new MoveExtractor();
-        List<Move> list = extractor.findAllMoves();
+        List<MoveInfos> list = extractor.findAllMoves();
         for(int i = 0;i<list.size();i++)
         {
             try
             {
-                Move def = list.get(i);
+                MoveInfos def = list.get(i);
                 FileOutputStream out = new FileOutputStream(new File("./movedata", def.getEnglishName()+".movd"));
                 def.writeTo(out);
                 out.flush();

@@ -3,16 +3,11 @@ package uranoscopidae.teambuilder.app.search;
 import uranoscopidae.teambuilder.app.BuilderArea;
 import uranoscopidae.teambuilder.app.ConfirmableTextField;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
-import uranoscopidae.teambuilder.app.search.ItemSearchItem;
-import uranoscopidae.teambuilder.app.search.MoveSearchItem;
-import uranoscopidae.teambuilder.app.search.SearchItem;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
-import uranoscopidae.teambuilder.pkmn.Pokemon;
-import uranoscopidae.teambuilder.pkmn.PokemonMap;
+import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.items.ItemMap;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
-import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
+import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +32,7 @@ public class SearchZone extends JPanel
         this.parent = parent;
         this.app = parent.getApp();
         data = new LinkedList<>();
+        // TODO: Use a JTable in order to help sorting by column
     }
 
     public void setCurrentEntry(TeamEntry pokemon)
@@ -47,12 +43,16 @@ public class SearchZone extends JPanel
     public void searchPokemon(ConfirmableTextField pokemonName)
     {
         data.clear();
-        for(Pokemon pokemon : PokemonMap.getAllPokemon())
+        for(String pkmnName : app.getPokemonNames())
         {
+            PokemonInfos pokemon = app.getPokemonFromName(pkmnName);
             String nameStart = pokemonName.getText();
             if(!matches(pokemon.getEnglishName(), pokemon.getFirstType()+" "+pokemon.getSecondType(), nameStart, false))
                 continue;
-            data.add(new PokemonSearchItem(this, pokemon));
+            if(!matches(pkmnName, "", nameStart, false))
+                continue;
+
+            data.add(new PokemonSearchItem(this, app.getPokemonFromName(pkmnName)));
         }
         setData(pokemonName, data);
     }
@@ -111,13 +111,14 @@ public class SearchZone extends JPanel
         {
             nameStart = nameStart.substring(1);
         }
-        for(Move move : MoveMap.getAllMoves())
+        for(String moveNameString : app.getApiInterface().getMoveNames())
         {
-            if(!allowIllegal && !getCurrentEntry().getPokemon().canLearn(move))
+            MoveInfos moveInfos = app.getMove(moveNameString);
+            if(!allowIllegal && !getCurrentEntry().getPokemon().canLearn(moveInfos))
                 continue;
-            if(!matches(move.getEnglishName(), move.getType().getName(), nameStart, true)) // filter out item names not starting with given text
+            if(!matches(moveInfos.getEnglishName(), moveInfos.getType().getName(), nameStart, true)) // filter out item names not starting with given text
                 continue;
-            data.add(new MoveSearchItem(this, move));
+            data.add(new MoveSearchItem(this, moveInfos));
         }
         setData(moveName, data);
     }

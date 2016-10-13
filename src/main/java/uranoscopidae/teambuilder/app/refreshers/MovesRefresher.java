@@ -3,12 +3,12 @@ package uranoscopidae.teambuilder.app.refreshers;
 import uranoscopidae.teambuilder.app.Settings;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.init.MoveExtractor;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 
 import java.io.IOException;
 import java.util.List;
 
-public class MovesRefresher extends Refresher<Move>
+public class MovesRefresher extends Refresher<MoveInfos>
 {
 
     private final MoveExtractor extractor;
@@ -22,19 +22,19 @@ public class MovesRefresher extends Refresher<Move>
     }
 
     @Override
-    public List<Move> init() throws IOException
+    public List<MoveInfos> init() throws IOException
     {
         return extractor.findAllMoves();
     }
 
     @Override
-    public void handle(Move part) throws IOException
+    public void handle(MoveInfos part) throws IOException
     {
         app.registerMove(part);
     }
 
     @Override
-    public String getText(Move part) throws IOException
+    public String getText(MoveInfos part) throws IOException
     {
         return "Retrieved "+part.getEnglishName();
     }

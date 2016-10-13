@@ -6,12 +6,11 @@ import uranoscopidae.teambuilder.app.refreshers.ItemsRefresher;
 import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
 import uranoscopidae.teambuilder.app.team.Team;
 import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.Pokemon;
-import uranoscopidae.teambuilder.pkmn.PokemonMap;
+import uranoscopidae.teambuilder.pkmn.PokeApiInterface;
+import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.items.ItemMap;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
-import uranoscopidae.teambuilder.pkmn.moves.MoveMap;
+import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 import uranoscopidae.teambuilder.utils.Constants;
 
 import javax.imageio.ImageIO;
@@ -22,7 +21,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
-import java.util.zip.ZipInputStream;
 
 public class TeamBuilderApp
 {
@@ -33,6 +31,7 @@ public class TeamBuilderApp
     private final DexRefresher dexRefresher;
     private final ItemsRefresher itemsRefresher;
     private final AbilitiesRefresher abilitiesRefresher;
+    private final PokeApiInterface apiInterface;
     private JFrame frame;
     private MainPanel mainPanel;
 
@@ -61,6 +60,7 @@ public class TeamBuilderApp
         {
             e.printStackTrace();
         }
+        apiInterface = new PokeApiInterface(this, settings);
         dexRefresher = new DexRefresher(settings, this);
         movesRefresher = new MovesRefresher(settings, this);
         itemsRefresher = new ItemsRefresher(settings, this);
@@ -89,9 +89,18 @@ public class TeamBuilderApp
         frame.setVisible(true);
     }
 
-    private void loadData()
+    private void loadData() {
+        LoadingFrame loadingFrame = new LoadingFrame(settings);
+        loadingFrame.setTitle("Loading data");
+        loadingFrame.waitFor("Loading moves", apiInterface::loadMoveList);
+        loadingFrame.waitFor("Loading Pokémons", apiInterface::loadPokemonList);
+        loadingFrame.dispose();
+    }
+
+    private void loadOfflineData()
     {
         LoadingFrame loadingFrame = new LoadingFrame(settings);
+        loadingFrame.setTitle("Loading offline data");
         loadingFrame.waitForList("Loading items into memory...", this::getItemNames, s -> {
             try
             {
@@ -117,7 +126,7 @@ public class TeamBuilderApp
         loadingFrame.asyncWaitForList("Loading Pokémon into memory...", this::getPokemonNames, s -> {
             try
             {
-                getPokemon(s); // registers the Pokémon into the Pokémon map
+                getPokemonFromName(s); // registers the Pokémon into the Pokémon map
             }
             catch (Exception e)
             {
@@ -309,7 +318,7 @@ public class TeamBuilderApp
         return new File(settings.getMovesLocation(), name+".movd").exists();
     }
 
-    public void registerMove(Move definition) throws IOException
+    public void registerMove(MoveInfos definition) throws IOException
     {
         if(!settings.getMovesLocation().exists())
         {
@@ -321,35 +330,9 @@ public class TeamBuilderApp
         out.close();
     }
 
-    public Move getMove(String name) throws IOException
+    public MoveInfos getMove(String name)
     {
-        if(!MoveMap.has(name))
-        {
-            FileInputStream in = new FileInputStream(settings.getMovesLocation().getAbsolutePath()+File.separatorChar+name+".movd");
-            try
-            {
-                Move def = Move.readFrom(in);
-                in.close();
-                MoveMap.registerMove(def);
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-                System.out.println("blame>>> "+name);
-            }
-        }
-        return MoveMap.getMove(name);
-    }
-
-    public Pokemon getPokemon(String fullID) throws IOException, ReflectiveOperationException
-    {
-        if(PokemonMap.has(fullID))
-            return PokemonMap.getPokemon(fullID);
-        File file = new File(settings.getDexLocation(), fullID+".dexd");
-        ZipInputStream input = new ZipInputStream(new FileInputStream(file));
-        Pokemon pkmn = Pokemon.readPokemon(this, input);
-        PokemonMap.registerPokemon(pkmn);
-        return pkmn;
+        return apiInterface.getMoveFromName(name);
     }
 
     public boolean hasItem(String name)
@@ -425,12 +408,12 @@ public class TeamBuilderApp
 
     public java.util.List<String> getMoveNames()
     {
-        return getNames(settings.getMovesLocation(), ".movd");
+        return apiInterface.getMoveNames();
     }
 
     public java.util.List<String> getPokemonNames()
     {
-        return getNames(settings.getDexLocation(), ".dexd");
+        return apiInterface.getPokemonNames();
     }
 
     public void registerAbility(Ability part) throws IOException
@@ -462,13 +445,12 @@ public class TeamBuilderApp
         frame.repaint();
     }
 
-    public Pokemon getPokemonFromName(String name)
+    public PokemonInfos getPokemonFromName(String name)
     {
-        for(Pokemon p : PokemonMap.getAllPokemon())
-        {
-            if(p.getEnglishName().equals(name))
-                return p;
-        }
-        return null;
+        return apiInterface.getPokemonFromName(name);
+    }
+
+    public PokeApiInterface getApiInterface() {
+        return apiInterface;
     }
 }

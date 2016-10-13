@@ -1,18 +1,18 @@
 package uranoscopidae.teambuilder.app.search;
 
-import uranoscopidae.teambuilder.pkmn.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class MoveSearchItem extends SearchItem
 {
-    private final Move move;
+    private final MoveInfos moveInfos;
 
-    public MoveSearchItem(SearchZone searchZone, Move move)
+    public MoveSearchItem(SearchZone searchZone, MoveInfos moveInfos)
     {
         super(searchZone);
-        this.move = move;
+        this.moveInfos = moveInfos;
     }
 
     @Override
@@ -22,9 +22,9 @@ public class MoveSearchItem extends SearchItem
         setBackgroundColor(panel, index);
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.add(Box.createHorizontalStrut(10));
-        String moveName = move.getEnglishName();
-        boolean isStab = move.getType().equals(parent.getCurrentEntry().getPokemon().getFirstType()) || move.getType().equals(parent.getCurrentEntry().getPokemon().getSecondType());
-        boolean canBeLearnt = parent.getCurrentEntry().getPokemon().canLearn(move);
+        String moveName = moveInfos.getEnglishName();
+        boolean isStab = moveInfos.getType().equals(parent.getCurrentEntry().getPokemon().getFirstType()) || moveInfos.getType().equals(parent.getCurrentEntry().getPokemon().getSecondType());
+        boolean canBeLearnt = parent.getCurrentEntry().getPokemon().canLearn(moveInfos);
         JLabel moveNameLabel = new JLabel();
         if(!canBeLearnt)
         {
@@ -37,7 +37,13 @@ public class MoveSearchItem extends SearchItem
         moveNameLabel.setText("<html>"+moveName+"</html>");
         panel.add(moveNameLabel);
         panel.add(Box.createGlue());
-        panel.add(parent.getBuilderPane().createImageLabel(move.getType().getIcon(), 32, 14));
+        panel.add(new JLabel(""+moveInfos.getPower()));
+        panel.add(Box.createGlue());
+        panel.add(new JLabel(""+moveInfos.getAccuracy()));
+        panel.add(Box.createGlue());
+        panel.add(new JLabel(moveInfos.getCategory().name()));
+        panel.add(Box.createGlue());
+        panel.add(parent.getBuilderPane().createImageLabel(moveInfos.getType().getIcon(), 32, 14));
         panel.add(Box.createHorizontalStrut(10));
         return panel;
     }
@@ -47,7 +53,7 @@ public class MoveSearchItem extends SearchItem
     {
         if(o instanceof MoveSearchItem)
         {
-            return move.getEnglishName().compareTo(((MoveSearchItem) o).move.getEnglishName());
+            return moveInfos.getEnglishName().compareTo(((MoveSearchItem) o).moveInfos.getEnglishName());
         }
         return 0;
     }
@@ -55,6 +61,6 @@ public class MoveSearchItem extends SearchItem
     @Override
     public String toString()
     {
-        return move.getEnglishName();
+        return moveInfos.getEnglishName();
     }
 }

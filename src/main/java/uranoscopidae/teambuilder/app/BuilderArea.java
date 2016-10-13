@@ -108,7 +108,7 @@ public class BuilderArea extends JPanel
         itemPanel.add(Box.createVerticalGlue());
         JLabel itemIcon = createImageLabel(entry.getItem().getIcon(), 24, 24);
         itemPanel.add(itemIcon);
-        ConfirmableTextField itemName = new ConfirmableTextField(entry.getItem().getEnglishName(), app.getItemNames());
+        ConfirmableTextField itemName = new ConfirmableTextField(entry.getItem() == null ? "" : entry.getItem().getEnglishName(), app.getItemNames());
         itemPanel.add(itemName);
         itemName.addConfirmationListener(s -> {
             try
@@ -137,13 +137,13 @@ public class BuilderArea extends JPanel
         for (int i = 0; i < 4; i++)
         {
             ConfirmableTextField moveField = new ConfirmableTextField(30, app.getMoveNames());
-            if(entry.getMoves()[i] != null)
-                moveField.setText(entry.getMoves()[i].getEnglishName());
+            if(entry.getMoveInfoses()[i] != null)
+                moveField.setText(entry.getMoveInfoses()[i].getEnglishName());
             moveField.updateConfirmationState();
             SearchZoneSearchListener moveSearchListener = new SearchZoneSearchListener(() -> searchZone.searchMove(moveField), searchZone::confirm);
             moveField.addMouseListener(moveSearchListener);
             moveField.addKeyListener(moveSearchListener);
-            moveField.addConfirmationPredicate(entry.getPokemon()::canLearn);
+            moveField.addConfirmationPredicate(s -> entry.getPokemon().canLearn(s) || s.startsWith("!"));
             moveField.updateConfirmationState();
             movePanel.add(moveField);
         }
@@ -159,10 +159,10 @@ public class BuilderArea extends JPanel
     private ConfirmableTextField createNameField(TeamBuilderApp app, TeamEntry entry)
     {
         List<String> list = app.getPokemonNames();
-        for (int i = 0; i < list.size(); i++)
+        /*for (int i = 0; i < list.size(); i++)
         {
             list.set(i, list.get(i).substring(3));
-        }
+        }*/
         ConfirmableTextField nameField = new ConfirmableTextField(entry.getPokemon().getEnglishName(), list);
         nameField.updateConfirmationState();
         nameField.addConfirmationListener((s) -> {
@@ -179,7 +179,7 @@ public class BuilderArea extends JPanel
     {
         JPanel panel = new JPanel();
         PokemonStats stats = entry.getPokemon().getStats();
-        panel.add(new JLabel("HP: "+stats.getHP())); // TODO: Each Pokémon must have their own stats
+        panel.add(new JLabel("HP: "+stats.getHP()));
         panel.add(new JLabel("Attack: "+stats.getAttack()));
         panel.add(new JLabel("Defense: "+stats.getDefense()));
         panel.add(new JLabel("Special Attack: "+stats.getSpecialAttack()));
@@ -214,7 +214,7 @@ public class BuilderArea extends JPanel
         abilities.setSelectedItem(entry.getAbility());
         abilities.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JPanel panel = new JPanel();
-            JLabel label = new JLabel(value.getEnglishName());
+            JLabel label = new JLabel(value == null ? "???" : value.getEnglishName());
             if(isSelected)
             {
                 panel.setBackground(Color.gray);

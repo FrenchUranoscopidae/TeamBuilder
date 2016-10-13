@@ -1,6 +1,7 @@
 package uranoscopidae.teambuilder.app.search;
 
-import uranoscopidae.teambuilder.pkmn.Pokemon;
+import me.sargunvohra.lib.pokekotlin.model.Pokemon;
+import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.TypeList;
 
 import javax.swing.*;
@@ -8,9 +9,9 @@ import java.awt.*;
 
 public class PokemonSearchItem extends SearchItem
 {
-    private final Pokemon pokemon;
+    private final PokemonInfos pokemon;
 
-    public PokemonSearchItem(SearchZone searchZone, Pokemon pokemon)
+    public PokemonSearchItem(SearchZone searchZone, PokemonInfos pokemon)
     {
         super(searchZone);
         this.pokemon = pokemon;
@@ -45,10 +46,14 @@ public class PokemonSearchItem extends SearchItem
     @Override
     public int compareTo(SearchItem o)
     {
+        if(o == null)
+            return 0;
+        if(((PokemonSearchItem)o).getPokemon() == null)
+            return 0;
         return pokemon.getEnglishName().compareTo(((PokemonSearchItem)o).getPokemon().getEnglishName());
     }
 
-    public Pokemon getPokemon()
+    public PokemonInfos getPokemon()
     {
         return pokemon;
     }

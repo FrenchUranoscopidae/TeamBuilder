@@ -25,12 +25,12 @@ public class MainPanel extends JPanel
         Team testTeam = new Team(app, "Test team");
         try
         {
-            testTeam.getParty()[0].setPokemon(app.getPokemon("025Pikachu"));
-            testTeam.getParty()[1].setPokemon(app.getPokemon("208Steelix"));
-            testTeam.getParty()[2].setPokemon(app.getPokemon("151Mew"));
-            testTeam.getParty()[3].setPokemon(app.getPokemon("384Rayquaza"));
-            testTeam.getParty()[4].setPokemon(app.getPokemon("065Alakazam"));
-            testTeam.getParty()[5].setPokemon(app.getPokemon("306Aggron"));
+            testTeam.getParty()[0].setPokemon(app.getPokemonFromName("Pikachu"));
+            testTeam.getParty()[1].setPokemon(app.getPokemonFromName("Steelix Mega"));
+            testTeam.getParty()[2].setPokemon(app.getPokemonFromName("Mew"));
+            testTeam.getParty()[3].setPokemon(app.getPokemonFromName("Rayquaza Mega"));
+            testTeam.getParty()[4].setPokemon(app.getPokemonFromName("Alakazam"));
+            testTeam.getParty()[5].setPokemon(app.getPokemonFromName("Aggron"));
 
             testTeam.getParty()[0].setGender(PokemonGender.FEMALE);
             testTeam.getParty()[1].setGender(PokemonGender.ASEXUAL);
@@ -54,7 +54,7 @@ public class MainPanel extends JPanel
                 }
             }
         }
-        catch (IOException | ReflectiveOperationException e)
+        catch (IOException e)
         {
             e.printStackTrace();
         }

@@ -1,14 +1,12 @@
 package uranoscopidae.teambuilder.app.team;
 
-import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.Pokemon;
+import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.items.Item;
-import uranoscopidae.teambuilder.pkmn.moves.Move;
+import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 import uranoscopidae.teambuilder.utils.SerializableField;
 import uranoscopidae.teambuilder.utils.DataHolder;
 
-import java.io.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -23,7 +21,7 @@ public class TeamEntry extends DataHolder
     private PokemonGender gender;
 
     @SerializableField("getFullID")
-    private Pokemon pokemon;
+    private PokemonInfos pokemon;
 
     @SerializableField
     private byte level;
@@ -44,7 +42,7 @@ public class TeamEntry extends DataHolder
     private Ability ability;
 
     @SerializableField("getEnglishName")
-    private Move[] moves;
+    private MoveInfos[] moveInfoses;
 
     @SerializableField
     private String nickname;
@@ -63,7 +61,7 @@ public class TeamEntry extends DataHolder
         {
             e.printStackTrace();
         }
-        moves = new Move[4];
+        moveInfoses = new MoveInfos[4];
         this.team = team;
         this.index = index;
         level = 50;
@@ -81,12 +79,12 @@ public class TeamEntry extends DataHolder
         return team;
     }
 
-    public Pokemon getPokemon()
+    public PokemonInfos getPokemon()
     {
         return pokemon;
     }
 
-    public void setPokemon(Pokemon pokemon)
+    public void setPokemon(PokemonInfos pokemon)
     {
         this.pokemon = pokemon;
         if(pokemon.getAbilities().size() > 0)
@@ -94,11 +92,11 @@ public class TeamEntry extends DataHolder
             ability = pokemon.getAbilities().get(0);
         }
 
-        if(Arrays.equals(moves, new Move[4]))
+        if(Arrays.equals(moveInfoses, new MoveInfos[4]))
         {
-            for (int i = 0; i < moves.length && i < pokemon.getMoves().size(); i++)
+            for (int i = 0; i < moveInfoses.length && i < pokemon.getMoveInfoses().size(); i++)
             {
-                moves[i] = pokemon.getMoves().get(i);
+                moveInfoses[i] = pokemon.getMoveInfoses().get(i);
             }
         }
     }
@@ -178,14 +176,14 @@ public class TeamEntry extends DataHolder
         this.ability = ability;
     }
 
-    public Move[] getMoves()
+    public MoveInfos[] getMoveInfoses()
     {
-        return moves;
+        return moveInfoses;
     }
 
-    public void setMove(Move move, int index)
+    public void setMove(MoveInfos moveInfos, int index)
     {
-        this.moves[index] = move;
+        this.moveInfoses[index] = moveInfos;
     }
 
     public String getNickname()
