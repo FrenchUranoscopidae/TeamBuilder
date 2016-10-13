@@ -42,7 +42,7 @@ public class MainPanel extends JPanel
             Random rand = new Random();
             for (int i = 0; i < testTeam.getParty().length; i++)
             {
-                testTeam.getParty()[i].setLevel((byte) rand.nextInt(100+1));
+                testTeam.getParty()[i].setLevel((byte) (rand.nextInt(100)+1));
                 int randIndex = rand.nextInt(Pokeballs.values().length);
                 try
                 {
