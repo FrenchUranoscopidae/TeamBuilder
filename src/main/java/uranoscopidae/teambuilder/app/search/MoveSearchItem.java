@@ -7,6 +7,8 @@ import java.awt.*;
 
 public class MoveSearchItem extends SearchItem
 {
+
+    public static final String[] MOVE_COLUMNS = {"Name", "Description", "Category", "Power", "Accuracy", "Type", "PP"};
     private final MoveInfos moveInfos;
 
     public MoveSearchItem(SearchZone searchZone, MoveInfos moveInfos)
@@ -15,7 +17,6 @@ public class MoveSearchItem extends SearchItem
         this.moveInfos = moveInfos;
     }
 
-    @Override
     public JComponent generateComponent(int index, int totalCount)
     {
         JPanel panel = new JPanel();
@@ -49,17 +50,65 @@ public class MoveSearchItem extends SearchItem
     }
 
     @Override
-    public int compareTo(SearchItem o)
+    public int compareTo(SearchItem o, int column)
     {
         if(o instanceof MoveSearchItem)
         {
-            return moveInfos.getEnglishName().compareTo(((MoveSearchItem) o).moveInfos.getEnglishName());
+            MoveSearchItem other = (MoveSearchItem) o;
+            if(column == columnFromName(MOVE_COLUMNS, "Type")) {
+                return moveInfos.getType().getName().compareTo(other.moveInfos.getType().getName());
+            }
+            if(column == columnFromName(MOVE_COLUMNS, "Name")) {
+                return moveInfos.getEnglishName().compareTo(other.moveInfos.getEnglishName());
+            }
+            if(column == columnFromName(MOVE_COLUMNS, "Power")) {
+                return Integer.compare(moveInfos.getPower(), other.moveInfos.getPower());
+            }
+
+            if(column == columnFromName(MOVE_COLUMNS, "Category")) {
+                return moveInfos.getCategory().name().compareTo(other.moveInfos.getCategory().name());
+            }
+
+            if(column == columnFromName(MOVE_COLUMNS, "Accuracy")) {
+                return Integer.compare(moveInfos.getAccuracy(), other.moveInfos.getAccuracy());
+            }
+
+            if(column == columnFromName(MOVE_COLUMNS, "PP")) {
+                return Integer.compare(moveInfos.getPowerPoints(), other.moveInfos.getPowerPoints());
+            }
+
         }
         return 0;
     }
 
     @Override
-    public String toString()
+    public Object getValue(int column) {
+        if(column == columnFromName(MOVE_COLUMNS, "Name")) {
+            return moveInfos.getEnglishName();
+        }
+        if(column == columnFromName(MOVE_COLUMNS, "Description")) {
+            return moveInfos.getDescription();
+        }
+        if(column == columnFromName(MOVE_COLUMNS, "Type")) {
+            return moveInfos.getType();
+        }
+        if(column == columnFromName(MOVE_COLUMNS, "Power")) {
+            return moveInfos.getPower();
+        }
+        if(column == columnFromName(MOVE_COLUMNS, "Accuracy")) {
+            return moveInfos.getAccuracy();
+        }
+        if(column == columnFromName(MOVE_COLUMNS, "Category")) {
+            return moveInfos.getCategory().name();
+        }
+        if(column == columnFromName(MOVE_COLUMNS, "PP")) {
+            return moveInfos.getPowerPoints();
+        }
+        return "Unknown column: "+column;
+    }
+
+    @Override
+    public String toStringID()
     {
         return moveInfos.getEnglishName();
     }

@@ -31,8 +31,6 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
     private BufferedImage sprite;
     private BufferedImage shinySprite;
     private BufferedImage icon;
-    private boolean spriteFetched;
-    private boolean shinySpriteFetched;
     private PokemonStats stats;
 
     public PokemonInfos(String name, Type firstType, int pokeapiID)
@@ -112,7 +110,6 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
 
     public void setDefaultSprite(BufferedImage sprite)
     {
-        spriteFetched = true;
         this.sprite = sprite;
     }
 
@@ -131,14 +128,6 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
     public String toString()
     {
         return "Pokémon["+name+", "+firstType.getName()+"/"+secondType.getName()+", #"+ pokeapiID +"]";
-    }
-
-    @Override
-    protected Object clone()
-    {
-        PokemonInfos clone = new PokemonInfos(name, firstType, secondType, pokeapiID);
-        clone.getMoveInfoses().addAll(getMoveInfoses());
-        return clone;
     }
 
     public void addMove(MoveInfos moveInfos)

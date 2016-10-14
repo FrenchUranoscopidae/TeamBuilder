@@ -1,12 +1,15 @@
-package uranoscopidae.teambuilder.pkmn;
+package uranoscopidae.teambuilder.pkmn.api;
 
 import me.sargunvohra.lib.pokekotlin.client.PokeApiClient;
 import me.sargunvohra.lib.pokekotlin.model.*;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import uranoscopidae.builder.DataBuilderMain;
 import uranoscopidae.teambuilder.app.Settings;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
-import uranoscopidae.teambuilder.pkmn.api.SpriteCache;
+import uranoscopidae.teambuilder.pkmn.*;
 import uranoscopidae.teambuilder.pkmn.moves.*;
 import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
 import uranoscopidae.teambuilder.utils.CsvTable;
@@ -40,27 +43,29 @@ public class PokeApiInterface {
     }
 
     public void loadPokemonList(JProgressBar bar) {
-        CsvTable pokemons = csv("pokemon");
-        CsvTable types = csv("types");
-        CsvTable pkmnTypes = csv("pokemon_types");
+        List<CSVRecord> pokemons = csv("pokemon");
+        List<CSVRecord> types = csv("types");
+        List<CSVRecord> pkmnTypes = csv("pokemon_types");
         // pokemon_id,version_group_id,move_id,pokemon_move_method_id,level,order
-        CsvTable pkmnMoves = csv("pokemon_moves");
+        List<CSVRecord> pkmnMoves = csv("pokemon_moves");
         // System.out.println(Arrays.toString(pokemons.getColumnNames()));
         // [id, identifier, species_id, height, weight, base_experience, order, is_default]
         bar.setIndeterminate(false);
         bar.setMinimum(0);
-        bar.setMaximum(pokemons.getRowCount());
+        bar.setMaximum(pokemons.size());
         bar.setValue(0);
-        for(int i = 0;i<pokemons.getRowCount();i++) {
-            int apiID = parseInt(pokemons.getElement("id", i), 0);
-            String name = pokemons.getElement("identifier", i);
+        for(int i = 0;i<pokemons.size();i++) {
+            CSVRecord record = pokemons.get(i);
+            int apiID = parseInt(record.get("id"), 0);
+            String name = record.get("identifier");
 
-            Type firstType = TypeList.none;
-            Type secondType = TypeList.none;
-            for(int row = 0;row<pkmnTypes.getRowCount();row++) {
-                if(String.valueOf(apiID).equals(pkmnTypes.getElement("pokemon_id", row))) { // correct pokemon
-                    int slot = parseInt(pkmnTypes.getElement("slot", row), 1);
-                    Type type = TypeList.getFromID(findInTable(types, "identifier", "id", pkmnTypes.getElement("type_id", row)));
+            uranoscopidae.teambuilder.pkmn.Type firstType = TypeList.none;
+            uranoscopidae.teambuilder.pkmn.Type secondType = TypeList.none;
+            for(int row = 0;row<pkmnTypes.size();row++) {
+                CSVRecord pkmnType = pkmnTypes.get(row);
+                if(String.valueOf(apiID).equals(pkmnType.get("pokemon_id"))) { // correct pokemon
+                    int slot = parseInt(pkmnType.get("slot"), 1);
+                    uranoscopidae.teambuilder.pkmn.Type type = TypeList.getFromID(findInTable(types, "identifier", "id", pkmnType.get("type_id")));
                     switch (slot) {
                         case 1:
                             firstType = type;
@@ -87,10 +92,10 @@ public class PokeApiInterface {
             bar.setString("Loading Pokémons - Loaded "+name+" ("+apiID+")");
         }
 
-        for(int row = 0;row<pkmnMoves.getRowCount();row++) {
-            int pkmnApiID = parseInt(pkmnMoves.getElement("pokemon_id", row), 0);
+        for(CSVRecord pkmnMove : pkmnMoves) {
+            int pkmnApiID = parseInt(pkmnMove.get("pokemon_id"), 0);
 
-            int moveID = parseInt(pkmnMoves.getElement("move_id", row), 0);
+            int moveID = parseInt(pkmnMove.get("move_id"), 0);
             if(moveID > 0) {
                 MoveInfos infos = getMoveFromID(moveID);
                 getPokemonFromID(pkmnApiID).addMove(infos);
@@ -104,54 +109,97 @@ public class PokeApiInterface {
         return Integer.parseInt(s);
     }
 
-    private static CsvTable csv(String name) {
+    private static List<CSVRecord> csv(String name) {
         final String root = "/building/pokeapi/data/v2/csv/";
-        return CsvTable.fromReader(new InputStreamReader(DataBuilderMain.class.getResourceAsStream(root+name+".csv")));
+        try {
+            CSVParser parser = new CSVParser(new InputStreamReader(PokeApiInterface.class.getResourceAsStream(root+name+".csv")), CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            try {
+                List<CSVRecord> records = new LinkedList<>();
+                for(CSVRecord rec : parser) {
+                    records.add(rec);
+                }
+                parser.close();
+                return records;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    private static String findInTable(CsvTable table, String toFind, String knownColumn, String knownValue) {
-        int toFindColumnID = table.getColumnWithName(toFind);
-        if(toFindColumnID < -1)
-            return null;
-        for(int row = 0;row<table.getRowCount();row++) {
-            if(table.getElement(knownColumn, row).equals(knownValue)) {
-                return table.getElement(toFindColumnID, row);
+    private static String findInTable(List<CSVRecord> table, String toFind, String knownColumn, String knownValue) {
+        for(CSVRecord rec : table) {
+            if(rec.get(knownColumn).equals(knownValue)) {
+                return rec.get(toFind);
             }
         }
         return null;
     }
 
     public void loadMoveList(JProgressBar bar) {
-        CsvTable moves = csv("moves");
-        CsvTable types = csv("types");
-        CsvTable damageClass = csv("move_damage_classes");
+        List<CSVRecord> moves = csv("moves");
+        List<CSVRecord> types = csv("types");
+        List<CSVRecord> damageClass = csv("move_damage_classes");
+        List<CSVRecord> flavorText = csv("move_flavor_text");
         bar.setIndeterminate(false);
         bar.setValue(0);
         bar.setMinimum(0);
-        bar.setMaximum(moves.getRowCount());
-        for(int i = 0;i<moves.getRowCount();i++) {
-            int apiID = parseInt(moves.getElement("id", i), 0);
-            int typeID = parseInt(moves.getElement("type_id", i), 0);
-            int categoryID = parseInt(moves.getElement("damage_class_id", i), 0);
-            int power = parseInt(moves.getElement("power", i), 0);
-            int accuracy = parseInt(moves.getElement("accuracy", i), 0);
-            int pp = parseInt(moves.getElement("pp", i), 0);
-            String name = moves.getElement("identifier", i);
+        bar.setMaximum(moves.size());
+        for (int i = 0; i < moves.size(); i++) {
+            CSVRecord moveCSV = moves.get(i);
+            int apiID = parseInt(moveCSV.get("id"), 0);
+            int typeID = parseInt(moveCSV.get("type_id"), 0);
+            int categoryID = parseInt(moveCSV.get("damage_class_id"), 0);
+            int power = parseInt(moveCSV.get("power"), 0);
+            int accuracy = parseInt(moveCSV.get("accuracy"), 0);
+            int pp = parseInt(moveCSV.get("pp"), 0);
+            String name = moveCSV.get("identifier");
 
             String typeName = findInTable(types, "identifier", "id", Integer.toString(typeID));
             String categoryName = findInTable(damageClass, "identifier", "id", Integer.toString(categoryID));
 
-            Type type = TypeList.getFromID(typeName);
+            uranoscopidae.teambuilder.pkmn.Type type = TypeList.getFromID(typeName);
             MoveCategory category = MoveCategory.valueOf(categoryName.toUpperCase());
 
             name = capitalizeWords(name.replace("-", " "));
             MoveInfos move = new MoveInfos(apiID, type, category, name, power, accuracy, pp);
+            try {
+                move.setDescription(loadMoveDescription(flavorText, apiID, 9));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             moveCache.put(apiID, move);
 
             moveNameList.add(move.getEnglishName());
             bar.setValue(i);
-            bar.setString("Loading moves - Loaded "+name+" ("+apiID+")");
+            bar.setString("Loading moves - Loaded " + name + " (" + apiID + ")");
         }
+    }
+
+    /**
+     *
+     * @param table
+     * @param moveID
+     * @param languageID
+     * 9 is English (only value supported for the moment)
+     * @return
+     */
+    private String loadMoveDescription(List<CSVRecord> table, int moveID, int languageID) {
+        for(CSVRecord record : table) {
+            int foundID = parseInt(record.get("move_id"), 0);
+            if(foundID == moveID) {
+                int foundLanguageID = parseInt(record.get("language_id"), 0);
+                if(foundLanguageID == languageID) {
+                    int versionID = parseInt(record.get("version_group_id"), 0);
+                    if(versionID == 16) { // TODO: Don't hardcode this value
+                        return record.get("flavor_text");
+                    }
+                }
+            }
+        }
+        return "<NOT FOUND>";
     }
 
     public PokemonInfos getPokemonFromName(String name) {
@@ -174,8 +222,8 @@ public class PokeApiInterface {
         }
         System.out.println("Loading info from PokeApi.co for Pokemon with resource ID "+id);
         Pokemon pokemon = apiClient.getPokemon(id);
-        Type firstType = TypeList.getFromID(pokemon.getTypes().get(0).getType().getName());
-        Type secondType = TypeList.none;
+        uranoscopidae.teambuilder.pkmn.Type firstType = TypeList.getFromID(pokemon.getTypes().get(0).getType().getName());
+        uranoscopidae.teambuilder.pkmn.Type secondType = TypeList.none;
         if(pokemon.getTypes().size() > 1)
             secondType = TypeList.getFromID(pokemon.getTypes().get(1).getType().getName());
         PokemonInfos infos = new PokemonInfos(pokemon.getName(), firstType, secondType, id);

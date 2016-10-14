@@ -5,23 +5,26 @@ import uranoscopidae.teambuilder.app.ConfirmableTextField;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.PokemonInfos;
+import uranoscopidae.teambuilder.pkmn.Type;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.items.ItemMap;
 import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 
 import javax.swing.*;
+import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SearchZone extends JPanel
-{
+public class SearchZone extends JPanel {
     private final BuilderArea parent;
-    private final List<SearchItem> data;
     private final TeamBuilderApp app;
+    private final JTable table;
+    private final SearchZoneTableModel model;
     private TeamEntry entry;
     private ConfirmableTextField currentField;
     private List<SearchItem> currentItems;
@@ -31,8 +34,23 @@ public class SearchZone extends JPanel
         setLayout(new BorderLayout());
         this.parent = parent;
         this.app = parent.getApp();
-        data = new LinkedList<>();
-        // TODO: Use a JTable in order to help sorting by column
+        model = new SearchZoneTableModel();
+        table = new JTable(model) ;
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        add(new JScrollPane(table));
+
+        DefaultTableCellRenderer defaultRenderer = new DefaultTableCellRenderer();
+        table.setDefaultRenderer(SearchItem.class, new TableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                if(value instanceof Type) {
+                    return new JLabel(new ImageIcon(((Type)value).getIcon()));
+                }
+                return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            }
+        });
+
     }
 
     public void setCurrentEntry(TeamEntry pokemon)
@@ -42,7 +60,7 @@ public class SearchZone extends JPanel
 
     public void searchPokemon(ConfirmableTextField pokemonName)
     {
-        data.clear();
+        model.clear(new String[]{"Name"}); // TODO: More columns
         for(String pkmnName : app.getPokemonNames())
         {
             PokemonInfos pokemon = app.getPokemonFromName(pkmnName);
@@ -52,22 +70,22 @@ public class SearchZone extends JPanel
             if(!matches(pkmnName, "", nameStart, false))
                 continue;
 
-            data.add(new PokemonSearchItem(this, app.getPokemonFromName(pkmnName)));
+            model.add(new PokemonSearchItem(this, app.getPokemonFromName(pkmnName)));
         }
-        setData(pokemonName, data);
+        setData(pokemonName, null);
     }
 
     public void searchItem(ConfirmableTextField itemName, JLabel itemIcon)
     {
-        data.clear();
+        model.clear(new String[]{"Name"}); // TODO: more columns
         for(Item item : ItemMap.getAllItems())
         {
             String nameStart = itemName.getText();
             if(!matches(item.getEnglishName(), item.getDescription(), nameStart, false)) // filter out item names not starting with given text
                 continue;
-            data.add(new ItemSearchItem(this, item));
+            model.add(new ItemSearchItem(this, item));
         }
-        setData(itemName, data);
+        setData(itemName, null);
     }
 
     private boolean matches(String value, String desc, String expr, boolean strictDescMatch)
@@ -104,7 +122,7 @@ public class SearchZone extends JPanel
 
     public void searchMove(ConfirmableTextField moveName)
     {
-        data.clear();
+        model.clear(MoveSearchItem.MOVE_COLUMNS);
         String nameStart = moveName.getText();
         final boolean allowIllegal = nameStart.startsWith("!");
         if(allowIllegal)
@@ -118,51 +136,39 @@ public class SearchZone extends JPanel
                 continue;
             if(!matches(moveInfos.getEnglishName(), moveInfos.getType().getName(), nameStart, true)) // filter out item names not starting with given text
                 continue;
-            data.add(new MoveSearchItem(this, moveInfos));
+            model.add(new MoveSearchItem(this, moveInfos));
         }
-        setData(moveName, data);
+        setData(moveName, null);
     }
 
     private void setData(ConfirmableTextField toModify, List<SearchItem> data)
     {
-        currentField = toModify;
-        currentItems = data;
-        removeAll();
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        Collections.sort(data);
-        for (int i = 0; i < data.size(); i++)
-        {
-            SearchItem item = data.get(i);
-            JComponent component = item.generateComponent(i, data.size());
-            add(component);
-            final int index = i;
-            component.addMouseListener(new MouseAdapter()
-            {
-                @Override
-                public void mouseClicked(MouseEvent e)
-                {
-                    toModify.setText(item.toString());
-                    confirm();
+        TableRowSorter<SearchZoneTableModel> sorter = new TableRowSorter<>(model);
+        for (int i = 0; i < model.getColumnCount(); i++) {
+            sorter.setComparator(i, (o1, o2) -> {
+                if(o1 instanceof Double) {
+                    return Double.compare((Double)o1, (Double)o2);
                 }
-
-                @Override
-                public void mouseEntered(MouseEvent e)
-                {
-                    item.setHovered(true);
-                    item.setBackgroundColor(component, index);
+                if(o1 instanceof Integer) {
+                    return Integer.compare((Integer)o1, (Integer)o2);
                 }
-
-                @Override
-                public void mouseExited(MouseEvent e)
-                {
-                    item.setHovered(false);
-                    item.setBackgroundColor(component, index);
+                if(o1 instanceof Type) {
+                    return ((Type) o1).getName().compareTo(((Type)o2).getName());
                 }
+                if(o1 instanceof String) {
+                    return ((String) o1).compareTo((String) o2);
+                }
+                return 0;
             });
-            component.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
-        add(Box.createVerticalGlue());
+        table.setRowSorter(sorter);
+        sorter.toggleSortOrder(0);
+        sorter.sort();
+
+        table.invalidate();
+        table.repaint();
         updateUI();
+        // TODO: fix sorting
     }
 
     public BuilderArea getBuilderPane()

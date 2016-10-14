@@ -14,7 +14,6 @@ public class ItemSearchItem extends SearchItem
         this.item = item;
     }
 
-    @Override
     public JComponent generateComponent(int index, int totalCount)
     {
         JPanel panel = new JPanel();
@@ -31,13 +30,13 @@ public class ItemSearchItem extends SearchItem
     }
 
     @Override
-    public String toString()
+    public String toStringID()
     {
         return item.getEnglishName();
     }
 
     @Override
-    public int compareTo(SearchItem o)
+    public int compareTo(SearchItem o, int column)
     {
         if(o instanceof ItemSearchItem)
         {
@@ -45,4 +44,12 @@ public class ItemSearchItem extends SearchItem
         }
         return 0;
     }
+
+    @Override
+    public Object getValue(int column) {
+        if(column == 0)
+            return item.getEnglishName();
+        return "TODO";
+    }
+
 }

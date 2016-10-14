@@ -1,12 +1,8 @@
 package uranoscopidae.teambuilder.app;
 
-import uranoscopidae.teambuilder.app.refreshers.AbilitiesRefresher;
-import uranoscopidae.teambuilder.app.refreshers.DexRefresher;
-import uranoscopidae.teambuilder.app.refreshers.ItemsRefresher;
-import uranoscopidae.teambuilder.app.refreshers.MovesRefresher;
 import uranoscopidae.teambuilder.app.team.Team;
 import uranoscopidae.teambuilder.pkmn.Ability;
-import uranoscopidae.teambuilder.pkmn.PokeApiInterface;
+import uranoscopidae.teambuilder.pkmn.api.PokeApiInterface;
 import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.items.ItemMap;
@@ -27,10 +23,6 @@ public class TeamBuilderApp
 
     public static TeamBuilderApp instance;
     private final Settings settings;
-    private final MovesRefresher movesRefresher;
-    private final DexRefresher dexRefresher;
-    private final ItemsRefresher itemsRefresher;
-    private final AbilitiesRefresher abilitiesRefresher;
     private final PokeApiInterface apiInterface;
     private JFrame frame;
     private MainPanel mainPanel;
@@ -61,10 +53,6 @@ public class TeamBuilderApp
             e.printStackTrace();
         }
         apiInterface = new PokeApiInterface(this, settings);
-        dexRefresher = new DexRefresher(settings, this);
-        movesRefresher = new MovesRefresher(settings, this);
-        itemsRefresher = new ItemsRefresher(settings, this);
-        abilitiesRefresher = new AbilitiesRefresher(settings, this);
     }
 
     protected void start()
@@ -74,8 +62,7 @@ public class TeamBuilderApp
         frame.setExtendedState(Frame.MAXIMIZED_BOTH);
         frame.setJMenuBar(buildMenuBar());
         mainPanel = new MainPanel(this);
-        frame.add(mainPanel, "Center");
-        frame.add(buildProgressPanel(), "South");
+        frame.add(mainPanel);
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.addWindowListener(new WindowAdapter()
@@ -97,75 +84,10 @@ public class TeamBuilderApp
         loadingFrame.dispose();
     }
 
-    private void loadOfflineData()
-    {
-        LoadingFrame loadingFrame = new LoadingFrame(settings);
-        loadingFrame.setTitle("Loading offline data");
-        loadingFrame.waitForList("Loading items into memory...", this::getItemNames, s -> {
-            try
-            {
-                getItem(s); // registers the item into the item map
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        });
-
-        loadingFrame.waitForList("Loading moves into memory...", this::getMoveNames, s -> {
-            try
-            {
-                getMove(s); // registers the move into the move map
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        });
-
-        loadingFrame.asyncWaitForList("Loading Pokémon into memory...", this::getPokemonNames, s -> {
-            try
-            {
-                getPokemonFromName(s); // registers the Pokémon into the Pokémon map
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-        });
-        loadingFrame.dispose();
-    }
-
-    private Component buildProgressPanel()
-    {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        JProgressBar dexBar = dexRefresher.getBar();
-        JProgressBar moveBar = movesRefresher.getBar();
-        JProgressBar itemBar = itemsRefresher.getBar();
-        JProgressBar abilityBar = abilitiesRefresher.getBar();
-        dexBar.setStringPainted(true);
-        moveBar.setStringPainted(true);
-        itemBar.setStringPainted(true);
-        abilityBar.setStringPainted(true);
-
-        dexBar.setString("Pokédex not updating");
-        moveBar.setString("Moves not updating");
-        abilityBar.setString("Abilities not updating");
-        itemBar.setString("Items not updating");
-
-        panel.add(dexBar);
-        panel.add(moveBar);
-        panel.add(itemBar);
-        panel.add(abilityBar);
-        return panel;
-    }
-
     private JMenuBar buildMenuBar()
     {
         JMenuBar menuBar = new JMenuBar();
         JMenu file = new JMenu("File");
-        JMenu database = new JMenu("Databases");
         JMenu settings = new JMenu("Settings");
 
         JMenuItem importTeam = new JMenuItem("Import team");
@@ -187,69 +109,11 @@ public class TeamBuilderApp
         });
         file.add(importTeam);
 
-        JMenuItem refreshMoves = new JMenuItem("Refresh move and abilities database");
-        refreshMoves.addActionListener(e -> refreshMoves());
-        refreshMoves.addActionListener(e -> refreshAbilities());
-        database.add(refreshMoves);
-
-        JMenuItem refreshDex = new JMenuItem("Refresh Pokémon database");
-        refreshDex.addActionListener(e -> refreshDex());
-        database.add(refreshDex);
-
-        JMenuItem refreshItems = new JMenuItem("Refresh Items database");
-        refreshItems.addActionListener(e -> refreshItems());
-        database.add(refreshItems);
-
-        JMenu dbLocations = new JMenu("Set database location");
-        JMenuItem dexLocation = new JMenuItem("Pokédex");
-        JMenuItem movesLocation = new JMenuItem("Moves");
-        JMenuItem itemsLocation = new JMenuItem("Items");
-
-        dexLocation.addActionListener((e) -> {
-            File newLocation = selectFolder(this.settings.getDexLocation());
-            if(newLocation != null)
-            {
-                this.settings.setDexLocation(newLocation);
-            }
-        });
-
-        movesLocation.addActionListener((e) -> {
-            File newLocation = selectFolder(this.settings.getMovesLocation());
-            if(newLocation != null)
-            {
-                this.settings.setMovesLocation(newLocation);
-            }
-        });
-
-        itemsLocation.addActionListener((e) -> {
-            File newLocation = selectFolder(this.settings.getItemsLocation());
-            if(newLocation != null)
-            {
-                this.settings.setItemsLocation(newLocation);
-            }
-        });
-        dbLocations.add(dexLocation);
-        dbLocations.add(movesLocation);
-        dbLocations.add(itemsLocation);
-
-        settings.add(dbLocations);
-
         JMenu advancedMenu = new JMenu("Advanced");
-
-        JMenuItem threadCount = new JMenuItem("Refreshers thread count");
-        threadCount.addActionListener(e -> {
-            SpinnerNumberModel sModel = new SpinnerNumberModel(this.settings.getThreadCount(), 1, 100, 1);
-            JSpinner spinner = new JSpinner(sModel);
-            JOptionPane.showMessageDialog(frame, spinner, "Enter thread count", JOptionPane.QUESTION_MESSAGE);
-            int value = (int) spinner.getValue();
-            this.settings.setThreadCount(value);
-        });
-        advancedMenu.add(threadCount);
 
         settings.add(advancedMenu);
 
         menuBar.add(file);
-        menuBar.add(database);
         menuBar.add(settings);
         return menuBar;
     }
@@ -258,39 +122,6 @@ public class TeamBuilderApp
     {
         JFileChooser chooser = new JFileChooser();
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        if(current != null)
-        {
-            chooser.setCurrentDirectory(current.getParentFile());
-            chooser.setSelectedFile(current);
-        }
-        chooser.showOpenDialog(frame);
-        return chooser.getSelectedFile();
-    }
-
-    private void refreshMoves()
-    {
-        movesRefresher.launch();
-    }
-
-    private void refreshAbilities()
-    {
-        abilitiesRefresher.launch();
-    }
-
-    private void refreshDex()
-    {
-        dexRefresher.launch();
-    }
-
-    private void refreshItems()
-    {
-        itemsRefresher.launch();
-    }
-
-    private File selectFolder(File current)
-    {
-        JFileChooser chooser = new JFileChooser();
-        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         if(current != null)
         {
             chooser.setCurrentDirectory(current.getParentFile());
@@ -364,31 +195,16 @@ public class TeamBuilderApp
         return ItemMap.getItem(name);
     }
 
-    public ItemsRefresher getItemRefresher()
-    {
-        return itemsRefresher;
-    }
-
     public BufferedImage getBallIcon(String s) throws IOException
     {
         File file = new File(settings.getMainFolder(), s+".png");
-        if(!file.exists())
-        {
-            BufferedImage image = getItemRefresher().getExtractor().getExtractor().getImageFromName("File:Dream_"+s.replace(" ", "_")+"_Sprite.png");
-            if(image.getWidth() == 80)
-            {
-                image = image.getSubimage(10,10,60,60);
-            }
-            ImageIO.write(image, "png", file);
-        }
+        // TODO
         return ImageIO.read(file);
     }
 
     public java.util.List<String> getNames(File folder, String extension)
     {
-        File[] children = folder.listFiles((dir, name) -> {
-            return name.endsWith(extension);
-        });
+        File[] children = folder.listFiles((dir, name) -> name.endsWith(extension));
         if(children == null)
         {
             return Collections.emptyList();
@@ -414,18 +230,6 @@ public class TeamBuilderApp
     public java.util.List<String> getPokemonNames()
     {
         return apiInterface.getPokemonNames();
-    }
-
-    public void registerAbility(Ability part) throws IOException
-    {
-        if(!settings.getMovesLocation().exists())
-        {
-            settings.getMovesLocation().mkdirs();
-        }
-        FileOutputStream out = new FileOutputStream(new File(settings.getMovesLocation(), part.getEnglishName()+".abid"));
-        part.writeTo(out);
-        out.flush();
-        out.close();
     }
 
     public Ability getAbility(String name) throws IOException

@@ -1,15 +1,10 @@
 package uranoscopidae.teambuilder.pkmn.api;
 
-import me.sargunvohra.lib.pokekotlin.model.Pokemon;
-import me.sargunvohra.lib.pokekotlin.model.PokemonSprites;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
-import uranoscopidae.teambuilder.pkmn.PokeApiInterface;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 

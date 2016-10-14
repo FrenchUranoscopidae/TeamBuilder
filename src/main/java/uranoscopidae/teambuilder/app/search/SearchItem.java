@@ -2,8 +2,9 @@ package uranoscopidae.teambuilder.app.search;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
-public abstract class SearchItem implements Comparable<SearchItem>
+public abstract class SearchItem
 {
     protected final SearchZone parent;
     private boolean hovered;
@@ -13,7 +14,7 @@ public abstract class SearchItem implements Comparable<SearchItem>
         this.parent = searchZone;
     }
 
-    public abstract JComponent generateComponent(int index, int totalCount);
+    public abstract Object getValue(int column);
 
     public void setBackgroundColor(JComponent comp, int index)
     {
@@ -27,7 +28,15 @@ public abstract class SearchItem implements Comparable<SearchItem>
         }
     }
 
-    public abstract String toString();
+    protected int columnFromName(String[] names, String n) {
+        for (int i = 0; i < names.length; i++) {
+            if(names[i].equalsIgnoreCase(n))
+                return i;
+        }
+        return -1;
+    }
+
+    public abstract String toStringID();
 
     public void setHovered(boolean hovered)
     {
@@ -38,4 +47,6 @@ public abstract class SearchItem implements Comparable<SearchItem>
     {
         return hovered;
     }
+
+    public abstract int compareTo(SearchItem item, int column);
 }

@@ -17,6 +17,7 @@ public class MoveInfos
     private final int power;
     private final int accuracy;
     private final int powerPoints;
+    private String description = "<MISSINGDESC>";
 
     public MoveInfos(int pokeApiID, Type type, MoveCategory category, String englishName, int power, int accuracy, int powerPoints)
     {
@@ -27,6 +28,14 @@ public class MoveInfos
         this.power = power;
         this.accuracy = accuracy;
         this.powerPoints = powerPoints;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public int getPokeApiID() {

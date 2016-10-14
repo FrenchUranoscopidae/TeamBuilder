@@ -17,7 +17,6 @@ public class PokemonSearchItem extends SearchItem
         this.pokemon = pokemon;
     }
 
-    @Override
     public JComponent generateComponent(int index, int totalCount)
     {
         JPanel panel = new JPanel();
@@ -38,13 +37,21 @@ public class PokemonSearchItem extends SearchItem
     }
 
     @Override
-    public String toString()
+    public Object getValue(int column) {
+        if(column == 0) {
+            return pokemon.getEnglishName();
+        }
+        return "TODO";
+    }
+
+    @Override
+    public String toStringID()
     {
         return pokemon.getEnglishName();
     }
 
     @Override
-    public int compareTo(SearchItem o)
+    public int compareTo(SearchItem o, int column)
     {
         if(o == null)
             return 0;
