@@ -73,17 +73,18 @@ public class BuilderArea extends JPanel
         infosPanel.setLayout(new BoxLayout(infosPanel, BoxLayout.X_AXIS));
 
         JPanel globalInfos = new JPanel();
-        globalInfos.setLayout(new BoxLayout(globalInfos, BoxLayout.Y_AXIS));
+        globalInfos.setLayout(new BorderLayout());
         JTextField nicknameField = createNicknameField(app, entry);
         ConfirmableTextField nameField = createNameField(app, entry);
 
         nameField.setOpaque(false);
-        nicknameField.setOpaque(false);
+        nicknameField.setOpaque(true);
+        nicknameField.setBackground(null);
         nicknameField.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder("Nickname"), BorderFactory.createLoweredBevelBorder()));
         nameField.setSurroundingBorder(BorderFactory.createTitledBorder("Pokémon"));
-        globalInfos.add(nicknameField);
-        globalInfos.add(spriteLabel);
-        globalInfos.add(nameField);
+        globalInfos.add(nicknameField, "North");
+        globalInfos.add(spriteLabel, "Center");
+        globalInfos.add(nameField, "South");
 
         infosPanel.add(globalInfos);
 
@@ -159,10 +160,6 @@ public class BuilderArea extends JPanel
     private ConfirmableTextField createNameField(TeamBuilderApp app, TeamEntry entry)
     {
         List<String> list = app.getPokemonNames();
-        /*for (int i = 0; i < list.size(); i++)
-        {
-            list.set(i, list.get(i).substring(3));
-        }*/
         ConfirmableTextField nameField = new ConfirmableTextField(entry.getPokemon().getEnglishName(), list);
         nameField.updateConfirmationState();
         nameField.addConfirmationListener((s) -> {
@@ -291,7 +288,8 @@ public class BuilderArea extends JPanel
             {
                 boolean isShiny = e1.getItem() == YesNoEnum.YES;
                 entry.setShiny(isShiny);
-                loadImage(isShiny ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite(), spriteLabel);
+                BufferedImage sprite = isShiny ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite();
+                loadImage(sprite, sprite.getWidth()*2, sprite.getHeight()*2, spriteLabel);
                 app.refreshFrame();
             }
         });
@@ -300,25 +298,38 @@ public class BuilderArea extends JPanel
 
     private JLabel createImageLabel(BufferedImage image)
     {
-        return createImageLabel(image, image.getWidth(), image.getHeight());
+        final float scale = 2f;
+        return createImageLabel(image, (int)(image.getWidth()*scale), (int)(image.getHeight()*scale));
     }
 
     public JLabel createImageLabel(BufferedImage image, int minW, int minH)
     {
         JLabel label = new JLabel();
         label.setPreferredSize(new Dimension(minW, minH));
-        loadImage(image, label);
+        loadImage(image, minW, minH, label);
         return label;
     }
 
-    public void loadImage(BufferedImage image, JLabel label)
+    public void loadImage(BufferedImage image, JLabel label) {
+        loadImage(image, image.getWidth(), image.getHeight(), label);
+    }
+
+    public void loadImage(BufferedImage image, int w, int h, JLabel label)
     {
+        if(w != image.getWidth() || h != image.getHeight()) { // resize
+            BufferedImage newImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            Graphics g = newImage.createGraphics();
+            g.drawImage(image, 0, 0, w, h, null);
+            g.dispose();
+            image = newImage;
+        }
+        BufferedImage finalImage = image;
         SwingWorker<ImageIcon, BufferedImage> worker = new SwingWorker<ImageIcon, BufferedImage>()
         {
             @Override
             protected ImageIcon doInBackground() throws Exception
             {
-                return new ImageIcon(image);
+                return new ImageIcon(finalImage);
             }
 
             @Override

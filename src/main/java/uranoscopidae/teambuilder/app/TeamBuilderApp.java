@@ -1,5 +1,6 @@
 package uranoscopidae.teambuilder.app;
 
+import com.alee.laf.WebLookAndFeel;
 import uranoscopidae.teambuilder.app.team.Team;
 import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.api.PokeApiInterface;
@@ -30,12 +31,9 @@ public class TeamBuilderApp
 
     public static void main(String[] args)
     {
-        try
-        {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-        }
-        catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
-        {
+        try {
+            UIManager.setLookAndFeel(new WebLookAndFeel());
+        } catch (UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }
         instance = new TeamBuilderApp();

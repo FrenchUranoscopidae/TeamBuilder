@@ -60,7 +60,7 @@ public class SearchZone extends JPanel {
 
     public void searchPokemon(ConfirmableTextField pokemonName)
     {
-        model.clear(new String[]{"Name"}); // TODO: More columns
+        model.clear(PokemonSearchItem.COLUMNS); // TODO: More columns
         for(String pkmnName : app.getPokemonNames())
         {
             PokemonInfos pokemon = app.getPokemonFromName(pkmnName);

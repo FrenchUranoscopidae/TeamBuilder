@@ -1,6 +1,5 @@
 package uranoscopidae.teambuilder.app.search;
 
-import me.sargunvohra.lib.pokekotlin.model.Pokemon;
 import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.TypeList;
 
@@ -10,6 +9,7 @@ import java.awt.*;
 public class PokemonSearchItem extends SearchItem
 {
     private final PokemonInfos pokemon;
+    public static final String[] COLUMNS = {"DexID", "Name", "First Type", "Second Type", "HP", "Atk", "Def", "SpeA", "SpeD", "Speed"};
 
     public PokemonSearchItem(SearchZone searchZone, PokemonInfos pokemon)
     {
@@ -38,7 +38,7 @@ public class PokemonSearchItem extends SearchItem
 
     @Override
     public Object getValue(int column) {
-        if(column == 0) {
+        if(column == columnFromName(COLUMNS, "Name")) {
             return pokemon.getEnglishName();
         }
         return "TODO";
