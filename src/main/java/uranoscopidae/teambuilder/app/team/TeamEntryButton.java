@@ -66,7 +66,10 @@ public class TeamEntryButton extends JButton
 
     private void registerBallIcon(String s) throws IOException
     {
-        ballIcons.put(s, app.getBallIcon(s));
+        BufferedImage icon = app.getBallIcon(s);
+        if(icon == null)
+            icon = grayedPokeball;
+        ballIcons.put(s, icon);
     }
 
     @Override
@@ -75,7 +78,8 @@ public class TeamEntryButton extends JButton
         Graphics2D g = (Graphics2D)gr;
         g.setColor(Color.black);
 
-        BufferedImage pokeballIcon = entry.hasPokemon() ? ballIcons.get(entry.getBall().getEnglishName()) : grayedPokeball;
+        BufferedImage pokeballIcon = entry.hasPokemon() ?
+                (entry.getBall() == null ? grayedPokeball : ballIcons.get(entry.getBall().getEnglishName())) : grayedPokeball;
         // Draw box
         float sizeFactor = (float)getHeight()/pokeballIcon.getHeight();
         final int pokeballWidth = (int) (pokeballIcon.getWidth()*sizeFactor);

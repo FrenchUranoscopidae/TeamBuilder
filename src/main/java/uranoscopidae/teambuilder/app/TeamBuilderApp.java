@@ -11,6 +11,7 @@ import uranoscopidae.teambuilder.utils.Constants;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -31,7 +32,7 @@ public class TeamBuilderApp
     {
         try
         {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         }
         catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e)
         {
@@ -144,43 +145,9 @@ public class TeamBuilderApp
         frame.dispose();
     }
 
-    public boolean hasMove(String name)
-    {
-        return new File(settings.getMovesLocation(), name+".movd").exists();
-    }
-
-    public void registerMove(MoveInfos definition) throws IOException
-    {
-        if(!settings.getMovesLocation().exists())
-        {
-            settings.getMovesLocation().mkdirs();
-        }
-        FileOutputStream out = new FileOutputStream(new File(settings.getMovesLocation(), definition.getEnglishName()+".movd"));
-        definition.writeTo(out);
-        out.flush();
-        out.close();
-    }
-
     public MoveInfos getMove(String name)
     {
         return apiInterface.getMoveFromName(name);
-    }
-
-    public boolean hasItem(String name)
-    {
-        return new File(settings.getItemsLocation(), name+".itemd").exists();
-    }
-
-    public void registerItem(Item definition) throws IOException
-    {
-        if(!settings.getItemsLocation().exists())
-        {
-            settings.getItemsLocation().mkdirs();
-        }
-        FileOutputStream out = new FileOutputStream(new File(settings.getItemsLocation(), definition.getEnglishName()+".itemd"));
-        definition.writeTo(out);
-        out.flush();
-        out.close();
     }
 
     public Item getItem(String name) throws IOException
@@ -198,7 +165,8 @@ public class TeamBuilderApp
     public BufferedImage getBallIcon(String s) throws IOException
     {
         File file = new File(settings.getMainFolder(), s+".png");
-        // TODO
+        if(!file.exists())
+            return null;
         return ImageIO.read(file);
     }
 

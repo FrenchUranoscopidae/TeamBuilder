@@ -106,7 +106,7 @@ public class BuilderArea extends JPanel
 
         JPanel itemPanel = new JPanel();
         itemPanel.add(Box.createVerticalGlue());
-        JLabel itemIcon = createImageLabel(entry.getItem().getIcon(), 24, 24);
+        JLabel itemIcon = entry.getItem() == null ? new JLabel("No item") : createImageLabel(entry.getItem().getIcon(), 24, 24);
         itemPanel.add(itemIcon);
         ConfirmableTextField itemName = new ConfirmableTextField(entry.getItem() == null ? "" : entry.getItem().getEnglishName(), app.getItemNames());
         itemPanel.add(itemName);
