@@ -5,14 +5,12 @@ import me.sargunvohra.lib.pokekotlin.model.*;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import uranoscopidae.builder.DataBuilderMain;
 import uranoscopidae.teambuilder.app.Settings;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.pkmn.*;
 import uranoscopidae.teambuilder.pkmn.moves.*;
 import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
-import uranoscopidae.teambuilder.utils.CsvTable;
 
 import javax.swing.*;
 import java.awt.image.BufferedImage;
@@ -48,7 +46,6 @@ public class PokeApiInterface {
         List<CSVRecord> pkmnTypes = csv("pokemon_types");
         // pokemon_id,version_group_id,move_id,pokemon_move_method_id,level,order
         List<CSVRecord> pkmnMoves = csv("pokemon_moves");
-        // System.out.println(Arrays.toString(pokemons.getColumnNames()));
         // [id, identifier, species_id, height, weight, base_experience, order, is_default]
         bar.setIndeterminate(false);
         bar.setMinimum(0);
