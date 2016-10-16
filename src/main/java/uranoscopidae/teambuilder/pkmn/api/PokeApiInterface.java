@@ -109,7 +109,7 @@ public class PokeApiInterface {
     private static List<CSVRecord> csv(String name) {
         final String root = "/building/pokeapi/data/v2/csv/";
         try {
-            CSVParser parser = new CSVParser(new InputStreamReader(PokeApiInterface.class.getResourceAsStream(root+name+".csv")), CSVFormat.DEFAULT.withFirstRecordAsHeader());
+            CSVParser parser = new CSVParser(new InputStreamReader(PokeApiInterface.class.getResourceAsStream(root+name+".csv")), CSVFormat.DEFAULT.withFirstRecordAsHeader().withRecordSeparator("\r"));
             try {
                 List<CSVRecord> records = new LinkedList<>();
                 for(CSVRecord rec : parser) {

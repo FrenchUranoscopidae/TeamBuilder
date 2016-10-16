@@ -41,6 +41,33 @@ public class PokemonSearchItem extends SearchItem
         if(column == columnFromName(COLUMNS, "Name")) {
             return pokemon.getEnglishName();
         }
+        if(column == columnFromName(COLUMNS, "DexID")) {
+            return pokemon.getPokeapiID(); // TODO: use the real dex id
+        }
+        if(column == columnFromName(COLUMNS, "Atk")) {
+            return pokemon.getStats().getAttack();
+        }
+        if(column == columnFromName(COLUMNS, "Def")) {
+            return pokemon.getStats().getDefense();
+        }
+        if(column == columnFromName(COLUMNS, "SpeA")) {
+            return pokemon.getStats().getSpecialAttack();
+        }
+        if(column == columnFromName(COLUMNS, "SpeD")) {
+            return pokemon.getStats().getSpecialDefense();
+        }
+        if(column == columnFromName(COLUMNS, "Speed")) {
+            return pokemon.getStats().getSpeed();
+        }
+        if(column == columnFromName(COLUMNS, "HP")) {
+            return pokemon.getStats().getHP();
+        }
+        if(column == columnFromName(COLUMNS, "First Type")) {
+            return pokemon.getFirstType();
+        }
+        if(column == columnFromName(COLUMNS, "Second Type")) {
+            return pokemon.getSecondType();
+        }
         return "TODO";
     }
 

@@ -44,8 +44,19 @@ public class SearchZone extends JPanel {
         table.setDefaultRenderer(SearchItem.class, new TableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component comp = createRenderer(table, value, isSelected, hasFocus, row, column);
+                if(!isSelected)
+                    comp.setBackground(row % 2 == 0 ? Color.lightGray.brighter() : Color.lightGray);
+                else
+                    comp.setBackground(table.getSelectionBackground());
+                return comp;
+            }
+
+            private Component createRenderer(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 if(value instanceof Type) {
-                    return new JLabel(new ImageIcon(((Type)value).getIcon()));
+                    JLabel label = new JLabel(new ImageIcon(((Type)value).getIcon()));
+                    label.setOpaque(true);
+                    return label;
                 }
                 return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             }
@@ -60,7 +71,7 @@ public class SearchZone extends JPanel {
 
     public void searchPokemon(ConfirmableTextField pokemonName)
     {
-        model.clear(PokemonSearchItem.COLUMNS); // TODO: More columns
+        model.clear(PokemonSearchItem.COLUMNS);
         for(String pkmnName : app.getPokemonNames())
         {
             PokemonInfos pokemon = app.getPokemonFromName(pkmnName);

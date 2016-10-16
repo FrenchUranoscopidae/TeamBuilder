@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class TypeList
 {
+    public static final Type missing = new Type("Missing");
     public static final Type none = new Type("None");
     public static final Type normal = new Type("Normal");
     public static final Type fighting = new Type("Fighting");
@@ -35,14 +36,14 @@ public class TypeList
     {
         init();
 
-        Collections.addAll(values, none, normal, fighting, flying, poison, ground, rock, bug, ghost, steel, fire, water, grass, electric, psychic, ice, dragon, dark, fairy);
+        Collections.addAll(values, missing, none, normal, fighting, flying, poison, ground, rock, bug, ghost, steel, fire, water, grass, electric, psychic, ice, dragon, dark, fairy);
     }
 
     public static Type getFromID(String id)
     {
         return values.stream()
                 .filter(t -> t.getName().equalsIgnoreCase(id))
-                .findFirst().orElse(none);
+                .findFirst().orElse(missing);
     }
 
     private static void init()

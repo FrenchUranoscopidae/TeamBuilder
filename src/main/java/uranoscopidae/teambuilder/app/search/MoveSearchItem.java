@@ -84,7 +84,13 @@ public class MoveSearchItem extends SearchItem
     @Override
     public Object getValue(int column) {
         if(column == columnFromName(MOVE_COLUMNS, "Name")) {
-            return moveInfos.getEnglishName();
+            String name = moveInfos.getEnglishName();
+            if(isStab())
+                name = "<u><b>"+name+"</b></u>";
+            if(isIllegal()) {
+                name = "<font color=\"red\">"+name+"</font>";
+            }
+            return "<html>"+name+"</html";
         }
         if(column == columnFromName(MOVE_COLUMNS, "Description")) {
             return moveInfos.getDescription();
@@ -110,6 +116,17 @@ public class MoveSearchItem extends SearchItem
     @Override
     public String toStringID()
     {
+        if(isIllegal())
+            return "!"+moveInfos.getEnglishName();
         return moveInfos.getEnglishName();
+    }
+
+    public boolean isStab() {
+        return moveInfos.getType().equals(parent.getCurrentEntry().getPokemon().getFirstType())
+                || moveInfos.getType().equals(parent.getCurrentEntry().getPokemon().getSecondType());
+    }
+
+    public boolean isIllegal() {
+        return !parent.getCurrentEntry().getPokemon().canLearn(moveInfos);
     }
 }

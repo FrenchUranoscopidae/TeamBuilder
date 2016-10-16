@@ -12,7 +12,6 @@ import uranoscopidae.teambuilder.utils.Constants;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
