@@ -89,6 +89,8 @@ public class PokeApiInterface {
             bar.setString("Loading Pokémons - Loaded "+name+" ("+apiID+")");
         }
 
+        bar.setString("Assigning moves to Pokémons");
+
         for(CSVRecord pkmnMove : pkmnMoves) {
             int pkmnApiID = parseInt(pkmnMove.get("pokemon_id"), 0);
 
@@ -96,6 +98,41 @@ public class PokeApiInterface {
             if(moveID > 0) {
                 MoveInfos infos = getMoveFromID(moveID);
                 getPokemonFromID(pkmnApiID).addMove(infos);
+            }
+        }
+
+        bar.setString("Assigning stats to Pokémons");
+        List<CSVRecord> pkmnStats = csv("pokemon_stats");
+        //List<CSVRecord> stats = csv("stats");
+        for(CSVRecord statRec : pkmnStats) {
+            int pokemonID = parseInt(statRec.get("pokemon_id"), 0);
+            PokemonInfos infos = getPokemonFromID(pokemonID);
+            int statID = parseInt(statRec.get("stat_id"), 0);
+            int value = parseInt(statRec.get("base_stat"), 0);
+            switch (statID) {
+                case 1: // HP
+                    infos.getStats().setHP(value);
+                    break;
+
+                case 2: // Attack
+                    infos.getStats().setAttack(value);
+                    break;
+
+                case 3: // Defense
+                    infos.getStats().setDefense(value);
+                    break;
+
+                case 4: // Special Attack
+                    infos.getStats().setSpecialAttack(value);
+                    break;
+
+                case 5: // Special Defense
+                    infos.getStats().setSpecialDefense(value);
+                    break;
+
+                case 6: // Speed
+                    infos.getStats().setSpeed(value);
+                    break;
             }
         }
     }

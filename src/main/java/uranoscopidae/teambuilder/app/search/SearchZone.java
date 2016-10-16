@@ -15,9 +15,6 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class SearchZone extends JPanel {
@@ -29,8 +26,7 @@ public class SearchZone extends JPanel {
     private ConfirmableTextField currentField;
     private List<SearchItem> currentItems;
 
-    public SearchZone(BuilderArea parent)
-    {
+    public SearchZone(BuilderArea parent) {
         setLayout(new BorderLayout());
         this.parent = parent;
         this.app = parent.getApp();
@@ -62,6 +58,16 @@ public class SearchZone extends JPanel {
             }
         });
 
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+                SearchItem item = model.getItems().get(table.getRowSorter().convertRowIndexToModel(table.getSelectedRow()));
+                currentField.setText(item.toStringID());
+                currentField.updateConfirmationState();
+            }
+        });
+
     }
 
     public void setCurrentEntry(TeamEntry pokemon)
@@ -71,6 +77,7 @@ public class SearchZone extends JPanel {
 
     public void searchPokemon(ConfirmableTextField pokemonName)
     {
+        currentField = pokemonName;
         model.clear(PokemonSearchItem.COLUMNS);
         for(String pkmnName : app.getPokemonNames())
         {
@@ -88,6 +95,7 @@ public class SearchZone extends JPanel {
 
     public void searchItem(ConfirmableTextField itemName, JLabel itemIcon)
     {
+        currentField = itemName;
         model.clear(new String[]{"Name"}); // TODO: more columns
         for(Item item : ItemMap.getAllItems())
         {
@@ -133,6 +141,7 @@ public class SearchZone extends JPanel {
 
     public void searchMove(ConfirmableTextField moveName)
     {
+        currentField = moveName;
         model.clear(MoveSearchItem.MOVE_COLUMNS);
         String nameStart = moveName.getText();
         final boolean allowIllegal = nameStart.startsWith("!");
@@ -179,7 +188,6 @@ public class SearchZone extends JPanel {
         table.invalidate();
         table.repaint();
         updateUI();
-        // TODO: fix sorting
     }
 
     public BuilderArea getBuilderPane()
@@ -206,7 +214,7 @@ public class SearchZone extends JPanel {
             {
                 for (SearchItem item : currentItems)
                 {
-                    String stringRepresentation = item.toString();
+                    String stringRepresentation = item.toStringID();
                     if(stringRepresentation.equals(currentField.getText()))
                     {
                         currentField.setText(stringRepresentation);

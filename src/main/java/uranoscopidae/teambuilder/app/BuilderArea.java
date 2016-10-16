@@ -30,6 +30,7 @@ public class BuilderArea extends JPanel
         this.app = app;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setGeneralView();
+        searchZone = new SearchZone(this);
     }
 
     public void setGeneralView()
@@ -49,7 +50,6 @@ public class BuilderArea extends JPanel
         {
             setBorder(new TitledBorder("Your Pokémon"));
             setLayout(new BorderLayout());
-            searchZone = new SearchZone(this);
             searchZone.setCurrentEntry(entry);
             JPanel infosPanel = new JPanel();
             ConfirmableTextField textField = buildInfosPanel(infosPanel);
