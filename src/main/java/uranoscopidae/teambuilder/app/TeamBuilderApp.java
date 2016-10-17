@@ -1,6 +1,11 @@
 package uranoscopidae.teambuilder.app;
 
 import com.alee.laf.WebLookAndFeel;
+import com.alee.managers.style.StyleManager;
+import com.alee.skin.dark.DarkSkin;
+import com.alee.skin.flat.FlatSkin;
+import com.alee.skin.modena.ModenaSkin;
+import com.alee.skin.web.WebSkin;
 import uranoscopidae.teambuilder.app.team.Team;
 import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.api.PokeApiInterface;
@@ -30,11 +35,7 @@ public class TeamBuilderApp
 
     public static void main(String[] args)
     {
-        try {
-            UIManager.setLookAndFeel(new WebLookAndFeel());
-        } catch (UnsupportedLookAndFeelException e) {
-            e.printStackTrace();
-        }
+        WebLookAndFeel.install();
         instance = new TeamBuilderApp();
         instance.start();
     }
@@ -108,6 +109,49 @@ public class TeamBuilderApp
         file.add(importTeam);
 
         JMenu advancedMenu = new JMenu("Advanced");
+
+
+        JMenu styleMenu = new JMenu("Interface style");
+        // TODO: Save
+        styleMenu.add("Dark skin").addActionListener(e -> {
+            WebLookAndFeel.install();
+            StyleManager.setSkin(DarkSkin.class);
+        });
+        styleMenu.add("Flat skin").addActionListener(e -> {
+            WebLookAndFeel.install();
+            StyleManager.setSkin(FlatSkin.class);
+        });
+        styleMenu.add("Modena skin").addActionListener(e -> {
+            WebLookAndFeel.install();
+            StyleManager.setSkin(ModenaSkin.class);
+        });
+        styleMenu.add("Web skin").addActionListener(e -> {
+            WebLookAndFeel.install();
+            StyleManager.setSkin(WebSkin.class);
+        });
+        styleMenu.add("OS skin").addActionListener(e -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e1) {
+                e1.printStackTrace();
+            }
+        });
+        styleMenu.add("Metal skin").addActionListener(e -> {
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e1) {
+                e1.printStackTrace();
+            }
+        });
+
+        styleMenu.add("Nimubs skin").addActionListener(e -> {
+            try {
+                UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            } catch (ClassNotFoundException | InstantiationException | UnsupportedLookAndFeelException | IllegalAccessException e1) {
+                e1.printStackTrace();
+            }
+        });
+        settings.add(styleMenu);
 
         settings.add(advancedMenu);
 

@@ -85,8 +85,6 @@ public class SearchZone extends JPanel {
             String nameStart = pokemonName.getText();
             if(!matches(pokemon.getEnglishName(), pokemon.getFirstType()+" "+pokemon.getSecondType(), nameStart, false))
                 continue;
-            if(!matches(pkmnName, "", nameStart, false))
-                continue;
 
             model.add(new PokemonSearchItem(this, app.getPokemonFromName(pkmnName)));
         }

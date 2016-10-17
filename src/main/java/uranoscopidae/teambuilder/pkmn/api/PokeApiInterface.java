@@ -103,7 +103,6 @@ public class PokeApiInterface {
 
         bar.setString("Assigning stats to Pokémons");
         List<CSVRecord> pkmnStats = csv("pokemon_stats");
-        //List<CSVRecord> stats = csv("stats");
         for(CSVRecord statRec : pkmnStats) {
             int pokemonID = parseInt(statRec.get("pokemon_id"), 0);
             PokemonInfos infos = getPokemonFromID(pokemonID);
