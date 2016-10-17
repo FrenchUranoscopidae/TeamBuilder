@@ -15,6 +15,7 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class SearchZone extends JPanel {
@@ -51,6 +52,11 @@ public class SearchZone extends JPanel {
             private Component createRenderer(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 if(value instanceof Type) {
                     JLabel label = new JLabel(new ImageIcon(((Type)value).getIcon()));
+                    label.setOpaque(true);
+                    return label;
+                }
+                if(value instanceof BufferedImage) {
+                    JLabel label = new JLabel(new ImageIcon((BufferedImage)value));
                     label.setOpaque(true);
                     return label;
                 }
@@ -94,7 +100,7 @@ public class SearchZone extends JPanel {
     public void searchItem(ConfirmableTextField itemName, JLabel itemIcon)
     {
         currentField = itemName;
-        model.clear(new String[]{"Name"}); // TODO: more columns
+        model.clear(ItemSearchItem.COLUMNS);
         for(Item item : ItemMap.getAllItems())
         {
             String nameStart = itemName.getText();
@@ -164,6 +170,10 @@ public class SearchZone extends JPanel {
         TableRowSorter<SearchZoneTableModel> sorter = new TableRowSorter<>(model);
         for (int i = 0; i < model.getColumnCount(); i++) {
             sorter.setComparator(i, (o1, o2) -> {
+                if(o1.equals("/"))
+                    o1 = 0;
+                if(o2.equals("/"))
+                    o2 = 0;
                 if(o1 instanceof Double) {
                     return Double.compare((Double)o1, (Double)o2);
                 }

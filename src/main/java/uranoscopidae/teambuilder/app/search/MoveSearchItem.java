@@ -99,10 +99,14 @@ public class MoveSearchItem extends SearchItem
             return moveInfos.getType();
         }
         if(column == columnFromName(MOVE_COLUMNS, "Power")) {
-            return moveInfos.getPower();
+            if(moveInfos.getPower() != 0)
+                return moveInfos.getPower();
+            return "/";
         }
         if(column == columnFromName(MOVE_COLUMNS, "Accuracy")) {
-            return moveInfos.getAccuracy();
+            if(moveInfos.getAccuracy() != 0)
+                return moveInfos.getAccuracy();
+            return "/";
         }
         if(column == columnFromName(MOVE_COLUMNS, "Category")) {
             return moveInfos.getCategory().name();
