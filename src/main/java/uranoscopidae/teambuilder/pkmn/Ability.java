@@ -8,13 +8,19 @@ import java.io.*;
 public class Ability
 {
 
+    private final int apiID;
     private final String name;
     private final String desc;
 
-    public Ability(String name, String desc)
+    public Ability(int apiID, String name, String desc)
     {
+        this.apiID = apiID;
         this.name = name;
         this.desc = desc;
+    }
+
+    public int getApiID() {
+        return apiID;
     }
 
     public String getEnglishName()
@@ -31,6 +37,7 @@ public class Ability
     {
         DataOutputStream dataOut = new DataOutputStream(out);
         dataOut.writeInt(Constants.ABILITY_FORMAT_VERSION_NUMBER);
+        dataOut.writeInt(apiID);
         IOHelper.writeUTF(dataOut, name);
         IOHelper.writeUTF(dataOut, desc);
         dataOut.flush();
@@ -44,8 +51,9 @@ public class Ability
         {
             throw new UnsupportedOperationException("Format versions do not match (current: "+Constants.ABILITY_FORMAT_VERSION_NUMBER+", found: "+version+")");
         }
+        int apiID = dataIn.readInt();
         String name = IOHelper.readUTF(dataIn);
         String desc = IOHelper.readUTF(dataIn);
-        return new Ability(name, desc);
+        return new Ability(apiID, name, desc);
     }
 }

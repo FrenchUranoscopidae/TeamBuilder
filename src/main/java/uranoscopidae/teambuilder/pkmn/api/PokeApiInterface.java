@@ -9,6 +9,7 @@ import uranoscopidae.teambuilder.app.Settings;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.pkmn.*;
+import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.moves.*;
 import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
 
@@ -23,6 +24,7 @@ public class PokeApiInterface {
     private final PokeApiClient apiClient;
     private final Map<Integer, PokemonInfos> pkmnCache;
     private final Map<Integer, MoveInfos> moveCache;
+    private final Map<Integer, Ability> abilityCache;
     private final List<String> pkmnNameList;
     private final List<String> moveNameList;
     private final TeamBuilderApp app;
@@ -35,6 +37,7 @@ public class PokeApiInterface {
         apiClient = new PokeApiClient();
         pkmnCache = new HashMap<>();
         moveCache = new HashMap<>();
+        abilityCache = new HashMap<>();
         pkmnNameList = new LinkedList<>();
         moveNameList = new LinkedList<>();
         spriteCache = new SpriteCache(this);
@@ -136,6 +139,33 @@ public class PokeApiInterface {
         }
     }
 
+    public void loadAbilityList(JProgressBar bar) {
+        List<CSVRecord> abilities = csv("abilities");
+        List<CSVRecord> abilityDescriptions = csv("ability_flavor_text");
+
+        bar.setIndeterminate(false);
+        bar.setMinimum(0);
+        bar.setMaximum(abilities.size());
+        bar.setValue(0);
+        for(CSVRecord ability : abilities) {
+            String name = capitalizeWords(ability.get("identifier").replace("-", " "));
+            int abilityID = parseInt(ability.get("id"), 0);
+            String desc = loadFlavorText(abilityDescriptions, "ability_id", abilityID, 9);
+            Ability infos = new Ability(abilityID, name, desc);
+            abilityCache.put(abilityID, infos);
+
+            bar.setValue(bar.getValue()+1);
+        }
+
+        bar.setString("Assigning abilities to Pokémons");
+        List<CSVRecord> pokemonAbilities = csv("pokemon_abilities");
+        for(CSVRecord rec : pokemonAbilities) {
+            PokemonInfos pokemon = getPokemonFromID(parseInt(rec.get("pokemon_id"), 0));
+            Ability ability = getAbilityFromID(parseInt(rec.get("ability_id"), 0));
+            pokemon.getAbilities().add(ability);
+        }
+    }
+
     private static int parseInt(String s, int defaultValue) {
         if(s == null || s.isEmpty())
             return defaultValue;
@@ -156,7 +186,7 @@ public class PokeApiInterface {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
@@ -220,8 +250,12 @@ public class PokeApiInterface {
      * @return
      */
     private String loadMoveDescription(List<CSVRecord> table, int moveID, int languageID) {
+        return loadFlavorText(table, "move_id", moveID, languageID);
+    }
+
+    private String loadFlavorText(List<CSVRecord> table, String idColumn, int moveID, int languageID) {
         for(CSVRecord record : table) {
-            int foundID = parseInt(record.get("move_id"), 0);
+            int foundID = parseInt(record.get(idColumn), 0);
             if(foundID == moveID) {
                 int foundLanguageID = parseInt(record.get("language_id"), 0);
                 if(foundLanguageID == languageID) {
@@ -282,6 +316,10 @@ public class PokeApiInterface {
         return infos;
     }
 
+    public Ability getAbilityFromID(int id) {
+        return abilityCache.get(id); // TODO: Does not try to load from the website
+    }
+
     public MoveInfos getMoveFromID(int id) {
         if(moveCache.containsKey(id)) {
             return moveCache.get(id);
@@ -328,5 +366,12 @@ public class PokeApiInterface {
 
     public BufferedImage getSprite(int apiID, PokemonGender gender, boolean isShiny) {
         return spriteCache.get(apiID, gender, isShiny);
+    }
+
+    public Ability getAbilityFromName(String name) {
+        Optional<Ability> ability = abilityCache.values().stream()
+                .filter(infos -> infos.getEnglishName().equalsIgnoreCase(name))
+                .findFirst();
+        return ability.orElseGet(()-> null);
     }
 }

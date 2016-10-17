@@ -80,6 +80,7 @@ public class TeamBuilderApp
         loadingFrame.setTitle("Loading data");
         loadingFrame.waitFor("Loading moves", apiInterface::loadMoveList);
         loadingFrame.waitFor("Loading Pokémons", apiInterface::loadPokemonList);
+        loadingFrame.waitFor("Loading Abilities", apiInterface::loadAbilityList);
         loadingFrame.dispose();
     }
 
@@ -241,16 +242,9 @@ public class TeamBuilderApp
         return apiInterface.getPokemonNames();
     }
 
-    public Ability getAbility(String name) throws IOException
+    public Ability getAbility(String name)
     {
-        if(!AbilityMap.has(name))
-        {
-            FileInputStream in = new FileInputStream(settings.getMovesLocation().getAbsolutePath()+File.separatorChar+name+".abid");
-            Ability def = Ability.readFrom(in);
-            in.close();
-            AbilityMap.registerAbility(def);
-        }
-        return AbilityMap.getAbility(name);
+        return apiInterface.getAbilityFromName(name);
     }
 
     public void refreshFrame()

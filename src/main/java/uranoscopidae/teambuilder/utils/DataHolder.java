@@ -60,7 +60,6 @@ public abstract class DataHolder implements Serializable
             return getHandle(f, compType, lookup, pointer);
         }
         handle = lookup.findVirtual(type, pointer, MethodType.methodType(String.class));
-        System.out.println("!!! "+pointer);
         return handle;
     }
 
