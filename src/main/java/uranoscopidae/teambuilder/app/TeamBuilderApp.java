@@ -81,6 +81,8 @@ public class TeamBuilderApp
         loadingFrame.waitFor("Loading moves", apiInterface::loadMoveList);
         loadingFrame.waitFor("Loading Pokémons", apiInterface::loadPokemonList);
         loadingFrame.waitFor("Loading Abilities", apiInterface::loadAbilityList);
+        loadingFrame.waitFor("Loading Dex IDs", apiInterface::loadPkmnDexIDs);
+        loadingFrame.waitFor("Loading Icons", apiInterface::loadPkmnIcons);
         loadingFrame.dispose();
     }
 

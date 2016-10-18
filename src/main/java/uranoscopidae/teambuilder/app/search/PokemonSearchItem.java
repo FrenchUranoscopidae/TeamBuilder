@@ -9,7 +9,7 @@ import java.awt.*;
 public class PokemonSearchItem extends SearchItem
 {
     private final PokemonInfos pokemon;
-    public static final String[] COLUMNS = {"DexID", "Name", "First Type", "Second Type", "HP", "Atk", "Def", "SpeA", "SpeD", "Speed"};
+    public static final String[] COLUMNS = {"Icon", "DexID", "Name", "First Type", "Second Type", "HP", "Atk", "Def", "SpeA", "SpeD", "Speed"};
 
     public PokemonSearchItem(SearchZone searchZone, PokemonInfos pokemon)
     {
@@ -38,11 +38,14 @@ public class PokemonSearchItem extends SearchItem
 
     @Override
     public Object getValue(int column) {
+        if(column == columnFromName(COLUMNS, "Icon")) {
+            return pokemon.getIcon();
+        }
         if(column == columnFromName(COLUMNS, "Name")) {
             return pokemon.getEnglishName();
         }
         if(column == columnFromName(COLUMNS, "DexID")) {
-            return pokemon.getPokeapiID(); // TODO: use the real dex id
+            return pokemon.getDexID();
         }
         if(column == columnFromName(COLUMNS, "Atk")) {
             return pokemon.getStats().getAttack();

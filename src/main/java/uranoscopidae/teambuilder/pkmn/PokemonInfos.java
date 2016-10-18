@@ -32,6 +32,8 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
     private BufferedImage shinySprite;
     private BufferedImage icon;
     private PokemonStats stats;
+    private int speciesID;
+    private int dexID;
 
     public PokemonInfos(String name, Type firstType, int pokeapiID)
     {
@@ -380,5 +382,25 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
                 return true;
         }
         return false;
+    }
+
+    public void setSpeciesID(int speciesID) {
+        this.speciesID = speciesID;
+    }
+
+    public int getSpeciesID() {
+        return speciesID;
+    }
+
+    public void setDexID(int dexID) {
+        this.dexID = dexID;
+    }
+
+    public int getDexID() {
+        return dexID;
+    }
+
+    public boolean isMega() {
+        return name.endsWith("Mega"); // TODO: Better check
     }
 }

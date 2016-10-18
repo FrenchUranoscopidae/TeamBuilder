@@ -10,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,7 +128,7 @@ public class TeamEntryButton extends JButton
             PokemonInfos pokemon = entry.getPokemon();
             BufferedImage icon = pokemon.getIcon();
             icon.setRGB(0,0,0xFF000000);
-            float pokemonSizeFactor = (getHeight()-heightCompensation) / (float)icon.getHeight();
+            float pokemonSizeFactor = Math.max(1f, Math.round(((float)getHeight()-heightCompensation) / (float)icon.getHeight()*2f))/2f; // magical formula that makes sure the size factor is a multiple of 0.5
             int iconWidth = (int) (pokemonSizeFactor*icon.getWidth());
             int iconHeight = (int) (pokemonSizeFactor*icon.getHeight());
             g.drawImage(icon, pokeballWidth, getHeight()/2-iconHeight/2, iconWidth, iconHeight, null);
@@ -159,7 +160,7 @@ public class TeamEntryButton extends JButton
             drawShadowedString(g, levelText, levelX, levelY);
             if(entry.isShiny())
             {
-                g.drawImage(shinyIcon, levelX+1+metrics.stringWidth(levelText), levelY-shinyIcon.getHeight(), null);
+                g.drawImage(shinyIcon, levelX+1+metrics.stringWidth(levelText), levelY-shinyIcon.getHeight(), (int) (shinyIcon.getWidth()*pokemonSizeFactor), (int) (shinyIcon.getHeight()*pokemonSizeFactor), null);
             }
 
             if(entry.getGender() != PokemonGender.ASEXUAL)

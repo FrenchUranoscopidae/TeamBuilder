@@ -1,5 +1,8 @@
 package uranoscopidae.teambuilder.pkmn.api;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import me.sargunvohra.lib.pokekotlin.client.PokeApiClient;
 import me.sargunvohra.lib.pokekotlin.model.*;
 import org.apache.commons.csv.CSVFormat;
@@ -13,10 +16,12 @@ import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.moves.*;
 import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
 public class PokeApiInterface {
@@ -41,6 +46,48 @@ public class PokeApiInterface {
         pkmnNameList = new LinkedList<>();
         moveNameList = new LinkedList<>();
         spriteCache = new SpriteCache(this);
+    }
+
+    public void loadPkmnDexIDs(JProgressBar bar) {
+        List<CSVRecord> dexNumbers = csv("pokemon_dex_numbers");
+
+        bar.setIndeterminate(false);
+        bar.setMinimum(0);
+        bar.setMaximum(dexNumbers.size());
+        for(CSVRecord dexID : dexNumbers) {
+            int pokedexID = parseInt(dexID.get("pokedex_id"), 0);
+            if(pokedexID == 1) { // National
+                int number = parseInt(dexID.get("pokedex_number"), 0);
+                int speciesID = parseInt(dexID.get("species_id"), 0);
+                getPokemonListFromSpecies(speciesID).forEach(p -> p.setDexID(number));
+            }
+
+            bar.setValue(bar.getValue()+1);
+        }
+    }
+
+    public void loadPkmnIcons(JProgressBar bar) {
+        Gson gson = new Gson();
+        JsonObject object = gson.fromJson(new InputStreamReader(getClass().getResourceAsStream("/pokemonicons/pkmn.json")), JsonObject.class);
+        for (Map.Entry<String, JsonElement> entry: object.entrySet()) {
+            JsonObject element = entry.getValue().getAsJsonObject();
+            int dexID = element.get("idx").getAsInt();
+            List<PokemonInfos> pokemons = getPokemonListFromDexID(dexID);
+            String name = element.getAsJsonObject("slug").get("eng").getAsString();
+            for(PokemonInfos infos : pokemons) {
+                String iconName = name;
+                if(infos.isMega()) {
+                    iconName+="-mega";
+                }
+                // TODO: Shiny icon
+                // TODO: Female icons
+                try {
+                    infos.setIcon(ImageIO.read(getClass().getResourceAsStream("/pokemonicons/regular/"+iconName+".png")));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public void loadPokemonList(JProgressBar bar) {
@@ -81,9 +128,10 @@ public class PokeApiInterface {
             name = capitalizeWords(name.replace("-", " "));
 
             PokemonInfos pkmn = new PokemonInfos(name, firstType, secondType, apiID);
+            pkmn.setSpeciesID(parseInt(record.get("species_id"), 0));
+            // TODO: Female sprites
             pkmn.setDefaultSprite(getSprite(apiID, PokemonGender.MALE, false));
             pkmn.setShinySprite(getSprite(apiID, PokemonGender.MALE, true));
-            pkmn.setIcon(getSprite(apiID, PokemonGender.MALE, false));
 
             pkmnCache.put(apiID, pkmn);
             pkmnNameList.add(pkmn.getEnglishName());
@@ -281,6 +329,18 @@ public class PokeApiInterface {
                 .filter(infos -> infos.getEnglishName().equalsIgnoreCase(name))
                 .findFirst();
         return moveInfos.orElseGet(()-> null);
+    }
+
+    public List<PokemonInfos> getPokemonListFromDexID(int id) {
+        return pkmnCache.values().stream()
+                .filter(infos -> infos.getDexID() == id)
+                .collect(Collectors.toList());
+    }
+
+    public List<PokemonInfos> getPokemonListFromSpecies(int id) {
+        return pkmnCache.values().stream()
+                .filter(infos -> infos.getSpeciesID() == id)
+                .collect(Collectors.toList());
     }
 
     public PokemonInfos getPokemonFromID(int id) {
