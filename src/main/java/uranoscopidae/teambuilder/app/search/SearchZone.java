@@ -7,7 +7,6 @@ import uranoscopidae.teambuilder.app.team.TeamEntry;
 import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.Type;
 import uranoscopidae.teambuilder.pkmn.items.Item;
-import uranoscopidae.teambuilder.pkmn.items.ItemMap;
 import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 
 import javax.swing.*;
@@ -85,14 +84,13 @@ public class SearchZone extends JPanel {
     {
         currentField = pokemonName;
         model.clear(PokemonSearchItem.COLUMNS);
-        for(String pkmnName : app.getPokemonNames())
+        for(PokemonInfos pokemon : app.getPokemons())
         {
-            PokemonInfos pokemon = app.getPokemonFromName(pkmnName);
             String nameStart = pokemonName.getText();
             if(!matches(pokemon.getEnglishName(), pokemon.getFirstType()+" "+pokemon.getSecondType(), nameStart, false))
                 continue;
 
-            model.add(new PokemonSearchItem(this, app.getPokemonFromName(pkmnName)));
+            model.add(new PokemonSearchItem(this, pokemon));
         }
         setData(pokemonName, null);
     }
@@ -101,7 +99,7 @@ public class SearchZone extends JPanel {
     {
         currentField = itemName;
         model.clear(ItemSearchItem.COLUMNS);
-        for(Item item : ItemMap.getAllItems())
+        for(Item item : app.getItems())
         {
             String nameStart = itemName.getText();
             if(!matches(item.getEnglishName(), item.getDescription(), nameStart, false)) // filter out item names not starting with given text
@@ -153,9 +151,8 @@ public class SearchZone extends JPanel {
         {
             nameStart = nameStart.substring(1);
         }
-        for(String moveNameString : app.getApiInterface().getMoveNames())
+        for(MoveInfos moveInfos : app.getMoves())
         {
-            MoveInfos moveInfos = app.getMove(moveNameString);
             if(!allowIllegal && !getCurrentEntry().getPokemon().canLearn(moveInfos))
                 continue;
             if(!matches(moveInfos.getEnglishName(), moveInfos.getType().getName(), nameStart, true)) // filter out item names not starting with given text

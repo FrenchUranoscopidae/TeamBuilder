@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.sargunvohra.lib.pokekotlin.client.PokeApiClient;
-import me.sargunvohra.lib.pokekotlin.model.*;
+import me.sargunvohra.lib.pokekotlin.model.Move;
+import me.sargunvohra.lib.pokekotlin.model.Pokemon;
+import me.sargunvohra.lib.pokekotlin.model.PokemonMove;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -13,6 +15,7 @@ import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.app.team.PokemonGender;
 import uranoscopidae.teambuilder.pkmn.*;
 import uranoscopidae.teambuilder.pkmn.Ability;
+import uranoscopidae.teambuilder.pkmn.items.Item;
 import uranoscopidae.teambuilder.pkmn.moves.*;
 import uranoscopidae.teambuilder.pkmn.moves.MoveCategory;
 
@@ -30,8 +33,10 @@ public class PokeApiInterface {
     private final Map<Integer, PokemonInfos> pkmnCache;
     private final Map<Integer, MoveInfos> moveCache;
     private final Map<Integer, Ability> abilityCache;
+    private final Map<Integer, Item> itemCache;
     private final List<String> pkmnNameList;
     private final List<String> moveNameList;
+    private final List<String> itemNameList;
     private final TeamBuilderApp app;
     private final Settings settings;
     private SpriteCache spriteCache;
@@ -43,9 +48,37 @@ public class PokeApiInterface {
         pkmnCache = new HashMap<>();
         moveCache = new HashMap<>();
         abilityCache = new HashMap<>();
+        itemCache = new HashMap<>();
         pkmnNameList = new LinkedList<>();
+        itemNameList = new LinkedList<>();
         moveNameList = new LinkedList<>();
         spriteCache = new SpriteCache(this);
+    }
+
+    public List<String> getItemNames() {
+        return itemNameList;
+    }
+
+    public void loadItems(JProgressBar bar) {
+        try {
+            List<CSVRecord> items = csv("items");
+            for (CSVRecord rec : items) {
+                int apiID = parseInt(rec.get("id"), 0);
+                String identifier = rec.get("identifier");
+                String name = capitalizeWords(identifier.replace("-", " "));
+                Item item = new Item(apiID, name, "<TODO>"); // TODO: Item type
+                try {
+                    item.setIcon(ImageIO.read(getClass().getResourceAsStream("/building/pokeapi/data/v2/sprites/items/" + identifier + ".png")));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                itemCache.put(apiID, item);
+                itemNameList.add(name);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadPkmnDexIDs(JProgressBar bar) {
@@ -277,6 +310,7 @@ public class PokeApiInterface {
             name = capitalizeWords(name.replace("-", " "));
             MoveInfos move = new MoveInfos(apiID, type, category, name, power, accuracy, pp);
             try {
+                // TODO: More efficient method (loading the descriptions and assigning each description to moves)
                 move.setDescription(loadMoveDescription(flavorText, apiID, 9));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -380,6 +414,10 @@ public class PokeApiInterface {
         return abilityCache.get(id); // TODO: Does not try to load from the website
     }
 
+    public Item getItemFromID(int id) {
+        return itemCache.get(id); // TODO: Does not try to load from the website
+    }
+
     public MoveInfos getMoveFromID(int id) {
         if(moveCache.containsKey(id)) {
             return moveCache.get(id);
@@ -433,5 +471,24 @@ public class PokeApiInterface {
                 .filter(infos -> infos.getEnglishName().equalsIgnoreCase(name))
                 .findFirst();
         return ability.orElseGet(()-> null);
+    }
+
+    public Item getItemFromName(String name) {
+        Optional<Item> ability = itemCache.values().stream()
+                .filter(infos -> infos.getEnglishName().equalsIgnoreCase(name))
+                .findFirst();
+        return ability.orElseGet(()-> null);
+    }
+
+    public Collection<Item> getItems() {
+        return itemCache.values();
+    }
+
+    public Collection<PokemonInfos> getPokemons() {
+        return pkmnCache.values();
+    }
+
+    public Collection<MoveInfos> getMoves() {
+        return moveCache.values();
     }
 }

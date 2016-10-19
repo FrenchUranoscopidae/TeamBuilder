@@ -11,7 +11,6 @@ import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.api.PokeApiInterface;
 import uranoscopidae.teambuilder.pkmn.PokemonInfos;
 import uranoscopidae.teambuilder.pkmn.items.Item;
-import uranoscopidae.teambuilder.pkmn.items.ItemMap;
 import uranoscopidae.teambuilder.pkmn.moves.MoveInfos;
 import uranoscopidae.teambuilder.utils.Constants;
 
@@ -83,6 +82,7 @@ public class TeamBuilderApp
         loadingFrame.waitFor("Loading Abilities", apiInterface::loadAbilityList);
         loadingFrame.waitFor("Loading Dex IDs", apiInterface::loadPkmnDexIDs);
         loadingFrame.waitFor("Loading Icons", apiInterface::loadPkmnIcons);
+        loadingFrame.waitFor("Loading Items", apiInterface::loadItems);
         loadingFrame.dispose();
     }
 
@@ -196,14 +196,7 @@ public class TeamBuilderApp
 
     public Item getItem(String name) throws IOException
     {
-        if(!ItemMap.has(name))
-        {
-            FileInputStream in = new FileInputStream(settings.getItemsLocation().getAbsolutePath()+File.separatorChar+name+".itemd");
-            Item def = Item.readFrom(in);
-            in.close();
-            ItemMap.registerItem(def);
-        }
-        return ItemMap.getItem(name);
+        return apiInterface.getItemFromName(name);
     }
 
     public BufferedImage getBallIcon(String s) throws IOException
@@ -214,24 +207,9 @@ public class TeamBuilderApp
         return ImageIO.read(file);
     }
 
-    public java.util.List<String> getNames(File folder, String extension)
-    {
-        File[] children = folder.listFiles((dir, name) -> name.endsWith(extension));
-        if(children == null)
-        {
-            return Collections.emptyList();
-        }
-        java.util.List<String> names = new LinkedList<>();
-        for(File f : children)
-        {
-            names.add(f.getName().replace(extension, ""));
-        }
-        return names;
-    }
-
     public java.util.List<String> getItemNames()
     {
-        return getNames(settings.getItemsLocation(), ".itemd");
+        return apiInterface.getItemNames();
     }
 
     public java.util.List<String> getMoveNames()
@@ -261,5 +239,17 @@ public class TeamBuilderApp
 
     public PokeApiInterface getApiInterface() {
         return apiInterface;
+    }
+
+    public Collection<Item> getItems() {
+        return apiInterface.getItems();
+    }
+
+    public Collection<PokemonInfos> getPokemons() {
+        return apiInterface.getPokemons();
+    }
+
+    public Collection<MoveInfos> getMoves() {
+        return apiInterface.getMoves();
     }
 }
