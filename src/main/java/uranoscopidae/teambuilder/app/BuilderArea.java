@@ -8,6 +8,7 @@ import uranoscopidae.teambuilder.pkmn.Ability;
 import uranoscopidae.teambuilder.pkmn.PokemonStats;
 import uranoscopidae.teambuilder.utils.YesNoEnum;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
@@ -21,12 +22,20 @@ public class BuilderArea extends JPanel
 {
 
     private final TeamBuilderApp app;
+    private BufferedImage pokemon0;
     private boolean general;
     private TeamEntry entry;
     private SearchZone searchZone;
+    private PokemonStats defaultStats;
 
     public BuilderArea(TeamBuilderApp app)
     {
+        defaultStats = new PokemonStats(app);
+        try {
+            pokemon0 = ImageIO.read(getClass().getResourceAsStream("/building/pokeapi/data/v2/sprites/pokemon/0.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.app = app;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setGeneralView();
@@ -69,7 +78,9 @@ public class BuilderArea extends JPanel
     {
         if(entry == null)
             return null;
-        JLabel spriteLabel = createImageLabel(entry.isShiny() ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite());
+        JLabel spriteLabel = createImageLabel(entry.hasPokemon() ?
+                (entry.isShiny() ? entry.getPokemon().getShinySprite() : entry.getPokemon().getDefaultSprite()) :
+                pokemon0);
         infosPanel.setLayout(new BoxLayout(infosPanel, BoxLayout.X_AXIS));
 
         JPanel globalInfos = new JPanel();
@@ -144,7 +155,7 @@ public class BuilderArea extends JPanel
             SearchZoneSearchListener moveSearchListener = new SearchZoneSearchListener(() -> searchZone.searchMove(moveField), searchZone::confirm);
             moveField.addMouseListener(moveSearchListener);
             moveField.addKeyListener(moveSearchListener);
-            moveField.addConfirmationPredicate(s -> entry.getPokemon().canLearn(s) || s.startsWith("!"));
+            moveField.addConfirmationPredicate(s -> !entry.hasPokemon() || entry.getPokemon().canLearn(s) || s.startsWith("!"));
             moveField.updateConfirmationState();
             movePanel.add(moveField);
         }
@@ -160,7 +171,7 @@ public class BuilderArea extends JPanel
     private ConfirmableTextField createNameField(TeamBuilderApp app, TeamEntry entry)
     {
         List<String> list = app.getPokemonNames();
-        ConfirmableTextField nameField = new ConfirmableTextField(entry.getPokemon().getEnglishName(), list);
+        ConfirmableTextField nameField = new ConfirmableTextField(entry.hasPokemon() ? entry.getPokemon().getEnglishName() : "", list);
         nameField.updateConfirmationState();
         nameField.addConfirmationListener((s) -> {
             entry.setPokemon(app.getPokemonFromName(s));
@@ -175,7 +186,7 @@ public class BuilderArea extends JPanel
     private JComponent createStatsPanel(TeamBuilderApp app, TeamEntry entry)
     {
         JPanel panel = new JPanel();
-        PokemonStats stats = entry.getPokemon().getStats();
+        PokemonStats stats = entry.hasPokemon() ? entry.getPokemon().getStats() : defaultStats;
         panel.add(new JLabel("HP: "+stats.getHP()));
         panel.add(new JLabel("Attack: "+stats.getAttack()));
         panel.add(new JLabel("Defense: "+stats.getDefense()));
@@ -207,7 +218,7 @@ public class BuilderArea extends JPanel
 
     private JComponent createAbilityPanel(TeamEntry entry)
     {
-        JComboBox<Ability> abilities = new JComboBox<>(entry.getPokemon().getAbilities().toArray(new Ability[0]));
+        JComboBox<Ability> abilities = new JComboBox<>(entry.hasPokemon() ? entry.getPokemon().getAbilities().toArray(new Ability[0]) : new Ability[0]);
         abilities.setSelectedItem(entry.getAbility());
         abilities.setRenderer((list, value, index, isSelected, cellHasFocus) -> {
             JPanel panel = new JPanel();
@@ -288,7 +299,7 @@ public class BuilderArea extends JPanel
             {
                 boolean isShiny = e1.getItem() == YesNoEnum.YES;
                 entry.setShiny(isShiny);
-                BufferedImage sprite = isShiny ? entry.getPokemon().getShinySprite() : entry.getPokemon().getSprite();
+                BufferedImage sprite = entry.hasPokemon() ? (isShiny ? entry.getPokemon().getShinySprite() : entry.getPokemon().getDefaultSprite()) : pokemon0;
                 loadImage(sprite, sprite.getWidth()*2, sprite.getHeight()*2, spriteLabel);
                 app.refreshFrame();
             }

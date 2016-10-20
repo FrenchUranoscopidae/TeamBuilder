@@ -53,6 +53,14 @@ public class PokeApiInterface {
         itemNameList = new LinkedList<>();
         moveNameList = new LinkedList<>();
         spriteCache = new SpriteCache(this);
+
+        // load 0th Pokémon (placeholder)
+        PokemonInfos zeroth = new PokemonInfos("?", 0);
+        zeroth.setDescription("No Pokémon");
+        zeroth.setDefaultSprite(getSprite(0, PokemonGender.ASEXUAL, false));
+        zeroth.setShinySprite(zeroth.getDefaultSprite());
+        zeroth.setIcon(new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB));
+        pkmnCache.put(0, zeroth);
     }
 
     public List<String> getItemNames() {

@@ -86,6 +86,8 @@ public class SearchZone extends JPanel {
         model.clear(PokemonSearchItem.COLUMNS);
         for(PokemonInfos pokemon : app.getPokemons())
         {
+            if(pokemon.getPokeapiID() == 0)
+                continue;
             String nameStart = pokemonName.getText();
             if(!matches(pokemon.getEnglishName(), pokemon.getFirstType()+" "+pokemon.getSecondType(), nameStart, false))
                 continue;

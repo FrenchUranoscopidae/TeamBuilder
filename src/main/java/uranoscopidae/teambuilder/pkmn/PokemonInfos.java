@@ -113,7 +113,7 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
         this.sprite = sprite;
     }
 
-    public BufferedImage getSprite()
+    public BufferedImage getDefaultSprite()
     {
         return sprite;
     }

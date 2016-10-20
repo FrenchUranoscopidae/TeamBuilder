@@ -86,17 +86,22 @@ public class TeamEntry extends DataHolder
 
     public void setPokemon(PokemonInfos pokemon)
     {
+        if(pokemon.getPokeapiID() == 0)
+            pokemon = null;
         this.pokemon = pokemon;
-        if(pokemon.getAbilities().size() > 0)
-        {
-            ability = pokemon.getAbilities().get(0);
-        }
 
-        if(Arrays.equals(moveInfoses, new MoveInfos[4]))
-        {
-            for (int i = 0; i < moveInfoses.length && i < pokemon.getMoveInfos().size(); i++)
+        if(pokemon != null) {
+            if(pokemon.getAbilities().size() > 0)
             {
-                moveInfoses[i] = pokemon.getMoveInfos().get(i);
+                ability = pokemon.getAbilities().get(0);
+            }
+
+            if(Arrays.equals(moveInfoses, new MoveInfos[4]))
+            {
+                for (int i = 0; i < moveInfoses.length && i < pokemon.getMoveInfos().size(); i++)
+                {
+                    moveInfoses[i] = pokemon.getMoveInfos().get(i);
+                }
             }
         }
     }

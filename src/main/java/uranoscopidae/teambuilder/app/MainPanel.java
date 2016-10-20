@@ -43,7 +43,7 @@ public class MainPanel extends JPanel
         }
         teamList.add("Test Team", new TeamPanel(app, testTeam));
 
-        teamList.add("Test Team 2", new TeamPanel(app, testTeam));
+        teamList.add("Test Team 2", new TeamPanel(app, new Team(app, "Empty team")));
 
         add(teamList);
     }
