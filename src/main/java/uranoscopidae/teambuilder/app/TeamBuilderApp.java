@@ -77,13 +77,13 @@ public class TeamBuilderApp
     private void loadData() {
         LoadingFrame loadingFrame = new LoadingFrame(settings);
         loadingFrame.setTitle("Loading data");
-        loadingFrame.waitFor("Loading moves", apiInterface::loadMoveList);
-        loadingFrame.waitFor("Loading Pokémons", apiInterface::loadPokemonList);
-        loadingFrame.waitFor("Loading Abilities", apiInterface::loadAbilityList);
-        loadingFrame.waitFor("Loading Dex IDs", apiInterface::loadPkmnDexIDs);
-        loadingFrame.waitFor("Loading Icons", apiInterface::loadPkmnIcons);
-        loadingFrame.waitFor("Loading Items", apiInterface::loadItems);
-        loadingFrame.dispose();
+        loadingFrame.newTask("Loading moves", apiInterface::loadMoveList);
+        loadingFrame.newTask("Loading Pokémons", apiInterface::loadPokemonList);
+        loadingFrame.newTask("Loading Abilities", apiInterface::loadAbilityList);
+        loadingFrame.newTask("Loading Dex IDs", apiInterface::loadPkmnDexIDs);
+        loadingFrame.newTask("Loading Icons", apiInterface::loadPkmnIcons);
+        loadingFrame.newTask("Loading Items", apiInterface::loadItems);
+        loadingFrame.initLoading();
     }
 
     private JMenuBar buildMenuBar()

@@ -3,7 +3,6 @@ package uranoscopidae.teambuilder.app.team;
 import me.sargunvohra.lib.pokekotlin.model.Pokemon;
 import uranoscopidae.teambuilder.app.TeamBuilderApp;
 import uranoscopidae.teambuilder.pkmn.PokemonInfos;
-import uranoscopidae.teambuilder.pkmn.items.Pokeballs;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -26,8 +25,6 @@ public class TeamEntryButton extends JButton
     private static BufferedImage femaleIcon;
     private static BufferedImage shinyIcon;
 
-    private static Map<String, BufferedImage> ballIcons;
-
     public TeamEntryButton(TeamBuilderApp app, TeamEntry entry)
     {
         this.app = app;
@@ -44,15 +41,8 @@ public class TeamEntryButton extends JButton
 
         try
         {
-            if(ballIcons == null)
+            if(grayedPokeball == null)
             {
-                ballIcons = new HashMap<>();
-                for(Pokeballs p : Pokeballs.values())
-                {
-                    String name = p.getItemName();
-                    registerBallIcon(name);
-                }
-
                 grayedPokeball = ImageIO.read(getClass().getResourceAsStream("/grayedPokeball.png"));
                 maleIcon = ImageIO.read(getClass().getResourceAsStream("/maleIcon.png"));
                 femaleIcon = ImageIO.read(getClass().getResourceAsStream("/femaleIcon.png"));
@@ -65,22 +55,13 @@ public class TeamEntryButton extends JButton
         }
     }
 
-    private void registerBallIcon(String s) throws IOException
-    {
-        BufferedImage icon = app.getBallIcon(s);
-        if(icon == null)
-            icon = grayedPokeball;
-        ballIcons.put(s, icon);
-    }
-
     @Override
     public void paintComponent(Graphics gr)
     {
         Graphics2D g = (Graphics2D)gr;
         g.setColor(Color.black);
 
-        BufferedImage pokeballIcon = entry.hasPokemon() ?
-                (entry.getBall() == null ? grayedPokeball : ballIcons.get(entry.getBall().getEnglishName())) : grayedPokeball;
+        BufferedImage pokeballIcon = entry.hasPokemon() ? grayedPokeball : grayedPokeball; // TODO: Use red Pokéball instead of grayed-out one when the entry actually has a Pokémon
         // Draw box
         float sizeFactor = (float)getHeight()/pokeballIcon.getHeight();
         final int pokeballWidth = (int) (pokeballIcon.getWidth()*sizeFactor);

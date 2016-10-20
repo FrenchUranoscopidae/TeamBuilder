@@ -5,8 +5,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
-import java.lang.reflect.InvocationTargetException;
+import java.awt.image.ImageObserver;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -15,10 +17,12 @@ public class LoadingFrame
 {
 
     private final Settings settings;
+    private final List<Task> tasks;
     private JDialog frame;
 
     public LoadingFrame(Settings settings)
     {
+        tasks = new LinkedList<>();
         this.settings = settings;
         frame = new JDialog((Window) null);
         frame.setModal(true);
@@ -31,7 +35,7 @@ public class LoadingFrame
 
     public <T> void waitForList(String operationName, Supplier<java.util.List<T>> initer, Consumer<T> action)
     {
-        waitFor(operationName, (bar) -> {
+        newTask(operationName, (bar) -> {
             bar.setIndeterminate(true);
 
             List<T> list = initer.get();
@@ -55,17 +59,24 @@ public class LoadingFrame
         });
     }
 
-    public void waitFor(String operationName, Runnable action)
+    public void newTask(String operationName, Runnable action)
     {
-        waitFor(operationName, (bar) -> action.run());
+        newTask(operationName, (bar) -> action.run());
     }
 
-    public void waitFor(String operationName, Consumer<JProgressBar> action)
+    public void newTask(String operationName, Consumer<JProgressBar> action)
     {
+        tasks.add(new Task(operationName, action));
+    }
+
+    public void initLoading() {
+
         JPanel content = new JPanel();
         JProgressBar bar = new JProgressBar();
-        bar.setStringPainted(true);
-        bar.setString(operationName);
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        LoadingIcon icon = new
+                LoadingIcon();
+        content.add(icon);
         content.add(bar);
         frame.setContentPane(content);
         frame.pack();
@@ -76,7 +87,11 @@ public class LoadingFrame
             @Override
             protected Void doInBackground() throws Exception
             {
-                action.accept(bar);
+                for(Task t : tasks) {
+                    bar.setStringPainted(true);
+                    bar.setString(t.getName());
+                    t.perform(bar);
+                }
                 return null;
             }
 
@@ -98,8 +113,21 @@ public class LoadingFrame
         frame.setVisible(true);
     }
 
-    public void dispose()
-    {
-        frame.dispose();
+    private class Task {
+        private final String operationName;
+        private final Consumer<JProgressBar> action;
+
+        public Task(String operationName, Consumer<JProgressBar> action) {
+            this.operationName = operationName;
+            this.action = action;
+        }
+
+        public String getName() {
+            return operationName;
+        }
+
+        public void perform(JProgressBar bar) {
+            action.accept(bar);
+        }
     }
 }

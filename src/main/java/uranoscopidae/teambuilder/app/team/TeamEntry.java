@@ -126,16 +126,6 @@ public class TeamEntry extends DataHolder
         this.level = level;
     }
 
-    public Item getBall()
-    {
-        return ball;
-    }
-
-    public void setBall(Item ball)
-    {
-        this.ball = ball;
-    }
-
     public int getHappiness()
     {
         return happiness;
