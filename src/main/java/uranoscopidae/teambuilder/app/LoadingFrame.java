@@ -87,11 +87,22 @@ public class LoadingFrame
             @Override
             protected Void doInBackground() throws Exception
             {
+                long start = System.currentTimeMillis();
                 for(Task t : tasks) {
+                    long taskStart = System.currentTimeMillis();
                     bar.setStringPainted(true);
                     bar.setString(t.getName());
-                    t.perform(bar);
+                    try {
+                        t.perform(bar);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    long taskEnd = System.currentTimeMillis();
+                    long elapsedTime = taskEnd-taskStart;
+                    System.out.println("Took "+elapsedTime+"ms for task "+t.getName());
                 }
+                long totalTime = System.currentTimeMillis()-start;
+                System.out.println("Took "+totalTime+"ms in total");
                 return null;
             }
 

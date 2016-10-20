@@ -60,24 +60,22 @@ public class PokeApiInterface {
     }
 
     public void loadItems(JProgressBar bar) {
-        try {
-            List<CSVRecord> items = csv("items");
-            for (CSVRecord rec : items) {
-                int apiID = parseInt(rec.get("id"), 0);
-                String identifier = rec.get("identifier");
-                String name = capitalizeWords(identifier.replace("-", " "));
-                Item item = new Item(apiID, name, "<TODO>"); // TODO: Item type
-                try {
-                    item.setIcon(ImageIO.read(getClass().getResourceAsStream("/building/pokeapi/data/v2/sprites/items/" + identifier + ".png")));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                itemCache.put(apiID, item);
-                itemNameList.add(name);
+        List<CSVRecord> items = csv("items");
+        for (CSVRecord rec : items) {
+            int apiID = parseInt(rec.get("id"), 0);
+            String identifier = rec.get("identifier");
+            String name = capitalizeWords(identifier.replace("-", " "));
+            Item item = new Item(apiID, name, "<TODO>"); // TODO: Item type
+            try {
+                item.setIcon(ImageIO.read(getClass().getResourceAsStream("/building/pokeapi/data/v2/sprites/items/" + identifier + ".png")));
+            } catch (IllegalArgumentException e) {
+                // shhhh, ignore it
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            itemCache.put(apiID, item);
+            itemNameList.add(name);
         }
     }
 
@@ -139,28 +137,9 @@ public class PokeApiInterface {
             int apiID = parseInt(record.get("id"), 0);
             String name = record.get("identifier");
 
-            uranoscopidae.teambuilder.pkmn.Type firstType = TypeList.none;
-            uranoscopidae.teambuilder.pkmn.Type secondType = TypeList.none;
-            for(int row = 0;row<pkmnTypes.size();row++) {
-                CSVRecord pkmnType = pkmnTypes.get(row);
-                if(String.valueOf(apiID).equals(pkmnType.get("pokemon_id"))) { // correct pokemon
-                    int slot = parseInt(pkmnType.get("slot"), 1);
-                    uranoscopidae.teambuilder.pkmn.Type type = TypeList.getFromID(findInTable(types, "identifier", "id", pkmnType.get("type_id")));
-                    switch (slot) {
-                        case 1:
-                            firstType = type;
-                            break;
-
-                        case 2:
-                            secondType = type;
-                            break;
-                    }
-                }
-            }
-
             name = capitalizeWords(name.replace("-", " "));
 
-            PokemonInfos pkmn = new PokemonInfos(name, firstType, secondType, apiID);
+            PokemonInfos pkmn = new PokemonInfos(name, apiID);
             pkmn.setSpeciesID(parseInt(record.get("species_id"), 0));
             // TODO: Female sprites
             pkmn.setDefaultSprite(getSprite(apiID, PokemonGender.MALE, false));
@@ -171,6 +150,23 @@ public class PokeApiInterface {
 
             bar.setValue(i);
             bar.setString("Loading Pokémons - Loaded "+name+" ("+apiID+")");
+        }
+
+        for(int row = 0;row<pkmnTypes.size();row++) {
+            CSVRecord pkmnType = pkmnTypes.get(row);
+            int pkmnID = parseInt(pkmnType.get("pokemon_id"), 0);
+            int slot = parseInt(pkmnType.get("slot"), 1);
+            uranoscopidae.teambuilder.pkmn.Type type = TypeList.getFromID(findInTable(types, "identifier", "id", pkmnType.get("type_id")));
+            PokemonInfos infos = getPokemonFromID(pkmnID);
+            switch (slot) {
+                case 1:
+                    infos.setFirstType(type);
+                    break;
+
+                case 2:
+                    infos.setSecondType(type);
+                    break;
+            }
         }
 
         bar.setString("Assigning moves to Pokémons");
@@ -387,7 +383,9 @@ public class PokeApiInterface {
         uranoscopidae.teambuilder.pkmn.Type secondType = TypeList.none;
         if(pokemon.getTypes().size() > 1)
             secondType = TypeList.getFromID(pokemon.getTypes().get(1).getType().getName());
-        PokemonInfos infos = new PokemonInfos(pokemon.getName(), firstType, secondType, id);
+        PokemonInfos infos = new PokemonInfos(pokemon.getName(), id);
+        infos.setFirstType(firstType);
+        infos.setSecondType(secondType);
         infos.setDefaultSprite(getSprite(pokemon.getId(), PokemonGender.MALE, false));
         infos.setShinySprite(getSprite(pokemon.getId(), PokemonGender.MALE, true));
         infos.setIcon(getSprite(pokemon.getId(), PokemonGender.MALE, true));

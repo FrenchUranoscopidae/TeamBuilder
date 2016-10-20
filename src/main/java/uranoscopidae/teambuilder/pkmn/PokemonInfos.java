@@ -20,10 +20,10 @@ import java.util.zip.ZipOutputStream;
 public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
 {
     private final String name;
-    private final Type firstType;
-    private final Type secondType;
+    private Type firstType;
+    private Type secondType;
 
-    private final List<MoveInfos> moveInfoses;
+    private List<MoveInfos> moveInfos;
     private final List<Ability> abilities;
 
     private final int pokeapiID;
@@ -35,23 +35,13 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
     private int speciesID;
     private int dexID;
 
-    public PokemonInfos(String name, Type firstType, int pokeapiID)
-    {
-        this(name, firstType, TypeList.none, pokeapiID);
-    }
-
-    public PokemonInfos(String name, Type firstType, Type secondType, int pokeapiID)
-    {
-        this(name, firstType, secondType, pokeapiID, new LinkedList<>());
-    }
-
-    public PokemonInfos(String name, Type firstType, Type secondType, int pokeapiID, List<MoveInfos> moveInfoses)
+    public PokemonInfos(String name, int pokeapiID)
     {
         this.pokeapiID = pokeapiID;
         this.name = name;
-        this.firstType = firstType;
-        this.secondType = secondType;
-        this.moveInfoses = moveInfoses;
+        this.firstType = TypeList.none;
+        this.secondType = TypeList.none;
+        this.moveInfos = new LinkedList<>();
 
         abilities = new LinkedList<>();
 
@@ -67,6 +57,14 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
         icon.setRGB(0,0,0xFF000000);
 
         stats = new PokemonStats(TeamBuilderApp.instance);
+    }
+
+    public void setFirstType(Type firstType) {
+        this.firstType = firstType;
+    }
+
+    public void setSecondType(Type secondType) {
+        this.secondType = secondType;
     }
 
     public int getPokeapiID()
@@ -104,7 +102,7 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
         System.out.println(toString());
         System.out.println("Description: "+description);
         System.out.println("===Moves===");
-        for(MoveInfos def : getMoveInfoses())
+        for(MoveInfos def : getMoveInfos())
         {
             System.out.println(def.getEnglishName()+" ("+def.getType().getName()+"/"+def.getCategory().name()+")");
         }
@@ -134,12 +132,12 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
 
     public void addMove(MoveInfos moveInfos)
     {
-        moveInfoses.add(moveInfos);
+        this.moveInfos.add(moveInfos);
     }
 
-    public List<MoveInfos> getMoveInfoses()
+    public List<MoveInfos> getMoveInfos()
     {
-        return moveInfoses;
+        return moveInfos;
     }
 
     @Override
@@ -174,9 +172,9 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
         out.putNextEntry(new ZipEntry("icon.png"));
         ImageIO.write(icon, "png", out);
 
-        out.putNextEntry(new ZipEntry("moveInfoses"));
-        dataOut.writeInt(getMoveInfoses().size());
-        for(MoveInfos moveInfos : getMoveInfoses())
+        out.putNextEntry(new ZipEntry("moveInfos"));
+        dataOut.writeInt(getMoveInfos().size());
+        for(MoveInfos moveInfos : getMoveInfos())
         {
             writeMove(dataOut, moveInfos);
         }
@@ -245,7 +243,7 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
         BufferedImage shinySprite = null;
         BufferedImage icon = null;
         PokemonInfos pokemon = null;
-        List<MoveInfos> moveInfoses = new LinkedList<>();
+        List<MoveInfos> moveInfoList = new LinkedList<>();
         List<Ability> abilities = new LinkedList<>();
         PokemonStats stats = new PokemonStats(app);
         while ((entry = in.getNextEntry()) != null)
@@ -278,18 +276,21 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
                     String secondType = IOHelper.readUTF(dataIn);
                     int orderID = dataIn.readInt();
                     String desc = IOHelper.readUTF(dataIn);
-                    pokemon = new PokemonInfos(name, TypeList.getFromID(firstType), TypeList.getFromID(secondType), orderID, moveInfoses);
+                    pokemon = new PokemonInfos(name, orderID);
+                    pokemon.moveInfos = moveInfoList;
+                    pokemon.setFirstType(TypeList.getFromID(firstType));
+                    pokemon.setSecondType(TypeList.getFromID(secondType));
                     pokemon.setDescription(desc);
                     break;
 
-                case "moveInfoses":
+                case "moveInfos":
                     int count = dataIn.readInt();
                     for (int i = 0; i < count; i++)
                     {
                         try
                         {
                             MoveInfos moveInfos = readMove(app, dataIn);
-                            moveInfoses.add(moveInfos);
+                            moveInfoList.add(moveInfos);
                         }
                         catch (UnsupportedOperationException e)
                         {
@@ -361,7 +362,7 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
 
     public boolean canLearn(MoveInfos moveInfos)
     {
-        return moveInfoses.contains(moveInfos);
+        return this.moveInfos.contains(moveInfos);
     }
 
     public void setStats(PokemonStats stats)
@@ -376,7 +377,7 @@ public class PokemonInfos implements Cloneable, Comparable<PokemonInfos>
 
     public boolean canLearn(String s)
     {
-        for (MoveInfos m : moveInfoses)
+        for (MoveInfos m : moveInfos)
         {
             if(m.getEnglishName().equalsIgnoreCase(s))
                 return true;

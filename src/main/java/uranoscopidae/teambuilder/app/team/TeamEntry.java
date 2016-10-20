@@ -94,9 +94,9 @@ public class TeamEntry extends DataHolder
 
         if(Arrays.equals(moveInfoses, new MoveInfos[4]))
         {
-            for (int i = 0; i < moveInfoses.length && i < pokemon.getMoveInfoses().size(); i++)
+            for (int i = 0; i < moveInfoses.length && i < pokemon.getMoveInfos().size(); i++)
             {
-                moveInfoses[i] = pokemon.getMoveInfoses().get(i);
+                moveInfoses[i] = pokemon.getMoveInfos().get(i);
             }
         }
     }
