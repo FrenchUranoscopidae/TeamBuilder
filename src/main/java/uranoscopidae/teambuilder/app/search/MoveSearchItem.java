@@ -62,11 +62,15 @@ public class MoveSearchItem extends SearchItem
     }
 
     public boolean isStab() {
+        if(!parent.getCurrentEntry().hasPokemon())
+            return false;
         return moveInfos.getType().equals(parent.getCurrentEntry().getPokemon().getFirstType())
                 || moveInfos.getType().equals(parent.getCurrentEntry().getPokemon().getSecondType());
     }
 
     public boolean isIllegal() {
+        if(!parent.getCurrentEntry().hasPokemon())
+            return false;
         return !parent.getCurrentEntry().getPokemon().canLearn(moveInfos);
     }
 }

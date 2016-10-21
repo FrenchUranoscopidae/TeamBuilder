@@ -61,6 +61,7 @@ public class PokeApiInterface {
         zeroth.setShinySprite(zeroth.getDefaultSprite());
         zeroth.setIcon(new BufferedImage(1,1,BufferedImage.TYPE_INT_ARGB));
         pkmnCache.put(0, zeroth);
+        pkmnNameList.add(zeroth.getEnglishName());
     }
 
     public List<String> getItemNames() {

@@ -155,7 +155,7 @@ public class SearchZone extends JPanel {
         }
         for(MoveInfos moveInfos : app.getMoves())
         {
-            if(!allowIllegal && !getCurrentEntry().getPokemon().canLearn(moveInfos))
+            if(entry.hasPokemon() && (!allowIllegal && !getCurrentEntry().getPokemon().canLearn(moveInfos)))
                 continue;
             if(!matches(moveInfos.getEnglishName(), moveInfos.getType().getName(), nameStart, true)) // filter out item names not starting with given text
                 continue;
